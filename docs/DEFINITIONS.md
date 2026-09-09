@@ -2,7 +2,18 @@
 
 ## 1. Definiciones
 
-### 1.1 Usuario
+### 1.1 Clínica
+
+* Nombre
+* Logo
+* Dirección
+* Teléfono
+* Tipos de terapia
+* Estatus
+
+Cada clínica tendrá tipos de terapia definidos por default y podrá agregar nuevos tipos posteriormente.
+
+### 1.2 Usuario
 
 * Nombre
 * Email
@@ -14,15 +25,7 @@
 
 Un usuario pertenece a una clínica y puede tener rol de administrador o terapeuta.
 
-### 1.2 Clínica
 
-* Nombre
-* Logo
-* Dirección
-* Teléfono
-* Tipos de terapia
-
-Cada clínica tendrá tipos de terapia definidos por default y podrá agregar nuevos tipos posteriormente.
 
 ### 1.3 Proceso terapéutico
 
@@ -53,7 +56,6 @@ Los valores internos se almacenan en inglés. El frontend es responsable de most
 * Nombre
 * Edad
 * Tutor
-
   * Nombre
   * Teléfono
   * Parentesco
@@ -63,7 +65,6 @@ Los valores internos se almacenan en inglés. El frontend es responsable de most
 * Ocupación
 * Estado civil
 * Datos de la pareja
-
   * Nombre
   * Edad
   * Tiempo de la relación
@@ -85,14 +86,14 @@ Representa el resumen de una sesión perteneciente a un proceso terapéutico.
 * ¿Asistió?
 * Resumen de la sesión
 * Herramientas brindadas al paciente
-* Tareas de la sesión
-* Tareas entregadas
+* Tareas
 
 Las tareas se seleccionan desde las tareas existentes.
 
 ### 1.6 Tareas
 
 * Descripción
+* Completada?
 
 Las tareas son entidades independientes.
 

@@ -6,7 +6,19 @@ Todos los endpoints utilizan el prefijo:
 /v1
 ```
 
-## 1. Users
+## 1. Clinics
+
+```text
+POST 		/v1/clinics
+GET  		/v1/clinics
+GET 		/v1/clinics/{id}
+GET  		/v1/clinics/user/{userId}
+PUT  		/v1/clinics/{id}
+DELETE 	/v1/clinics/{id}
+```
+
+
+## 2. Users
 
 ```text
 POST   /v1/users
@@ -14,35 +26,19 @@ GET    /v1/users
 GET    /v1/users/{id}
 PUT    /v1/users/{id}
 DELETE /v1/users/{id}
-
 PATCH  /v1/users/{id}/status
-PATCH  /v1/users/reset-password
 ```
 
-Estados disponibles:
 
-```text
-active
-inactive
-```
-
-## 2. Auth
+## 3. Auth
 
 ```text
 POST /v1/auth/sign-in
 POST /v1/auth/sign-out
 POST /v1/auth/verify
+POST /v1/auth/reset-password
 ```
 
-## 3. Clinics
-
-```text
-POST /v1/clinics
-GET  /v1/clinics
-GET  /v1/clinics/{id}
-GET  /v1/clinics/user/{userId}
-PUT  /v1/clinics/{id}
-```
 
 ## 4. Catalogs
 
@@ -54,6 +50,7 @@ PATCH  /v1/catalogs/{id}
 DELETE /v1/catalogs/{id}
 ```
 
+
 ## 5. Patients
 
 ```text
@@ -64,7 +61,6 @@ PUT    /v1/patients/{id}
 DELETE /v1/patients/{id}
 ```
 
-Patient no tiene endpoints para activar o desactivar porque no tiene un status propio.
 
 ## 6. Therapeutic Processes
 
@@ -75,7 +71,6 @@ GET    /v1/therapeutic-processes/{id}
 GET    /v1/therapeutic-processes/patient/{patientId}
 PUT    /v1/therapeutic-processes/{id}
 DELETE /v1/therapeutic-processes/{id}
-
 PATCH  /v1/therapeutic-processes/{id}/status
 ```
 
@@ -96,6 +91,7 @@ discharged
 unfinished
 ```
 
+
 ## 7. Records
 
 ```text
@@ -107,7 +103,6 @@ PUT    /v1/records/{id}
 DELETE /v1/records/{id}
 ```
 
-Cada registro pertenece a un proceso terapéutico.
 
 ## 8. Home Works
 
@@ -119,4 +114,3 @@ PUT    /v1/home-works/{id}
 DELETE /v1/home-works/{id}
 ```
 
-Las tareas son entidades independientes y pueden seleccionarse al crear o editar un registro de sesión.

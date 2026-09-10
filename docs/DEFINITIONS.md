@@ -18,14 +18,17 @@ Cada clínica tendrá tipos de terapia definidos por default y podrá agregar nu
 * Nombre
 * Email
 * Password
-* Cédula
+* Cédula profesional
 * Clínica
 * Rol
 * Estatus
 
-Un usuario pertenece a una clínica y puede tener rol de administrador o terapeuta.
+Un usuario pertenece a una clínica y puede tener rol de `clinic` o `therapist`.
 
+En el frontend estos roles se mostrarán como:
 
+* `clinic` → Clínica
+* `therapist` → Terapeuta
 
 ### 1.3 Proceso terapéutico
 
@@ -74,13 +77,13 @@ Los valores internos se almacenan en inglés. El frontend es responsable de most
 
 El paciente representa a una persona registrada dentro de la clínica.
 
-El paciente no tiene un estado activo/inactivo propio. El estado pertenece a cada proceso terapéutico en el que participa.
+El paciente no tiene un estado activo o inactivo propio. El estado pertenece a cada proceso terapéutico en el que participa.
 
 La necesidad de capturar información del tutor depende del tipo de terapia.
 
 ### 1.5 Registro de sesión
 
-Representa el resumen de una sesión perteneciente a un proceso terapéutico.
+Representa el registro de una sesión perteneciente a un proceso terapéutico.
 
 * Fecha de la sesión
 * ¿Asistió?
@@ -88,12 +91,12 @@ Representa el resumen de una sesión perteneciente a un proceso terapéutico.
 * Herramientas brindadas al paciente
 * Tareas
 
-Las tareas se seleccionan desde las tareas existentes.
+Las tareas se seleccionan a partir de las tareas existentes.
 
 ### 1.6 Tareas
 
 * Descripción
-* Completada?
+* ¿Completada?
 
 Las tareas son entidades independientes.
 
@@ -103,19 +106,19 @@ Esto permite crear una tarea una sola vez y posteriormente seleccionarla dentro 
 
 ### 2.1 Individual
 
-* Un único paciente en un proceso.
-* Si el estado civil es `En una relación` o `Casado`, se muestran los datos de pareja en el frontend.
-* Si la edad es menor a 18 años, por default el tipo de terapia cambia a Infantil.
+* Un único paciente pertenece al proceso terapéutico.
+* Si el estado civil del paciente es `En una relación` o `Casado`, se muestran los datos de la pareja en el frontend.
+* Si la edad del paciente es menor a 18 años, por default el tipo de terapia cambia a Terapia infantil.
 
 ### 2.2 Pareja
 
 * Dos pacientes pertenecen al mismo proceso terapéutico.
-* Se pueden crear dos pacientes o seleccionar pacientes existentes.
-* El estado civil no influye en mostrar datos adicionales de pareja en el frontend.
+* Se pueden crear dos pacientes nuevos o seleccionar pacientes existentes.
+* El estado civil no influye en mostrar información adicional de pareja en el frontend.
 
 ### 2.3 Infantil
 
-* Un único paciente.
+* Un único paciente pertenece al proceso terapéutico.
 * Se solicitan los datos de un tutor.
 * Los datos del tutor se muestran por default al seleccionar Terapia infantil.
 
@@ -126,33 +129,38 @@ Esto permite crear una tarea una sola vez y posteriormente seleccionarla dentro 
 
 ## 3. Roles
 
-### 3.1 Admin
+### 3.1 Clínica
 
-Tiene acceso a los terapeutas y recursos pertenecientes a su misma clínica.
+El usuario con rol de clínica tiene acceso a los terapeutas y recursos pertenecientes a su misma clínica.
+
+Además de las funciones administrativas, también puede actuar como terapeuta y administrar sus propios pacientes, procesos terapéuticos y registros de sesión.
 
 Puede realizar las siguientes acciones:
 
-1. Crear, editar y eliminar usuarios.
-2. Crear, editar y eliminar procesos terapéuticos.
-3. Crear, editar y eliminar pacientes.
-4. Crear, editar y eliminar registros de sesión.
-5. Crear, editar y eliminar tareas.
-6. Cambiar contraseña.
-7. Editar su perfil.
+1. Editar la información de su clínica.
+2. Editar su perfil.
+3. Cambiar su contraseña.
+4. Crear, editar y eliminar usuarios de su clínica.
+5. Crear, editar y eliminar pacientes.
+6. Crear, editar y eliminar procesos terapéuticos.
+7. Crear, editar y eliminar registros de sesión.
+8. Crear, editar y eliminar tareas.
+9. Consultar la información de los terapeutas pertenecientes a su clínica.
+10. Consultar la información de los pacientes y procesos terapéuticos de los terapeutas pertenecientes a su clínica.
 
-Si un administrador elimina un paciente, se elimina también la información relacionada con ese paciente.
+Si una clínica elimina un paciente, se elimina también la información relacionada con ese paciente de acuerdo con las reglas definidas por el backend.
 
 ### 3.2 Terapeuta
 
-Tiene acceso únicamente a sus propios recursos.
+El usuario con rol de terapeuta tiene acceso únicamente a sus propios recursos y a la información relacionada con sus procesos terapéuticos.
 
 Puede realizar las siguientes acciones:
 
-1. Crear, editar y eliminar procesos terapéuticos.
-2. Crear y editar pacientes.
-3. Crear, editar y eliminar registros de sesión de sus procesos terapéuticos.
-4. Utilizar las tareas disponibles en sus registros de sesión.
-5. Cambiar contraseña.
-6. Editar su perfil.
+1. Editar su perfil.
+2. Cambiar su contraseña.
+3. Crear y editar sus pacientes.
+4. Crear y editar sus procesos terapéuticos.
+5. Crear y editar sus registros de sesión.
+6. Crear y editar tareas relacionadas con sus pacientes y procesos terapéuticos.
 
 El terapeuta no puede eliminar directamente un paciente.

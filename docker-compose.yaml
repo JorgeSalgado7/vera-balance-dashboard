@@ -1,0 +1,36 @@
+services:
+
+  baas-vera-balance-dashboard:
+    container_name: baas-vera-balance-dashboard
+    build:
+      context: ./baas-vera-balance-dashboard
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./baas-vera-balance-dashboard:/app
+      - /app/node_modules
+    env_file:
+      - ./baas-vera-balance-dashboard/.env
+    depends_on:
+      - dynamodb-vera-balance-dashboard
+
+  dynamodb-vera-balance-dashboard:
+    image: amazon/dynamodb-local:latest
+    container_name: dynamodb-vera-balance-dashboard
+    ports:
+      - "8000:8000"
+    command: ["-jar", "DynamoDBLocal.jar", "-sharedDb", "-inMemory"]
+
+  dynamodb-admin:
+    image: aaronshaf/dynamodb-admin
+    container_name: dynamodb-admin
+    ports:
+      - "3001:8001"
+    environment:
+      - DYNAMO_ENDPOINT=http://dynamodb-vera-balance-dashboard:8000
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=fakeMyKeyId
+      - AWS_SECRET_ACCESS_KEY=fakeSecretAccessKey
+    depends_on:
+      - dynamodb-vera-balance-dashboard

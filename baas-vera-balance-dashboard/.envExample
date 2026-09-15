@@ -1,10 +1,8 @@
-
 NODE_ENV=development
 PORT=3000
-
 
 AWS_REGION=us-east-1
 AWS_ACCESS_KEY_ID=fakeMyKeyId
 AWS_SECRET_ACCESS_KEY=fakeSecretAccessKey
-DYNAMODB_ENDPOINT=http://localstack-vera-balance-dashboard:8000
-DYNAMODB_TABLE_NAME=vera-balance-dashboard
+DYNAMO_ENDPOINT=http://dynamodb-vera-balance-dashboard:8000
+DYNAMO_TABLE_NAME=vera-balance-dashboard

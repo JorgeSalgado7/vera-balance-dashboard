@@ -8,6 +8,7 @@ import {
 import type { Request, Response } from 'express';
 
 //* Error translators
+import { ClinicErrorTranslator } from '../../modules/clinics/presentation/errors/clinic-error.translator';
 
 import { HttpProblem } from './http-problem.util';
 
@@ -26,7 +27,9 @@ type HttpExceptionResponse = {
 };
 
 //* List translators
-const errorTranslators: ErrorTranslator[] = [];
+const errorTranslators: ErrorTranslator[] = [
+  ClinicErrorTranslator,
+];
 
 @Catch()
 export class HttpProblemFilter implements ExceptionFilter {

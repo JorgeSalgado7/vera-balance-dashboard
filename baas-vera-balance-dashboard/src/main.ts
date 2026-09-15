@@ -1,16 +1,23 @@
+import {
+  ValidationError,
+  ValidationPipe,
+  VersioningType
+} from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
 import { HttpProblemFilter } from './shared/http-problem/http-problem.filter';
 import { HttpProblem } from './shared/http-problem/http-problem.util';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-   app.enableCors({
+  app.enableVersioning({ type: VersioningType.URI  });
+
+  app.enableCors({
     origin: '*',
     methods: 'GET,POST,PATCH,PUT,DELETE',
-    allowedHeaders: 'Content-Type, Authorization',
+    allowedHeaders: 'Content-Type, Authorization'
   });
 
   app.useGlobalPipes(
@@ -19,16 +26,16 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
       transform: true,
       exceptionFactory: (errors) => {
-        const extractErrors = (errorsArray: any[]): { message: string }[] => {
+        const extractErrors = ( errorsArray: ValidationError[] ): { message: string }[] => {
           const messages: { message: string }[] = [];
 
-          for (const err of errorsArray) {
-            if (err.constraints) {
-              messages.push( ...(Object.values(err.constraints) as string[]).map((message) => ({ message  })));
+          for (const error of errorsArray) {
+            if (error.constraints) {
+              messages.push( ...Object.values(error.constraints).map((message) => ({  message })));
             }
 
-            if (err.children?.length) {
-              messages.push(...extractErrors(err.children));
+            if (error.children?.length) {
+              messages.push(...extractErrors(error.children));
             }
           }
 
@@ -38,14 +45,26 @@ async function bootstrap() {
         return HttpProblem.badRequest(
           'Validate that the elements in the errors parameter exist and are correct.',
           '',
-          extractErrors(errors),
+          extractErrors(errors)
         );
-      },
-    }),
+      }
+    })
   );
 
-  app.useGlobalFilters(new HttpProblemFilter());
+  app.useGlobalFilters( new HttpProblemFilter());
+
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle('Vera Balance API')
+    .setDescription('Vera Balance Dashboard API documentation')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+
+  const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
+
+  SwaggerModule.setup('docs', app, swaggerDocument);
 
   await app.listen(process.env.PORT ?? 3000);
 }
+
 void bootstrap();

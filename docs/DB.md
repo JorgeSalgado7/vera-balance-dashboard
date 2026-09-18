@@ -46,7 +46,7 @@ name: string
 email: string
 password: string
 professional_license: string
-clinic: Clinic | null -> {pk: uuid, sk: 'CLINIC'}
+clinic: Clinic -> {pk: uuid, sk: 'CLINIC'}
 role: string -> 'clinic' | 'therapist'
 status: string -> 'active' | 'inactive'
 created_at: datetime

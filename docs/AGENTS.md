@@ -32,8 +32,8 @@ Para cada User Story solicitada debes seguir, en orden, el siguiente proceso:
 8. Determinar los cambios necesarios.
 9. Implementar todos los criterios de aceptación.
 10. Agregar o actualizar las pruebas necesarias.
-11. Ejecutar las pruebas.
-12. Ejecutar el build.
+11. Verificar que la terminal utilice Node.js `24.21.0`.
+12. Ejecutar las pruebas mediante `npm run test`.
 13. Revisar todos los criterios de aceptación.
 14. Revisar las reglas de negocio.
 15. Revisar la Definition of Done.
@@ -101,8 +101,6 @@ Cuando exista un conflicto entre fuentes de información, utiliza el siguiente o
 Una fuente de menor prioridad no debe sobrescribir una fuente de mayor prioridad.
 
 Si la User Story introduce explícitamente un nuevo requerimiento que todavía no aparece en la documentación técnica, puede implementarse siempre que no contradiga una fuente de mayor autoridad.
-
-Cuando corresponda, actualiza la documentación técnica como parte de la Definition of Done.
 
 Si existe una contradicción que no puede resolverse utilizando el repositorio y su documentación, no inventes una solución.
 
@@ -328,7 +326,117 @@ No introduzcas un segundo patrón arquitectónico para resolver una responsabili
 
 ---
 
-## 12. Arquitectura
+## 12. Clinics como referencia obligatoria y consistencia de código
+
+El módulo `src/modules/clinics/` es la referencia obligatoria de calidad, arquitectura, estructura y organización para los demás módulos backend.
+
+Antes de implementar una responsabilidad equivalente, revisa cómo Clinics resuelve:
+
+* estructura de carpetas;
+* ubicación y granularidad de archivos;
+* naming de archivos, clases e interfaces;
+* entidades y DTOs;
+* use cases y domain services;
+* repositories, ports y adapters;
+* persistence models y mappers;
+* controllers y módulos NestJS;
+* errores y validaciones;
+* dependency injection;
+* pruebas y mocks.
+
+Si Clinics ya establece un patrón para una responsabilidad equivalente, ese patrón es obligatorio. No introduzcas una alternativa porque sea más corta, genérica, abstracta, moderna o de tu preferencia.
+
+No simplifiques, generalices, combines o reorganices responsabilidades que Clinics mantiene separadas. El código nuevo debe sentirse como una continuación natural del módulo Clinics y mantener como mínimo su mismo nivel de calidad.
+
+Por ejemplo, si Clinics utiliza errores específicos como `MissingClinicNameError` o `InvalidClinicStatusError`, no introduzcas errores genéricos parametrizados como `InvalidUserError(field)` para responsabilidades equivalentes. Utiliza errores específicos conforme a las reglas reales del nuevo módulo.
+
+Antes de crear cualquier archivo nuevo, localiza su equivalente conceptual en Clinics y respeta su carpeta, naming, granularidad y relación con las demás capas.
+
+---
+
+## 17. Prohibición de modificar documentación
+
+Durante la implementación normal de una User Story, toda la documentación técnica es estrictamente de SOLO LECTURA.
+
+Está prohibido modificar, entre otros:
+
+* `docs/database.md`;
+* `docs/openapi.yaml`;
+* `docs/definitions.md`;
+* `docs/vera-balance-architecture.md`;
+* `docs/architecture-guidelines.md`;
+* README;
+* diagramas;
+* contratos;
+* documentación de módulos;
+* otras User Stories.
+
+Dentro de `docs/`, el único archivo que Codex puede modificar durante una implementación normal es la User Story que está ejecutando. Dentro de esa User Story únicamente puede modificar automáticamente:
+
+* `Status`;
+* checks de `Definition of Done`.
+
+No puede modificar Historia de usuario, Scope, Descripción, Criterios de aceptación, Reglas de negocio, Dependencias, Consideraciones técnicas ni Referencias salvo solicitud explícita del usuario.
+
+Si detectas que cualquier otro documento necesita un cambio, no lo realices. Reporta el documento, el cambio propuesto y la razón, y espera autorización explícita.
+
+La Definition of Done nunca constituye autorización para modificar documentación técnica.
+
+Antes de finalizar, revisa el diff. Si aparece documentación protegida modificada sin autorización explícita, revierte esos cambios.
+
+---
+
+## 18. Persistencia no documentada
+
+`docs/database.md` es la fuente de verdad del Single Table Design.
+
+Está prohibido inventar estructuras de persistencia no documentadas, incluyendo nuevos tipos de items, patrones de `pk` o `sk`, models auxiliares, índices, tablas, lookups, estructuras de unicidad, duplicación o desnormalización de datos.
+
+No crees estructuras como `UserEmailModel`, `UserLookupModel`, `EmailIndexModel` o equivalentes si no están definidas en `docs/database.md`.
+
+Si un criterio de aceptación, como la unicidad de email, parece requerir una estructura no documentada, identifica la limitación y reporta las alternativas técnicas, pero no selecciones ni implementes una por iniciativa propia.
+
+---
+
+## 19. Entorno de ejecución, Node.js y comandos permitidos
+
+El proyecto utiliza obligatoriamente Node.js `24.21.0`.
+
+Antes de ejecutar cualquier comando relacionado con Node.js o npm, ejecuta:
+
+`node --version`
+
+La versión debe ser:
+
+`v24.21.0`
+
+El entorno de Codex es Ubuntu. Si la terminal está utilizando otra versión y NVM está disponible, cambia la versión en esa misma terminal mediante:
+
+`nvm use 24.21.0`
+
+Después vuelve a ejecutar `node --version` y confirma `v24.21.0`.
+
+No ejecutes los tests con otra versión de Node.js. No atribuyas errores de Jest, TypeScript, ESM, CommonJS o dependencias al código antes de comprobar la versión de Node.
+
+Si Node.js `24.21.0` no puede activarse, no modifiques Jest, TypeScript, dependencias o configuración del proyecto para adaptarlo a otra versión. Reporta el bloqueo.
+
+El único comando npm de validación permitido es:
+
+`npm run test`
+
+Está estrictamente prohibido ejecutar:
+
+`npm run build`
+
+No ejecutes variantes cuyo objetivo sea realizar el build. El build no es requisito para pasar una User Story a `Under Review`. Si la Definition of Done contiene un check de compilación, déjalo sin marcar y repórtalo como no verificado por restricción del proyecto.
+
+En la respuesta final indica:
+
+`Build: no ejecutado por restricción del proyecto.`
+
+---
+
+## 20. Arquitectura
 
 El proyecto sigue principios de Clean Architecture.
 
@@ -351,7 +459,7 @@ No conviertas los adapters en componentes con múltiples operaciones no relacion
 
 ---
 
-## 13. Persistencia, dominio y HTTP
+## 17. Persistencia, dominio y HTTP
 
 Debes mantener la separación entre:
 
@@ -372,7 +480,7 @@ Utiliza mappers para transformar las representaciones cuando corresponda.
 
 ---
 
-## 14. Controllers
+## 18. Controllers
 
 Los controllers deben permanecer delgados.
 
@@ -389,7 +497,7 @@ No coloques lógica de persistencia en controllers.
 
 ---
 
-## 15. Comunicación entre módulos
+## 19. Comunicación entre módulos
 
 Un módulo no debe acceder directamente a repositories, adapters o modelos de persistencia internos de otro módulo.
 
@@ -405,7 +513,7 @@ No rompas los límites entre módulos para simplificar una implementación.
 
 ---
 
-## 16. DynamoDB
+## 20. DynamoDB
 
 El proyecto utiliza DynamoDB con Single Table Design.
 
@@ -424,7 +532,7 @@ No expongas detalles de DynamoDB en:
 
 ---
 
-## 17. API HTTP
+## 21. API HTTP
 
 Los contratos HTTP deben respetar:
 
@@ -451,7 +559,7 @@ Respeta las convenciones existentes del proyecto.
 
 ---
 
-## 18. Seguridad
+## 22. Seguridad
 
 La información sensible nunca debe exponerse mediante respuestas del API.
 
@@ -467,7 +575,7 @@ Las reglas de seguridad definidas en las User Stories y documentación son oblig
 
 ---
 
-## 19. Implementación
+## 23. Implementación
 
 Implementa el cambio mínimo y coherente que satisfaga completamente la User Story.
 
@@ -490,7 +598,7 @@ Crear más abstracciones sin una responsabilidad real no lo es.
 
 ---
 
-## 20. Pruebas
+## 24. Pruebas
 
 Las pruebas forman parte de la implementación cuando la Definition of Done las requiere.
 
@@ -516,13 +624,13 @@ No modifiques una prueba únicamente para hacer que una implementación incorrec
 
 ---
 
-## 21. Validación posterior a la implementación
+## 25. Validación posterior a la implementación
 
 Después de implementar debes:
 
 1. ejecutar las pruebas relacionadas;
-2. ejecutar la suite relevante cuando sea posible;
-3. ejecutar el build;
+2. ejecutar la suite relevante cuando sea posible mediante `npm run test`;
+3. no ejecutar `npm run build`;
 4. revisar cada criterio de aceptación;
 5. revisar cada regla de negocio;
 6. revisar la Definition of Done;
@@ -531,11 +639,11 @@ Después de implementar debes:
 
 Nunca indiques que una prueba o build pasó si no fue ejecutado correctamente.
 
-Si una validación no puede ejecutarse debido al entorno, indícalo explícitamente.
+Si una validación no puede ejecutarse debido al entorno, indícalo explícitamente. No modifiques la configuración del proyecto para adaptarla a una versión distinta de Node.js.
 
 ---
 
-## 22. Definition of Done
+## 26. Definition of Done
 
 Antes de considerar que la implementación está lista para revisión, verifica cada elemento de `Definition of Done`.
 
@@ -571,14 +679,14 @@ Los elementos que requieran explícitamente validación humana pueden permanecer
 
 ---
 
-## 23. Finalización de una User Story
+## 27. Finalización de una User Story
 
 Cuando termines la implementación:
 
 1. compara el resultado contra todos los criterios de aceptación;
 2. verifica las reglas de negocio;
-3. ejecuta las pruebas;
-4. ejecuta el build;
+3. verifica Node.js `24.21.0` y ejecuta `npm run test`;
+4. no ejecutes `npm run build`;
 5. revisa la Definition of Done;
 6. actualiza los elementos verificables de la Definition of Done;
 7. revisa el diff final;
@@ -596,7 +704,7 @@ No:
 
 ---
 
-## 24. Modificación de especificaciones
+## 28. Modificación de especificaciones
 
 Durante la implementación no debes modificar:
 
@@ -617,7 +725,7 @@ siguiendo las reglas establecidas en este documento.
 
 ---
 
-## 25. Revisión final
+## 29. Revisión final
 
 Antes de finalizar, compara directamente la implementación contra la User Story solicitada.
 
@@ -635,7 +743,7 @@ Comprueba también que la solución no viole documentación de mayor autoridad.
 
 ---
 
-## 26. Respuesta final
+## 30. Respuesta final
 
 Al finalizar el trabajo, informa de forma concisa:
 
@@ -643,7 +751,9 @@ Al finalizar el trabajo, informa de forma concisa:
 * cambios principales realizados;
 * pruebas ejecutadas;
 * resultado de las pruebas;
-* resultado del build;
+* versión de Node.js utilizada;
+* resultado de `npm run test`;
+* `Build: no ejecutado por restricción del proyecto.`;
 * estado de los criterios de aceptación;
 * elementos de Definition of Done que no pudieron verificarse;
 * bloqueos o pendientes;

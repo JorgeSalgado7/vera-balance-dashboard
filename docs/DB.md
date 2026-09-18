@@ -51,6 +51,13 @@ role: string -> 'clinic' | 'therapist'
 status: string -> 'active' | 'inactive'
 created_at: datetime
 updated_at: datetime
+
+### Reglas de seguridad de usuarios
+
+- `email` debe ser único entre todos los usuarios.
+- `password` almacena únicamente el hash de la contraseña.
+- Las contraseñas nunca deben almacenarse en texto plano.
+- `password` nunca debe exponerse en respuestas del API.
 ```
 
 

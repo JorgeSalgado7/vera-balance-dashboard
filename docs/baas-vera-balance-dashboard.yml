@@ -1,5 +1,4 @@
 openapi: 3.2.1
-
 info:
   title: baas-vera-balance-dashboard
   summary: Vera Balance Dashboard API specification
@@ -7,7 +6,6 @@ info:
     name: Jorge Salgado
     email: jorge.salgado7@outlook.com
   version: 1.0.0
-
 tags:
 - name: Clinics
   description: Administración de clínicas
@@ -25,9 +23,7 @@ tags:
   description: Administración de registros de sesión
 - name: Home Works
   description: Administración de tareas
-
 paths:
-
   /v1/clinics:
     post:
       tags:
@@ -61,7 +57,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ClinicResponse'
-
+        '400': &id002
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '409': &id004
+          description: Conflicto con el estado actual del recurso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictResponse'
+        '500': &id001
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
     get:
       tags:
       - Clinics
@@ -76,11 +89,10 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ClinicResponse'
-
+        '500': *id001
   /v1/clinics/{id}:
     parameters:
     - $ref: '#/components/parameters/ClinicId'
-
     get:
       tags:
       - Clinics
@@ -93,7 +105,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ClinicResponse'
-
+        '400': *id002
+        '404': &id003
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+        '500': *id001
     put:
       tags:
       - Clinics
@@ -112,7 +131,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ClinicResponse'
-
+        '400': *id002
+        '404': *id003
+        '409': *id004
+        '500': *id001
     delete:
       tags:
       - Clinics
@@ -121,11 +143,13 @@ paths:
       responses:
         '204':
           description: Clínica eliminada correctamente
-
+        '400': *id002
+        '404': *id003
+        '409': *id004
+        '500': *id001
   /v1/clinics/user/{userId}:
     parameters:
     - $ref: '#/components/parameters/ClinicUserId'
-
     get:
       tags:
       - Clinics
@@ -138,7 +162,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ClinicResponse'
-
+        '400': *id002
+        '404': *id003
+        '500': *id001
   /v1/users:
     post:
       tags:
@@ -155,6 +181,7 @@ paths:
               name: Mónica Vera
               email: monica@verabalance.com
               password: Password123
+              password_confirmation: Password123
               professional_license: '12345678'
               clinic_id: 7cb3a81a-e137-4ef4-aafd-6e387c8c7390
               role: therapist
@@ -165,7 +192,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserResponse'
-
+        '400': *id002
+        '409': *id004
+        '500': *id001
     get:
       tags:
       - Users
@@ -180,11 +209,10 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/UserResponse'
-
+        '500': *id001
   /v1/users/{id}:
     parameters:
     - $ref: '#/components/parameters/UserId'
-
     get:
       tags:
       - Users
@@ -197,7 +225,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserResponse'
-
+        '400': *id002
+        '404': *id003
+        '500': *id001
     put:
       tags:
       - Users
@@ -222,7 +252,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserResponse'
-
+        '400': *id002
+        '404': *id003
+        '409': *id004
+        '500': *id001
     delete:
       tags:
       - Users
@@ -231,11 +264,13 @@ paths:
       responses:
         '204':
           description: Usuario eliminado correctamente
-
+        '400': *id002
+        '404': *id003
+        '409': *id004
+        '500': *id001
   /v1/users/{id}/status:
     parameters:
     - $ref: '#/components/parameters/UserId'
-
     patch:
       tags:
       - Users
@@ -256,12 +291,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserResponse'
-
+        '400': *id002
+        '404': *id003
+        '409': *id004
+        '500': *id001
   /v1/auth/sign-in:
     post:
       tags:
       - Auth
       summary: Iniciar sesión
+      description: 'Valida las credenciales del usuario y crea una sesión autenticada.
+
+        El JWT de sesión se envía exclusivamente mediante una cookie HttpOnly
+
+        y no forma parte del cuerpo de la respuesta.
+
+        '
       operationId: signIn
       requestBody:
         required: true
@@ -275,49 +320,81 @@ paths:
       responses:
         '200':
           description: Sesión iniciada correctamente
+          headers:
+            Set-Cookie:
+              description: Cookie HttpOnly que contiene el JWT de sesión.
+              schema:
+                type: string
+              example: vera_balance_session=<jwt>; Path=/; HttpOnly; Secure; SameSite=Lax
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AuthResponse'
+                $ref: '#/components/schemas/AuthSessionResponse'
         '401':
           description: Credenciales incorrectas
-
+          content: &id005
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '400': *id002
+        '500': *id001
   /v1/auth/sign-out:
     post:
       tags:
       - Auth
       summary: Cerrar sesión
+      description: 'Cierra la sesión eliminando la cookie HttpOnly utilizada para
+
+        autenticación. El cliente no necesita enviar el JWT en el body.
+
+        '
       operationId: signOut
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SignOutRequest'
+      security:
+      - sessionCookie: []
       responses:
         '204':
           description: Sesión cerrada correctamente
-
+          headers:
+            Set-Cookie:
+              description: Elimina la cookie de sesión estableciendo su expiración.
+              schema:
+                type: string
+              example: vera_balance_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0
+        '401':
+          description: Sesión inválida o no autenticada
+          content: *id005
+        '403': &id006
+          description: Operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
+        '500': *id001
   /v1/auth/verify:
     post:
       tags:
       - Auth
       summary: Verificar sesión
+      description: 'Verifica el JWT recibido automáticamente mediante la cookie HttpOnly
+
+        de sesión. El JWT no se recibe ni se devuelve en el body.
+
+        '
       operationId: verifySession
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/VerifyTokenRequest'
+      security:
+      - sessionCookie: []
       responses:
         '200':
           description: Sesión válida
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AuthResponse'
-
+                $ref: '#/components/schemas/AuthSessionResponse'
+        '401':
+          description: Sesión inválida o expirada
+          content: *id005
+        '403': *id006
+        '500': *id001
   /v1/auth/reset-password:
     post:
       tags:
@@ -333,10 +410,13 @@ paths:
             example:
               email: monica@verabalance.com
               password: NewPassword123
+              password_confirmation: NewPassword123
       responses:
         '200':
           description: Contraseña actualizada correctamente
-
+        '400': *id002
+        '500': *id001
+        '404': *id003
   /v1/catalogs:
     post:
       tags:
@@ -356,7 +436,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CatalogResponse'
-
+        '400': *id002
+        '409': *id004
+        '500': *id001
     get:
       tags:
       - Catalogs
@@ -371,11 +453,10 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/CatalogResponse'
-
+        '500': *id001
   /v1/catalogs/{id}:
     parameters:
     - $ref: '#/components/parameters/CatalogId'
-
     get:
       tags:
       - Catalogs
@@ -388,7 +469,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CatalogResponse'
-
+        '400': *id002
+        '404': *id003
+        '500': *id001
     patch:
       tags:
       - Catalogs
@@ -407,7 +490,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CatalogResponse'
-
+        '400': *id002
+        '404': *id003
+        '409': *id004
+        '500': *id001
     delete:
       tags:
       - Catalogs
@@ -416,7 +502,10 @@ paths:
       responses:
         '204':
           description: Catálogo eliminado correctamente
-
+        '400': *id002
+        '404': *id003
+        '409': *id004
+        '500': *id001
   /v1/patients:
     post:
       tags:
@@ -436,7 +525,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PatientResponse'
-
+        '400': *id002
+        '409': *id004
+        '500': *id001
     get:
       tags:
       - Patients
@@ -451,11 +542,10 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/PatientResponse'
-
+        '500': *id001
   /v1/patients/{id}:
     parameters:
     - $ref: '#/components/parameters/PatientId'
-
     get:
       tags:
       - Patients
@@ -468,7 +558,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PatientResponse'
-
+        '400': *id002
+        '404': *id003
+        '500': *id001
     put:
       tags:
       - Patients
@@ -487,7 +579,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PatientResponse'
-
+        '400': *id002
+        '404': *id003
+        '409': *id004
+        '500': *id001
     delete:
       tags:
       - Patients
@@ -496,7 +591,10 @@ paths:
       responses:
         '204':
           description: Paciente eliminado correctamente
-
+        '400': *id002
+        '404': *id003
+        '409': *id004
+        '500': *id001
   /v1/therapeutic-processes:
     post:
       tags:
@@ -524,7 +622,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TherapeuticProcessResponse'
-
+        '400': *id002
+        '409': *id004
+        '500': *id001
     get:
       tags:
       - Therapeutic Processes
@@ -539,11 +639,10 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/TherapeuticProcessResponse'
-
+        '500': *id001
   /v1/therapeutic-processes/{id}:
     parameters:
     - $ref: '#/components/parameters/TherapeuticProcessId'
-
     get:
       tags:
       - Therapeutic Processes
@@ -556,7 +655,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TherapeuticProcessResponse'
-
+        '400': *id002
+        '404': *id003
+        '500': *id001
     put:
       tags:
       - Therapeutic Processes
@@ -575,7 +676,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TherapeuticProcessResponse'
-
+        '400': *id002
+        '404': *id003
+        '409': *id004
+        '500': *id001
     delete:
       tags:
       - Therapeutic Processes
@@ -584,11 +688,13 @@ paths:
       responses:
         '204':
           description: Proceso terapéutico eliminado correctamente
-
+        '400': *id002
+        '404': *id003
+        '409': *id004
+        '500': *id001
   /v1/therapeutic-processes/{id}/status:
     parameters:
     - $ref: '#/components/parameters/TherapeuticProcessId'
-
     patch:
       tags:
       - Therapeutic Processes
@@ -609,11 +715,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TherapeuticProcessResponse'
-
+        '400': *id002
+        '404': *id003
+        '409': *id004
+        '500': *id001
   /v1/therapeutic-processes/patient/{patientId}:
     parameters:
     - $ref: '#/components/parameters/PatientProcessId'
-
     get:
       tags:
       - Therapeutic Processes
@@ -628,7 +736,9 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/TherapeuticProcessResponse'
-
+        '400': *id002
+        '404': *id003
+        '500': *id001
   /v1/records:
     post:
       tags:
@@ -656,7 +766,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RecordResponse'
-
+        '400': *id002
+        '409': *id004
+        '500': *id001
     get:
       tags:
       - Records
@@ -671,11 +783,10 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/RecordResponse'
-
+        '500': *id001
   /v1/records/{id}:
     parameters:
     - $ref: '#/components/parameters/RecordId'
-
     get:
       tags:
       - Records
@@ -688,7 +799,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RecordResponse'
-
+        '400': *id002
+        '404': *id003
+        '500': *id001
     put:
       tags:
       - Records
@@ -707,7 +820,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RecordResponse'
-
+        '400': *id002
+        '404': *id003
+        '409': *id004
+        '500': *id001
     delete:
       tags:
       - Records
@@ -716,11 +832,13 @@ paths:
       responses:
         '204':
           description: Registro de sesión eliminado correctamente
-
+        '400': *id002
+        '404': *id003
+        '409': *id004
+        '500': *id001
   /v1/records/therapeutic-process/{therapeuticProcessId}:
     parameters:
     - $ref: '#/components/parameters/TherapeuticProcessRecordId'
-
     get:
       tags:
       - Records
@@ -735,7 +853,9 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/RecordResponse'
-
+        '400': *id002
+        '404': *id003
+        '500': *id001
   /v1/home-works:
     post:
       tags:
@@ -758,7 +878,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HomeWorkResponse'
-
+        '400': *id002
+        '409': *id004
+        '500': *id001
     get:
       tags:
       - Home Works
@@ -773,11 +895,10 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/HomeWorkResponse'
-
+        '500': *id001
   /v1/home-works/{id}:
     parameters:
     - $ref: '#/components/parameters/HomeWorkId'
-
     get:
       tags:
       - Home Works
@@ -790,7 +911,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HomeWorkResponse'
-
+        '400': *id002
+        '404': *id003
+        '500': *id001
     put:
       tags:
       - Home Works
@@ -809,7 +932,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HomeWorkResponse'
-
+        '400': *id002
+        '404': *id003
+        '409': *id004
+        '500': *id001
     delete:
       tags:
       - Home Works
@@ -818,9 +944,21 @@ paths:
       responses:
         '204':
           description: Tarea eliminada correctamente
-
+        '400': *id002
+        '404': *id003
+        '409': *id004
+        '500': *id001
 components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: vera_balance_session
+      description: 'Cookie HttpOnly que contiene el JWT de sesión. El frontend no accede
 
+        directamente al token; el navegador envía la cookie automáticamente.
+
+        '
   parameters:
     ClinicId:
       name: id
@@ -829,7 +967,6 @@ components:
       schema:
         type: string
         format: uuid
-
     ClinicUserId:
       name: userId
       in: path
@@ -837,7 +974,6 @@ components:
       schema:
         type: string
         format: uuid
-
     UserId:
       name: id
       in: path
@@ -845,7 +981,6 @@ components:
       schema:
         type: string
         format: uuid
-
     CatalogId:
       name: id
       in: path
@@ -853,7 +988,6 @@ components:
       schema:
         type: string
         format: uuid
-
     PatientId:
       name: id
       in: path
@@ -861,7 +995,6 @@ components:
       schema:
         type: string
         format: uuid
-
     TherapeuticProcessId:
       name: id
       in: path
@@ -869,7 +1002,6 @@ components:
       schema:
         type: string
         format: uuid
-
     PatientProcessId:
       name: patientId
       in: path
@@ -877,7 +1009,6 @@ components:
       schema:
         type: string
         format: uuid
-
     RecordId:
       name: id
       in: path
@@ -885,7 +1016,6 @@ components:
       schema:
         type: string
         format: uuid
-
     TherapeuticProcessRecordId:
       name: therapeuticProcessId
       in: path
@@ -893,7 +1023,6 @@ components:
       schema:
         type: string
         format: uuid
-
     HomeWorkId:
       name: id
       in: path
@@ -901,31 +1030,25 @@ components:
       schema:
         type: string
         format: uuid
-
   schemas:
-
     DateTime:
       type: string
       format: date-time
-
     UserRole:
       type: string
       enum:
       - clinic
       - therapist
-
     UserStatus:
       type: string
       enum:
       - active
       - inactive
-
     ClinicStatus:
       type: string
       enum:
       - active
       - inactive
-
     TherapeuticProcessStatus:
       type: string
       enum:
@@ -933,7 +1056,6 @@ components:
       - inactive
       - discharged
       - unfinished
-
     TherapyType:
       type: object
       required:
@@ -944,7 +1066,6 @@ components:
           type: string
         icon:
           type: string
-
     ClinicReference:
       type: object
       required:
@@ -953,7 +1074,6 @@ components:
         id:
           type: string
           format: uuid
-
     UserReference:
       type: object
       required:
@@ -962,7 +1082,6 @@ components:
         id:
           type: string
           format: uuid
-
     PatientReference:
       type: object
       required:
@@ -971,7 +1090,6 @@ components:
         id:
           type: string
           format: uuid
-
     RecordReference:
       type: object
       required:
@@ -980,7 +1098,6 @@ components:
         id:
           type: string
           format: uuid
-
     HomeWorkReference:
       type: object
       required:
@@ -989,7 +1106,6 @@ components:
         id:
           type: string
           format: uuid
-
     CreateClinicRequest:
       type: object
       required:
@@ -1012,7 +1128,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TherapyType'
-
     UpdateClinicRequest:
       type: object
       properties:
@@ -1032,7 +1147,6 @@ components:
             $ref: '#/components/schemas/TherapyType'
         status:
           $ref: '#/components/schemas/ClinicStatus'
-
     ClinicResponse:
       type: object
       required:
@@ -1069,13 +1183,13 @@ components:
           $ref: '#/components/schemas/DateTime'
         updated_at:
           $ref: '#/components/schemas/DateTime'
-
     CreateUserRequest:
       type: object
       required:
       - name
       - email
       - password
+      - password_confirmation
       - professional_license
       - clinic_id
       - role
@@ -1088,16 +1202,17 @@ components:
         password:
           type: string
           format: password
+        password_confirmation:
+          type: string
+          format: password
         professional_license:
           type: string
         clinic_id:
           type:
           - string
-          - 'null'
           format: uuid
         role:
           $ref: '#/components/schemas/UserRole'
-
     UpdateUserRequest:
       type: object
       properties:
@@ -1109,15 +1224,12 @@ components:
         professional_license:
           type: string
         clinic_id:
-          type:
-          - string
-          - 'null'
+          type: string
           format: uuid
         role:
           $ref: '#/components/schemas/UserRole'
         status:
           $ref: '#/components/schemas/UserStatus'
-
     UpdateUserStatusRequest:
       type: object
       required:
@@ -1125,7 +1237,6 @@ components:
       properties:
         status:
           $ref: '#/components/schemas/UserStatus'
-
     UserResponse:
       type: object
       required:
@@ -1150,9 +1261,7 @@ components:
         professional_license:
           type: string
         clinic:
-          oneOf:
-          - $ref: '#/components/schemas/ClinicReference'
-          - type: 'null'
+          $ref: '#/components/schemas/ClinicReference'
         role:
           $ref: '#/components/schemas/UserRole'
         status:
@@ -1161,7 +1270,6 @@ components:
           $ref: '#/components/schemas/DateTime'
         updated_at:
           $ref: '#/components/schemas/DateTime'
-
     SignInRequest:
       type: object
       required:
@@ -1174,37 +1282,20 @@ components:
         password:
           type: string
           format: password
-
-    SignOutRequest:
+    AuthSessionResponse:
       type: object
       required:
-      - id
+      - authenticated
       properties:
-        id:
-          type: string
-          format: uuid
-
-    VerifyTokenRequest:
-      type: object
-      required:
-      - access_token
-      properties:
-        access_token:
-          type: string
-
-    AuthResponse:
-      type: object
-      required:
-      - access_token
-      properties:
-        access_token:
-          type: string
-
+        authenticated:
+          type: boolean
+          example: true
     ResetPasswordRequest:
       type: object
       required:
       - email
       - password
+      - password_confirmation
       properties:
         email:
           type: string
@@ -1212,7 +1303,9 @@ components:
         password:
           type: string
           format: password
-
+        password_confirmation:
+          type: string
+          format: password
     CreateCatalogRequest:
       type: object
       required:
@@ -1228,7 +1321,6 @@ components:
           type: array
           items:
             type: string
-
     UpdateCatalogRequest:
       type: object
       properties:
@@ -1238,7 +1330,6 @@ components:
           type: array
           items:
             type: string
-
     CatalogResponse:
       type: object
       required:
@@ -1264,7 +1355,6 @@ components:
           $ref: '#/components/schemas/DateTime'
         updated_at:
           $ref: '#/components/schemas/DateTime'
-
     PatientGuardian:
       type: object
       required:
@@ -1278,7 +1368,6 @@ components:
           type: string
         relationship:
           type: string
-
     PatientPartner:
       type: object
       required:
@@ -1296,7 +1385,6 @@ components:
           type: string
         occupation:
           type: string
-
     CreatePatientRequest:
       type: object
       required:
@@ -1339,7 +1427,6 @@ components:
           type: string
         address:
           type: string
-
     UpdatePatientRequest:
       type: object
       properties:
@@ -1372,7 +1459,6 @@ components:
           type: string
         address:
           type: string
-
     PatientResponse:
       type: object
       required:
@@ -1427,7 +1513,6 @@ components:
           $ref: '#/components/schemas/DateTime'
         updated_at:
           $ref: '#/components/schemas/DateTime'
-
     CreateTherapeuticProcessRequest:
       type: object
       required:
@@ -1455,7 +1540,6 @@ components:
           type: string
         goals:
           type: string
-
     UpdateTherapeuticProcessRequest:
       type: object
       properties:
@@ -1476,7 +1560,6 @@ components:
           type: string
         goals:
           type: string
-
     UpdateTherapeuticProcessStatusRequest:
       type: object
       required:
@@ -1484,7 +1567,6 @@ components:
       properties:
         status:
           $ref: '#/components/schemas/TherapeuticProcessStatus'
-
     TherapeuticProcessResponse:
       type: object
       required:
@@ -1527,7 +1609,6 @@ components:
           $ref: '#/components/schemas/DateTime'
         updated_at:
           $ref: '#/components/schemas/DateTime'
-
     CreateRecordRequest:
       type: object
       required:
@@ -1556,7 +1637,6 @@ components:
           items:
             type: string
             format: uuid
-
     UpdateRecordRequest:
       type: object
       properties:
@@ -1578,7 +1658,6 @@ components:
           items:
             type: string
             format: uuid
-
     RecordResponse:
       type: object
       required:
@@ -1619,7 +1698,6 @@ components:
           $ref: '#/components/schemas/DateTime'
         updated_at:
           $ref: '#/components/schemas/DateTime'
-
     CreateHomeWorkRequest:
       type: object
       required:
@@ -1630,7 +1708,6 @@ components:
           type: string
         is_completed:
           type: boolean
-
     UpdateHomeWorkRequest:
       type: object
       properties:
@@ -1638,7 +1715,6 @@ components:
           type: string
         is_completed:
           type: boolean
-
     HomeWorkResponse:
       type: object
       required:
@@ -1659,3 +1735,208 @@ components:
           $ref: '#/components/schemas/DateTime'
         updated_at:
           $ref: '#/components/schemas/DateTime'
+    ValidationError:
+      type: object
+      required:
+      - field
+      - message
+      properties:
+        field:
+          type: string
+          description: Campo relacionado con el error.
+          example: email
+        message:
+          type: string
+          description: Descripción del error encontrado.
+          example: Email format is invalid.
+    BadRequestResponse:
+      type: object
+      required:
+      - type
+      - title
+      - status
+      - instance
+      - detail
+      properties:
+        type:
+          type: string
+          format: uri
+          description: Identifica el tipo de problema que ocurrió. Debe ser una URI que describa el detalle del problema.
+          example: https://tools.ietf.org/html/rfc7231#section-6.5.1
+        title:
+          type: string
+          description: Breve descripción legible por humanos.
+          example: Bad request.
+        status:
+          type: integer
+          format: int32
+          description: Código HTTP de respuesta asociado al error.
+          example: 400
+        instance:
+          type: string
+          description: URI del recurso relacionado con el error.
+          example: /v1/resources
+        detail:
+          type: string
+          description: Explicación específica y legible por humanos sobre el error ocurrido.
+          example: Validate that the elements in the request exist and are correct.
+        errors:
+          type: array
+          description: Lista de los errores encontrados en la solicitud.
+          items:
+            $ref: '#/components/schemas/ValidationError'
+    UnauthorizedResponse:
+      type: object
+      required:
+      - type
+      - title
+      - status
+      - instance
+      - detail
+      properties:
+        type:
+          type: string
+          format: uri
+          description: Identifica el tipo de problema que ocurrió. Debe ser una URI que describa el detalle del problema.
+          example: https://tools.ietf.org/html/rfc7235#section-3.1
+        title:
+          type: string
+          description: Breve descripción legible por humanos.
+          example: Unauthorized.
+        status:
+          type: integer
+          format: int32
+          description: Código HTTP de respuesta asociado al error.
+          example: 401
+        instance:
+          type: string
+          description: URI del recurso relacionado con el error.
+          example: /v1/auth/verify
+        detail:
+          type: string
+          description: Explicación específica y legible por humanos sobre el error ocurrido.
+          example: Authentication is required or the provided session is invalid.
+    ForbiddenResponse:
+      type: object
+      required:
+      - type
+      - title
+      - status
+      - instance
+      - detail
+      properties:
+        type:
+          type: string
+          format: uri
+          description: Identifica el tipo de problema que ocurrió. Debe ser una URI que describa el detalle del problema.
+          example: https://tools.ietf.org/html/rfc7231#section-6.5.3
+        title:
+          type: string
+          description: Breve descripción legible por humanos.
+          example: Forbidden.
+        status:
+          type: integer
+          format: int32
+          description: Código HTTP de respuesta asociado al error.
+          example: 403
+        instance:
+          type: string
+          description: URI del recurso relacionado con el error.
+          example: /v1/resources
+        detail:
+          type: string
+          description: Explicación específica y legible por humanos sobre el error ocurrido.
+          example: The authenticated user does not have permission to perform this operation.
+    NotFoundResponse:
+      type: object
+      required:
+      - type
+      - title
+      - status
+      - instance
+      - detail
+      properties:
+        type:
+          type: string
+          format: uri
+          description: Identifica el tipo de problema que ocurrió. Debe ser una URI que describa el detalle del problema.
+          example: https://tools.ietf.org/html/rfc7231#section-6.5.4
+        title:
+          type: string
+          description: Breve descripción legible por humanos.
+          example: Resource not found.
+        status:
+          type: integer
+          format: int32
+          description: Código HTTP de respuesta asociado al error.
+          example: 404
+        instance:
+          type: string
+          description: URI del recurso relacionado con el error.
+          example: /v1/resources/550e8400-e29b-41d4-a716-446655440000
+        detail:
+          type: string
+          description: Explicación específica y legible por humanos sobre el error ocurrido.
+          example: No resource was found with the provided ID.
+    ConflictResponse:
+      type: object
+      required:
+      - type
+      - title
+      - status
+      - instance
+      - detail
+      properties:
+        type:
+          type: string
+          format: uri
+          description: Identifica el tipo de problema que ocurrió. Debe ser una URI que describa el detalle del problema.
+          example: https://tools.ietf.org/html/rfc7231#section-6.5.8
+        title:
+          type: string
+          description: Breve descripción legible por humanos.
+          example: The resource already exists.
+        status:
+          type: integer
+          format: int32
+          description: Código HTTP de respuesta asociado al error.
+          example: 409
+        instance:
+          type: string
+          description: URI del recurso relacionado con el error.
+          example: /v1/resources
+        detail:
+          type: string
+          description: Explicación específica y legible por humanos sobre el error ocurrido.
+          example: A resource with the provided unique data already exists.
+    InternalServerErrorResponse:
+      type: object
+      required:
+      - type
+      - title
+      - status
+      - instance
+      - detail
+      properties:
+        type:
+          type: string
+          format: uri
+          description: Identifica el tipo de problema que ocurrió. Debe ser una URI que describa el detalle del problema.
+          example: https://tools.ietf.org/html/rfc7231#section-6.6.1
+        title:
+          type: string
+          description: Breve descripción legible por humanos.
+          example: Internal Server Error.
+        status:
+          type: integer
+          format: int32
+          description: Código HTTP de respuesta asociado al error.
+          example: 500
+        instance:
+          type: string
+          description: URI del recurso relacionado con el error.
+          example: /v1/resources
+        detail:
+          type: string
+          description: Explicación específica y legible por humanos sobre el error ocurrido.
+          example: An unexpected error has occurred. Please try again later.

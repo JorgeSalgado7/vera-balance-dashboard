@@ -1,16 +1,18 @@
 import { Module } from '@nestjs/common';
+import { UsersClinicReaderModule } from '../users/users-clinic-reader.module';
+import { UserClinicReaderAdapter } from './infrastructure/providers/user-clinic-reader.adapter';
 
 import { CreateClinicController } from './presentation/controllers/create-clinic.controller';
 import { UpdateClinicController } from './presentation/controllers/update-clinic.controller';
 import { GetClinicByIdController } from './presentation/controllers/get-clinic-by-id.controller';
-// import { GetClinicByUserIdController } from './presentation/controllers/get-clinic-by-user-id.controller';
+import { GetClinicByUserIdController } from './presentation/controllers/get-clinic-by-user-id.controller';
 import { GetClinicsController } from './presentation/controllers/get-clinics.controller';
 import { DeleteClinicController } from './presentation/controllers/delete-clinic.controller';
 
 import { CreateClinicUseCase } from './application/use-cases/create-clinic.use-case';
 import { UpdateClinicUseCase } from './application/use-cases/update-clinic.use-case';
 import { GetClinicByIdUseCase } from './application/use-cases/get-clinic-by-id.use-case';
-// import { GetClinicByUserIdUseCase } from './application/use-cases/get-clinic-by-user-id.use-case';
+import { GetClinicByUserIdUseCase } from './application/use-cases/get-clinic-by-user-id.use-case';
 import { GetClinicsUseCase } from './application/use-cases/get-clinics.use-case';
 import { DeleteClinicUseCase } from './application/use-cases/delete-clinic.use-case';
 
@@ -26,11 +28,12 @@ import { FindClinicsDynamooseAdapter } from './infrastructure/persistence/adapte
 import { DeleteClinicDynamooseAdapter } from './infrastructure/persistence/adapters/delete-clinic-dynamoose.adapter';
 
 @Module({
+  imports: [UsersClinicReaderModule],
   controllers: [
     CreateClinicController,
     UpdateClinicController,
     GetClinicByIdController,
-    // GetClinicByUserIdController,
+    GetClinicByUserIdController,
     GetClinicsController,
     DeleteClinicController
   ],
@@ -44,10 +47,14 @@ import { DeleteClinicDynamooseAdapter } from './infrastructure/persistence/adapt
     CreateClinicUseCase,
     UpdateClinicUseCase,
     GetClinicByIdUseCase,
-    // GetClinicByUserIdUseCase,
+    GetClinicByUserIdUseCase,
     GetClinicsUseCase,
     DeleteClinicUseCase,
 
+    {
+      provide: 'UserClinicReaderPort',
+      useClass: UserClinicReaderAdapter
+    },
     {
       provide: 'ICreateClinicRepository',
       useClass: CreateClinicDynamooseAdapter

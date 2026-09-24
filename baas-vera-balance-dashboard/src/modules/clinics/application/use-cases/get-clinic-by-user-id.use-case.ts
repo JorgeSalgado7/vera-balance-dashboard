@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ClinicResponseDto } from '../dtos/clinic-response.dto';
+import { ClinicByUserResponseDto } from '../dtos/clinic-by-user-response.dto';
 import type { UserClinicReaderPort } from '../ports/user-clinic-reader.port';
 import type { IFindClinicByIdRepository } from '../../domain/repositories/find-clinic-by-id.repository';
 import { ClinicNotFoundError } from '../../domain/errors/clinic.error';
@@ -14,7 +14,7 @@ export class GetClinicByUserIdUseCase {
     private readonly findClinicByIdRepository: IFindClinicByIdRepository
   ) {}
 
-  async execute(userId: string): Promise<ClinicResponseDto> {
+  async execute(userId: string): Promise<ClinicByUserResponseDto> {
     const clinicId = await this.userClinicReader.getClinicIdByUserId(userId);
 
     if (!clinicId) {
@@ -33,7 +33,10 @@ export class GetClinicByUserIdUseCase {
       logo: clinic.logo,
       address: clinic.address,
       phone_number: clinic.phoneNumber,
-      therapy_types: clinic.therapyTypes
+      therapy_types: clinic.therapyTypes,
+      status: clinic.status,
+      created_at: clinic.createdAt,
+      updated_at: clinic.updatedAt
     };
   }
 }

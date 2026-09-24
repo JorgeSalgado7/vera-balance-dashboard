@@ -7,10 +7,11 @@ import {
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
 
+import { HttpProblem } from './http-problem.util';
+
 //* Error translators
 import { ClinicErrorTranslator } from '../../modules/clinics/presentation/errors/clinic-error.translator';
-
-import { HttpProblem } from './http-problem.util';
+import { UserErrorTranslator } from '../../modules/users/presentation/errors/user-error.translator';
 
 type ErrorTranslator = { translate(error: unknown, instance: string): never | void; };
 
@@ -29,6 +30,7 @@ type HttpExceptionResponse = {
 //* List translators
 const errorTranslators: ErrorTranslator[] = [
   ClinicErrorTranslator,
+  UserErrorTranslator,
 ];
 
 @Catch()

@@ -5,7 +5,7 @@ quiero eliminar un usuario,
 para retirar del sistema un usuario que ya no debe permanecer registrado.
 
 Scope: Backend
-Status: Approved
+Status: Under Review
 
 ## Descripción
 
@@ -48,22 +48,21 @@ entonces la operación debe finalizar sin devolver información del usuario elim
 
 ## Consideraciones técnicas
 
-* El contrato HTTP debe respetar `docs/openapi.yaml`.
-* La persistencia debe respetar `docs/database.md`.
-* La implementación debe respetar `docs/architecture-guidelines.md`.
+* El contrato HTTP debe respetar `docs/baas-vera-balance-dashboard.yaml`.
+* La persistencia debe respetar `docs/DB.md`.
+* La implementación debe respetar `docs/PROJECT_ARCHITECTURE.md`.
 
 ## Referencias
 
-* `docs/database.md`
-* `docs/openapi.yaml`
-* `docs/definitions.md`
-* `docs/architecture-guidelines.md`
+* `docs/DB.md`
+* `docs/baas-vera-balance-dashboard.yaml`
+* `docs/DEFINITIONS.md`
+* `docs/PROJECT_ARCHITECTURE.md`
+
 
 ## Definition of Done
 
-* [ ] Todos los criterios de aceptación fueron implementados.
-* [ ] Se agregaron o actualizaron las pruebas necesarias.
-* [ ] Las pruebas pasan correctamente.
-* [ ] El proyecto compila correctamente.
-* [ ] La documentación técnica fue actualizada cuando corresponde.
-* [ ] La implementación fue revisada.
+* [x] Todos los criterios de aceptación fueron implementados.
+* [x] Se agregaron o actualizaron las pruebas necesarias.
+* [x] Las pruebas pasan correctamente.
+* [x] La implementación fue revisada.

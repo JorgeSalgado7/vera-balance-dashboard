@@ -92,6 +92,4 @@ Ninguna.
 * [x] Todos los criterios de aceptación fueron implementados.
 * [x] Se agregaron o actualizaron las pruebas necesarias.
 * [x] Las pruebas pasan correctamente.
-* [x] El proyecto compila correctamente.
-* [x] La documentación técnica fue actualizada cuando corresponde.
 * [x] La implementación fue revisada.

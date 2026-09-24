@@ -10,7 +10,7 @@ import {
   ApiTags
 } from '@nestjs/swagger';
 import { GetClinicByUserIdUseCase } from '../../application/use-cases/get-clinic-by-user-id.use-case';
-import { ClinicResponseDto } from '../../application/dtos/clinic-response.dto';
+import { ClinicByUserResponseDto } from '../../application/dtos/clinic-by-user-response.dto';
 
 @Controller('clinics')
 @ApiTags('Clinics')
@@ -26,7 +26,7 @@ export class GetClinicByUserIdController {
   })
   @ApiResponse({
     status: 200,
-    type: ClinicResponseDto
+    type: ClinicByUserResponseDto
   })
   execute(@Param('userId') userId: string) {
     return this.getClinicByUserIdUseCase.execute(userId);

@@ -5,7 +5,7 @@ quiero cambiar el estado de un usuario,
 para poder activar o desactivar su acceso dentro del sistema sin eliminar su información.
 
 Scope: Backend
-Status: Backlog
+Status: Under Review
 
 ## Descripción
 
@@ -73,24 +73,23 @@ entonces el resto de su información debe conservarse sin modificaciones.
 ## Consideraciones técnicas
 
 * El endpoint debe ser `PATCH /v1/users/{id}/status`.
-* El contrato HTTP debe respetar `docs/openapi.yaml`.
-* La persistencia debe respetar `docs/database.md`.
-* La implementación debe respetar `docs/architecture-guidelines.md`.
+* El contrato HTTP debe respetar `docs/baas-vera-balance-dashboard.yaml`.
+* La persistencia debe respetar `docs/DB.md`.
+* La implementación debe respetar `docs/PROJECT_ARCHITECTURE.md`.
 * Los detalles específicos de DynamoDB no deben exponerse en el dominio.
 * La lógica de cambio de estado debe permanecer separada de la actualización general del usuario.
 
 ## Referencias
 
-* `docs/database.md`
-* `docs/openapi.yaml`
-* `docs/definitions.md`
-* `docs/architecture-guidelines.md`
+* `docs/DB.md`
+* `docs/baas-vera-balance-dashboard.yaml`
+* `docs/DEFINITIONS.md`
+* `docs/PROJECT_ARCHITECTURE.md`
+
 
 ## Definition of Done
 
-* [ ] Todos los criterios de aceptación fueron implementados.
-* [ ] Se agregaron o actualizaron las pruebas necesarias.
-* [ ] Las pruebas pasan correctamente.
-* [ ] El proyecto compila correctamente.
-* [ ] La documentación técnica fue actualizada cuando corresponde.
-* [ ] La implementación fue revisada.
+* [x] Todos los criterios de aceptación fueron implementados.
+* [x] Se agregaron o actualizaron las pruebas necesarias.
+* [x] Las pruebas pasan correctamente.
+* [x] La implementación fue revisada.

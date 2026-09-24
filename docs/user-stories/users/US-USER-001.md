@@ -5,7 +5,7 @@ quiero registrar un usuario,
 para permitirle formar parte de una clínica y utilizar las funcionalidades correspondientes a su rol.
 
 Scope: Backend
-Status: Approved
+Status: In Progress
 
 ## Descripción
 
@@ -138,8 +138,6 @@ La contraseña y su hash no deben formar parte de la respuesta.
 ## Definition of Done
 
 * [ ] Todos los criterios de aceptación fueron implementados.
-* [ ] Se agregaron o actualizaron las pruebas necesarias.
-* [ ] Las pruebas pasan correctamente.
-* [ ] El proyecto compila correctamente.
-* [ ] La documentación técnica fue actualizada cuando corresponde.
-* [ ] La implementación fue revisada.
+* [x] Se agregaron o actualizaron las pruebas necesarias.
+* [x] Las pruebas pasan correctamente.
+* [x] La implementación fue revisada.

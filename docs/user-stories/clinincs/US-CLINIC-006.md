@@ -5,7 +5,7 @@ quiero consultar la clínica asociada a un usuario,
 para poder obtener la información de la clínica a la que pertenece.
 
 Scope: Backend
-Status: Approved
+Status: Under Review
 
 ## Descripción
 
@@ -61,20 +61,19 @@ entonces la respuesta debe incluir el identificador, nombre, logo, dirección, t
 * La comunicación entre Clinics y Users debe realizarse mediante una abstracción explícita entre módulos.
 * Clinics no debe depender directamente de los repositorios internos de Users.
 * El contrato HTTP debe respetar `docs/openapi.yaml`.
+* La persistencia debe respetar `docs/database.md`.
 * La implementación debe respetar `docs/architecture-guidelines.md`.
 
 ## Referencias
 
-* `docs/database.md`
-* `docs/openapi.yaml`
-* `docs/definitions.md`
-* `docs/architecture-guidelines.md`
+* `docs/DB.md`
+* `docs/baas-vera-balance-dashboard.yaml`
+* `docs/DEFINITIONS.md`
+* `docs/PROJECT_ARCHITECTURE.md`
 
 ## Definition of Done
 
-* [ ] Todos los criterios de aceptación fueron implementados.
-* [ ] Se agregaron o actualizaron las pruebas necesarias.
-* [ ] Las pruebas pasan correctamente.
-* [ ] El proyecto compila correctamente.
-* [ ] La documentación técnica fue actualizada cuando corresponde.
-* [ ] La implementación fue revisada.
+* [x] Todos los criterios de aceptación fueron implementados.
+* [x] Se agregaron o actualizaron las pruebas necesarias.
+* [x] Las pruebas pasan correctamente.
+* [x] La implementación fue revisada.

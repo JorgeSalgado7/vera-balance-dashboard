@@ -57,24 +57,36 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ClinicResponse'
-        '400': &id002
+        '400':
           description: Solicitud inválida
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/BadRequestResponse'
-        '409': &id004
+        '409':
           description: Conflicto con el estado actual del recurso
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConflictResponse'
-        '500': &id001
+        '500':
           description: Error interno del servidor
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalServerErrorResponse'
+        '401':
+          description: Sesión inválida o no autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
     get:
       tags:
       - Clinics
@@ -89,7 +101,24 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ClinicResponse'
-        '500': *id001
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+        '401':
+          description: Sesión inválida o no autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
   /v1/clinics/{id}:
     parameters:
     - $ref: '#/components/parameters/ClinicId'
@@ -105,14 +134,36 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ClinicResponse'
-        '400': *id002
-        '404': &id003
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
           description: Recurso no encontrado
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/NotFoundResponse'
-        '500': *id001
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+        '401':
+          description: Sesión inválida o no autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
     put:
       tags:
       - Clinics
@@ -131,10 +182,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ClinicResponse'
-        '400': *id002
-        '404': *id003
-        '409': *id004
-        '500': *id001
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+        '409':
+          description: Conflicto con el estado actual del recurso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+        '401':
+          description: Sesión inválida o no autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
     delete:
       tags:
       - Clinics
@@ -143,10 +226,42 @@ paths:
       responses:
         '204':
           description: Clínica eliminada correctamente
-        '400': *id002
-        '404': *id003
-        '409': *id004
-        '500': *id001
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+        '409':
+          description: Conflicto con el estado actual del recurso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+        '401':
+          description: Sesión inválida o no autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
   /v1/clinics/user/{userId}:
     parameters:
     - $ref: '#/components/parameters/ClinicUserId'
@@ -162,9 +277,36 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ClinicResponse'
-        '400': *id002
-        '404': *id003
-        '500': *id001
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+        '401':
+          description: Sesión inválida o no autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
   /v1/users:
     post:
       tags:
@@ -192,9 +334,32 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserResponse'
-        '400': *id002
-        '409': *id004
-        '500': *id001
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '409':
+          description: Conflicto con el estado actual del recurso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+        '401':
+          description: Public Operation Token ausente, inválido, expirado, consumido o con scope incorrecto
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+      security:
+      - publicOperationToken: []
     get:
       tags:
       - Users
@@ -209,7 +374,24 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/UserResponse'
-        '500': *id001
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+        '401':
+          description: Sesión inválida o no autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
   /v1/users/{id}:
     parameters:
     - $ref: '#/components/parameters/UserId'
@@ -225,9 +407,36 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserResponse'
-        '400': *id002
-        '404': *id003
-        '500': *id001
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+        '401':
+          description: Sesión inválida o no autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
     put:
       tags:
       - Users
@@ -244,7 +453,6 @@ paths:
               email: monica@verabalance.com
               professional_license: '12345678'
               role: therapist
-              status: active
       responses:
         '200':
           description: Usuario actualizado correctamente
@@ -252,10 +460,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserResponse'
-        '400': *id002
-        '404': *id003
-        '409': *id004
-        '500': *id001
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+        '409':
+          description: Conflicto con el estado actual del recurso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+        '401':
+          description: Sesión inválida o no autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
     delete:
       tags:
       - Users
@@ -264,10 +504,42 @@ paths:
       responses:
         '204':
           description: Usuario eliminado correctamente
-        '400': *id002
-        '404': *id003
-        '409': *id004
-        '500': *id001
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+        '409':
+          description: Conflicto con el estado actual del recurso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+        '401':
+          description: Sesión inválida o no autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
   /v1/users/{id}/status:
     parameters:
     - $ref: '#/components/parameters/UserId'
@@ -291,10 +563,79 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserResponse'
-        '400': *id002
-        '404': *id003
-        '409': *id004
-        '500': *id001
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+        '409':
+          description: Conflicto con el estado actual del recurso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+        '401':
+          description: Sesión inválida o no autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
+  /v1/auth/public-token:
+    post:
+      tags:
+      - Auth
+      summary: Crear token para operación pública
+      description: Genera un token temporal de un solo uso para una operación que no requiere sesión autenticada. El token queda limitado al scope
+        solicitado, tiene vigencia limitada y no puede utilizarse como token de sesión. Una vez aceptado por el endpoint correspondiente, queda
+        consumido y no puede reutilizarse.
+      operationId: createPublicOperationToken
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePublicOperationTokenRequest'
+            example:
+              scope: auth:sign-in
+      responses:
+        '201':
+          description: Token temporal creado correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicOperationTokenResponse'
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
   /v1/auth/sign-in:
     post:
       tags:
@@ -302,11 +643,11 @@ paths:
       summary: Iniciar sesión
       description: 'Valida las credenciales del usuario y crea una sesión autenticada.
 
-        El JWT de sesión se envía exclusivamente mediante una cookie HttpOnly
 
-        y no forma parte del cuerpo de la respuesta.
+        Requiere un Public Operation Token válido con scope `auth:sign-in`. El token temporal es de un solo uso y se consume al aceptarse la solicitud.
 
-        '
+
+        El JWT de sesión se envía exclusivamente mediante una cookie HttpOnly y no forma parte del cuerpo de la respuesta.'
       operationId: signIn
       requestBody:
         required: true
@@ -332,12 +673,117 @@ paths:
                 $ref: '#/components/schemas/AuthSessionResponse'
         '401':
           description: Credenciales incorrectas
-          content: &id005
+          content:
             application/json:
               schema:
                 $ref: '#/components/schemas/UnauthorizedResponse'
-        '400': *id002
-        '500': *id001
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+      security:
+      - publicOperationToken: []
+  /v1/auth/forgot-password:
+    post:
+      tags:
+      - Auth
+      summary: Solicitar recuperación de contraseña
+      description: Solicita el inicio del proceso de recuperación de contraseña. Requiere un Public Operation Token válido con scope `auth:forgot-password`.
+        El token temporal es de un solo uso y se consume al aceptarse la solicitud. La respuesta no revela si el email corresponde a un usuario
+        existente. Si el usuario existe, el backend genera un Password Recovery Token de vigencia limitada y un solo uso, y lo envía al correo
+        asociado. El Password Recovery Token no se devuelve mediante el API y la contraseña no se modifica durante esta operación.
+      operationId: forgotPassword
+      security:
+      - publicOperationToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForgotPasswordRequest'
+            example:
+              email: monica@verabalance.com
+      responses:
+        '202':
+          description: Solicitud de recuperación aceptada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForgotPasswordResponse'
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Public Operation Token ausente, inválido, expirado, consumido o con scope incorrecto
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+  /v1/auth/forgot-password/reset:
+    post:
+      tags:
+      - Auth
+      summary: Restablecer contraseña olvidada
+      description: Establece una nueva contraseña utilizando el Password Recovery Token recibido mediante el correo de recuperación. No requiere
+        una sesión autenticada ni un Public Operation Token. El Password Recovery Token debe ser válido, vigente, estar asociado a un usuario
+        y no haber sido consumido. La identidad del usuario se obtiene a partir del token validado. Después de actualizar correctamente la contraseña,
+        el Password Recovery Token queda consumido y no puede reutilizarse. La operación no crea automáticamente una sesión autenticada.
+      operationId: resetForgottenPassword
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetForgottenPasswordRequest'
+            example:
+              recovery_token: password-recovery-token
+              password: NewPassword123
+              password_confirmation: NewPassword123
+      responses:
+        '200':
+          description: Contraseña actualizada correctamente
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Password Recovery Token ausente, inválido, expirado o consumido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
   /v1/auth/sign-out:
     post:
       tags:
@@ -362,14 +808,22 @@ paths:
               example: vera_balance_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0
         '401':
           description: Sesión inválida o no autenticada
-          content: *id005
-        '403': &id006
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
           description: Operación no permitida
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ForbiddenResponse'
-        '500': *id001
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
   /v1/auth/verify:
     post:
       tags:
@@ -392,9 +846,22 @@ paths:
                 $ref: '#/components/schemas/AuthSessionResponse'
         '401':
           description: Sesión inválida o expirada
-          content: *id005
-        '403': *id006
-        '500': *id001
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
   /v1/auth/reset-password:
     post:
       tags:
@@ -408,20 +875,49 @@ paths:
             schema:
               $ref: '#/components/schemas/ResetPasswordRequest'
             example:
-              email: monica@verabalance.com
               password: NewPassword123
               password_confirmation: NewPassword123
       responses:
         '200':
           description: Contraseña actualizada correctamente
-        '400': *id002
-        '500': *id001
-        '404': *id003
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+        '404':
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+        '401':
+          description: Sesión inválida o no autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
+      description: Cambia la contraseña del usuario autenticado. La identidad se obtiene de la sesión enviada mediante la cookie HttpOnly `vera_balance_session`;
+        el cliente no envía email ni identificador de usuario en el body.
   /v1/catalogs:
     post:
       tags:
       - Catalogs
       summary: Crear catálogo
+      description: Operación reservada para la administración global de Vera Balance. Los roles actuales `clinic` y `therapist` no pueden crear catálogos. La capacidad administrativa global requerida para esta operación aún no está definida.
       operationId: createCatalog
       requestBody:
         required: true
@@ -436,13 +932,41 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CatalogResponse'
-        '400': *id002
-        '409': *id004
-        '500': *id001
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '409':
+          description: Ya existe un catálogo con el mismo tipo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+        '401':
+          description: Sesión inválida o no autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación reservada para administración global
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
     get:
       tags:
       - Catalogs
       summary: Obtener catálogos
+      description: Obtiene los catálogos globales disponibles en el sistema. Los catálogos no pertenecen a una clínica y la consulta incluye tanto los catálogos iniciales como los que se agreguen posteriormente.
       operationId: getCatalogs
       responses:
         '200':
@@ -453,7 +977,24 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/CatalogResponse'
-        '500': *id001
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+        '401':
+          description: Sesión inválida o no autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
   /v1/catalogs/{id}:
     parameters:
     - $ref: '#/components/parameters/CatalogId'
@@ -461,6 +1002,7 @@ paths:
       tags:
       - Catalogs
       summary: Obtener catálogo
+      description: Obtiene un catálogo global mediante su identificador. El catálogo es independiente de cualquier clínica.
       operationId: getCatalogById
       responses:
         '200':
@@ -469,13 +1011,41 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CatalogResponse'
-        '400': *id002
-        '404': *id003
-        '500': *id001
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+        '401':
+          description: Sesión inválida o no autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
     patch:
       tags:
       - Catalogs
       summary: Actualizar catálogo
+      description: Operación reservada para la administración global de Vera Balance. Permite modificar parcialmente el nombre y las opciones de un catálogo global. El tipo del catálogo es inmutable. Los roles actuales `clinic` y `therapist` no pueden actualizar catálogos. La capacidad administrativa global requerida para esta operación aún no está definida.
       operationId: updateCatalog
       requestBody:
         required: true
@@ -490,22 +1060,87 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CatalogResponse'
-        '400': *id002
-        '404': *id003
-        '409': *id004
-        '500': *id001
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+        '409':
+          description: Conflicto con el estado actual del recurso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+        '401':
+          description: Sesión inválida o no autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación reservada para administración global
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
     delete:
       tags:
       - Catalogs
       summary: Eliminar catálogo
+      description: Operación reservada para la administración global de Vera Balance. Los roles actuales `clinic` y `therapist` no pueden eliminar catálogos. La capacidad administrativa global requerida para esta operación aún no está definida. Los catálogos iniciales del sistema no son eliminables.
       operationId: deleteCatalog
       responses:
         '204':
           description: Catálogo eliminado correctamente
-        '400': *id002
-        '404': *id003
-        '409': *id004
-        '500': *id001
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+        '409':
+          description: El catálogo no puede eliminarse por su estado o por ser un catálogo inicial del sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+        '401':
+          description: Sesión inválida o no autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación reservada para administración global
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
   /v1/patients:
     post:
       tags:
@@ -525,9 +1160,36 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PatientResponse'
-        '400': *id002
-        '409': *id004
-        '500': *id001
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '409':
+          description: Conflicto con el estado actual del recurso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+        '401':
+          description: Sesión inválida o no autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
     get:
       tags:
       - Patients
@@ -542,7 +1204,24 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/PatientResponse'
-        '500': *id001
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+        '401':
+          description: Sesión inválida o no autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
   /v1/patients/{id}:
     parameters:
     - $ref: '#/components/parameters/PatientId'
@@ -558,9 +1237,36 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PatientResponse'
-        '400': *id002
-        '404': *id003
-        '500': *id001
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+        '401':
+          description: Sesión inválida o no autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
     put:
       tags:
       - Patients
@@ -579,10 +1285,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PatientResponse'
-        '400': *id002
-        '404': *id003
-        '409': *id004
-        '500': *id001
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+        '409':
+          description: Conflicto con el estado actual del recurso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+        '401':
+          description: Sesión inválida o no autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
     delete:
       tags:
       - Patients
@@ -591,10 +1329,42 @@ paths:
       responses:
         '204':
           description: Paciente eliminado correctamente
-        '400': *id002
-        '404': *id003
-        '409': *id004
-        '500': *id001
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+        '409':
+          description: Conflicto con el estado actual del recurso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+        '401':
+          description: Sesión inválida o no autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
   /v1/therapeutic-processes:
     post:
       tags:
@@ -622,9 +1392,36 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TherapeuticProcessResponse'
-        '400': *id002
-        '409': *id004
-        '500': *id001
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '409':
+          description: Conflicto con el estado actual del recurso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+        '401':
+          description: Sesión inválida o no autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
     get:
       tags:
       - Therapeutic Processes
@@ -639,7 +1436,24 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/TherapeuticProcessResponse'
-        '500': *id001
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+        '401':
+          description: Sesión inválida o no autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
   /v1/therapeutic-processes/{id}:
     parameters:
     - $ref: '#/components/parameters/TherapeuticProcessId'
@@ -655,9 +1469,36 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TherapeuticProcessResponse'
-        '400': *id002
-        '404': *id003
-        '500': *id001
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+        '401':
+          description: Sesión inválida o no autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
     put:
       tags:
       - Therapeutic Processes
@@ -676,10 +1517,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TherapeuticProcessResponse'
-        '400': *id002
-        '404': *id003
-        '409': *id004
-        '500': *id001
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+        '409':
+          description: Conflicto con el estado actual del recurso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+        '401':
+          description: Sesión inválida o no autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
     delete:
       tags:
       - Therapeutic Processes
@@ -688,10 +1561,42 @@ paths:
       responses:
         '204':
           description: Proceso terapéutico eliminado correctamente
-        '400': *id002
-        '404': *id003
-        '409': *id004
-        '500': *id001
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+        '409':
+          description: Conflicto con el estado actual del recurso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+        '401':
+          description: Sesión inválida o no autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
   /v1/therapeutic-processes/{id}/status:
     parameters:
     - $ref: '#/components/parameters/TherapeuticProcessId'
@@ -715,10 +1620,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TherapeuticProcessResponse'
-        '400': *id002
-        '404': *id003
-        '409': *id004
-        '500': *id001
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+        '409':
+          description: Conflicto con el estado actual del recurso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+        '401':
+          description: Sesión inválida o no autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
   /v1/therapeutic-processes/patient/{patientId}:
     parameters:
     - $ref: '#/components/parameters/PatientProcessId'
@@ -736,9 +1673,36 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/TherapeuticProcessResponse'
-        '400': *id002
-        '404': *id003
-        '500': *id001
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+        '401':
+          description: Sesión inválida o no autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
   /v1/records:
     post:
       tags:
@@ -766,9 +1730,36 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RecordResponse'
-        '400': *id002
-        '409': *id004
-        '500': *id001
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '409':
+          description: Conflicto con el estado actual del recurso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+        '401':
+          description: Sesión inválida o no autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
     get:
       tags:
       - Records
@@ -783,7 +1774,24 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/RecordResponse'
-        '500': *id001
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+        '401':
+          description: Sesión inválida o no autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
   /v1/records/{id}:
     parameters:
     - $ref: '#/components/parameters/RecordId'
@@ -799,9 +1807,36 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RecordResponse'
-        '400': *id002
-        '404': *id003
-        '500': *id001
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+        '401':
+          description: Sesión inválida o no autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
     put:
       tags:
       - Records
@@ -820,10 +1855,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RecordResponse'
-        '400': *id002
-        '404': *id003
-        '409': *id004
-        '500': *id001
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+        '409':
+          description: Conflicto con el estado actual del recurso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+        '401':
+          description: Sesión inválida o no autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
     delete:
       tags:
       - Records
@@ -832,10 +1899,42 @@ paths:
       responses:
         '204':
           description: Registro de sesión eliminado correctamente
-        '400': *id002
-        '404': *id003
-        '409': *id004
-        '500': *id001
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+        '409':
+          description: Conflicto con el estado actual del recurso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+        '401':
+          description: Sesión inválida o no autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
   /v1/records/therapeutic-process/{therapeuticProcessId}:
     parameters:
     - $ref: '#/components/parameters/TherapeuticProcessRecordId'
@@ -853,9 +1952,36 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/RecordResponse'
-        '400': *id002
-        '404': *id003
-        '500': *id001
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+        '401':
+          description: Sesión inválida o no autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
   /v1/home-works:
     post:
       tags:
@@ -878,9 +2004,36 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HomeWorkResponse'
-        '400': *id002
-        '409': *id004
-        '500': *id001
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '409':
+          description: Conflicto con el estado actual del recurso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+        '401':
+          description: Sesión inválida o no autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
     get:
       tags:
       - Home Works
@@ -895,7 +2048,24 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/HomeWorkResponse'
-        '500': *id001
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+        '401':
+          description: Sesión inválida o no autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
   /v1/home-works/{id}:
     parameters:
     - $ref: '#/components/parameters/HomeWorkId'
@@ -911,9 +2081,36 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HomeWorkResponse'
-        '400': *id002
-        '404': *id003
-        '500': *id001
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+        '401':
+          description: Sesión inválida o no autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
     put:
       tags:
       - Home Works
@@ -932,10 +2129,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HomeWorkResponse'
-        '400': *id002
-        '404': *id003
-        '409': *id004
-        '500': *id001
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+        '409':
+          description: Conflicto con el estado actual del recurso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+        '401':
+          description: Sesión inválida o no autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
     delete:
       tags:
       - Home Works
@@ -944,10 +2173,42 @@ paths:
       responses:
         '204':
           description: Tarea eliminada correctamente
-        '400': *id002
-        '404': *id003
-        '409': *id004
-        '500': *id001
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+        '409':
+          description: Conflicto con el estado actual del recurso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+        '401':
+          description: Sesión inválida o no autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
 components:
   securitySchemes:
     sessionCookie:
@@ -959,6 +2220,12 @@ components:
         directamente al token; el navegador envía la cookie automáticamente.
 
         '
+    publicOperationToken:
+      type: apiKey
+      in: header
+      name: X-Public-Operation-Token
+      description: Token temporal de un solo uso para operaciones sin sesión autenticada. Está limitado a un scope específico, tiene vigencia
+        limitada y se consume cuando el endpoint correspondiente acepta la solicitud.
   parameters:
     ClinicId:
       name: id
@@ -1228,8 +2495,6 @@ components:
           format: uuid
         role:
           $ref: '#/components/schemas/UserRole'
-        status:
-          $ref: '#/components/schemas/UserStatus'
     UpdateUserStatusRequest:
       type: object
       required:
@@ -1293,13 +2558,9 @@ components:
     ResetPasswordRequest:
       type: object
       required:
-      - email
       - password
       - password_confirmation
       properties:
-        email:
-          type: string
-          format: email
         password:
           type: string
           format: password
@@ -1315,14 +2576,24 @@ components:
       properties:
         type:
           type: string
+          description: Identificador lógico único del catálogo utilizado para construir la clave `CATALOG#type`.
+          example: MARITAL_STATUS
         name:
           type: string
+          example: Estado civil
         options:
           type: array
           items:
             type: string
+          example:
+          - Soltero
+          - En una relación
+          - Casado
+          - Divorciado
+          - Viudo
     UpdateCatalogRequest:
       type: object
+      description: Permite actualizar parcialmente un catálogo. El campo `type` no forma parte de la actualización porque es inmutable.
       properties:
         name:
           type: string
@@ -1343,14 +2614,24 @@ components:
         id:
           type: string
           format: uuid
+          description: Identificador del catálogo correspondiente a la clave primaria persistida.
         type:
           type: string
+          description: Tipo global del catálogo derivado de la clave `CATALOG#type`.
+          example: MARITAL_STATUS
         name:
           type: string
+          example: Estado civil
         options:
           type: array
           items:
             type: string
+          example:
+          - Soltero
+          - En una relación
+          - Casado
+          - Divorciado
+          - Viudo
         created_at:
           $ref: '#/components/schemas/DateTime'
         updated_at:
@@ -1940,3 +3221,62 @@ components:
           type: string
           description: Explicación específica y legible por humanos sobre el error ocurrido.
           example: An unexpected error has occurred. Please try again later.
+    PublicOperationScope:
+      type: string
+      enum:
+      - users:create
+      - auth:sign-in
+      - auth:forgot-password
+    CreatePublicOperationTokenRequest:
+      type: object
+      required:
+      - scope
+      properties:
+        scope:
+          $ref: '#/components/schemas/PublicOperationScope'
+    PublicOperationTokenResponse:
+      type: object
+      required:
+      - token
+      - expires_at
+      properties:
+        token:
+          type: string
+          description: Token temporal de un solo uso limitado al scope solicitado.
+        expires_at:
+          $ref: '#/components/schemas/DateTime'
+    ForgotPasswordRequest:
+      type: object
+      required:
+      - email
+      properties:
+        email:
+          type: string
+          format: email
+    ForgotPasswordResponse:
+      type: object
+      required:
+      - accepted
+      properties:
+        accepted:
+          type: boolean
+          example: true
+          description: Indica que la solicitud fue aceptada sin revelar si el email corresponde a un usuario existente.
+    ResetForgottenPasswordRequest:
+      type: object
+      required:
+      - recovery_token
+      - password
+      - password_confirmation
+      properties:
+        recovery_token:
+          type: string
+          description: Password Recovery Token recibido mediante el correo de recuperación.
+        password:
+          type: string
+          format: password
+        password_confirmation:
+          type: string
+          format: password
+security:
+- sessionCookie: []

@@ -16,6 +16,10 @@ Cuando se solicite implementar una User Story, no comiences a modificar código 
 
 Primero debes entender el proyecto, revisar su estructura, leer la documentación relevante, analizar la User Story solicitada, revisar sus dependencias y estudiar la implementación existente.
 
+Una solución técnicamente válida no es suficiente si rompe la consistencia del proyecto.
+
+No es suficiente que funcione o que los tests pasen.
+
 ---
 
 ## 2. Flujo obligatorio de trabajo
@@ -33,14 +37,17 @@ Para cada User Story solicitada debes seguir, en orden, el siguiente proceso:
 9. Implementar todos los criterios de aceptación.
 10. Agregar o actualizar las pruebas necesarias.
 11. Verificar que la terminal utilice Node.js `24.21.0`.
-12. Ejecutar las pruebas mediante `npm run test`.
+12. Ejecutar las pruebas mediante `npm run test` únicamente si las dependencias necesarias ya están instaladas.
 13. Revisar todos los criterios de aceptación.
 14. Revisar las reglas de negocio.
 15. Revisar la Definition of Done.
 16. Revisar el diff final para detectar cambios no relacionados.
-17. Cambiar el `Status` de la User Story a `Under Review` cuando la implementación esté lista para revisión.
+17. Identificar dependencias, instalaciones o comandos manuales que deba ejecutar el responsable del proyecto.
+18. Cambiar el `Status` de la User Story a `Under Review` cuando la implementación esté lista para revisión.
 
 No omitas estas etapas.
+
+Codex no debe instalar dependencias, ejecutar builds ni realizar tareas de preparación del entorno que correspondan al responsable del proyecto.
 
 ---
 
@@ -84,6 +91,8 @@ Como mínimo debes considerar:
 Analiza con mayor profundidad los documentos relacionados con la funcionalidad solicitada.
 
 Las referencias indicadas dentro de la propia User Story también deben ser revisadas.
+
+Toda esta documentación es `SOLO LECTURA` durante una implementación normal, salvo autorización explícita del usuario para modificar un documento específico.
 
 ---
 
@@ -185,7 +194,7 @@ No vuelvas a implementar desde cero funcionalidad que ya existe correctamente.
 
 La implementación fue terminada por Codex y está pendiente de revisión manual por parte del responsable del proyecto.
 
-Si la User Story ya se encuentra en `Under Review`, no vuelvas a implementarla desde cero.
+Si una User Story ya se encuentra en `Under Review`, no vuelvas a implementarla desde cero.
 
 Si el usuario solicita revisar o corregir la implementación, compara el código existente contra los criterios de aceptación y realiza únicamente los cambios necesarios.
 
@@ -221,9 +230,11 @@ Si una User Story comienza en `Backlog` y el usuario solicita explícitamente im
 
 al comenzar el trabajo.
 
-Cuando la implementación, pruebas y validaciones hayan terminado correctamente, cambia el estado de la User Story a:
+Cuando la implementación y las validaciones permitidas hayan terminado, cambia el estado de la User Story a:
 
 `Under Review`
+
+La imposibilidad de ejecutar una validación debido a dependencias que el responsable debe instalar manualmente no obliga a mantener la User Story en `In Progress`, siempre que la implementación esté terminada y el pendiente se reporte claramente.
 
 Este cambio debe realizarse directamente en el archivo `.md` correspondiente.
 
@@ -344,19 +355,104 @@ Antes de implementar una responsabilidad equivalente, revisa cómo Clinics resue
 * dependency injection;
 * pruebas y mocks.
 
-Si Clinics ya establece un patrón para una responsabilidad equivalente, ese patrón es obligatorio. No introduzcas una alternativa porque sea más corta, genérica, abstracta, moderna o de tu preferencia.
+Si Clinics ya establece un patrón para una responsabilidad equivalente, **el patrón de Clinics es obligatorio.**
 
-No simplifiques, generalices, combines o reorganices responsabilidades que Clinics mantiene separadas. El código nuevo debe sentirse como una continuación natural del módulo Clinics y mantener como mínimo su mismo nivel de calidad.
+No introduzcas una alternativa porque sea más corta, genérica, abstracta, moderna o de tu preferencia.
 
-Por ejemplo, si Clinics utiliza errores específicos como `MissingClinicNameError` o `InvalidClinicStatusError`, no introduzcas errores genéricos parametrizados como `InvalidUserError(field)` para responsabilidades equivalentes. Utiliza errores específicos conforme a las reglas reales del nuevo módulo.
+No simplifiques, generalices, combines o reorganices responsabilidades que Clinics mantiene separadas.
+
+El código nuevo debe sentirse como una continuación natural del módulo Clinics y mantener como mínimo su mismo nivel de calidad.
+
+Por ejemplo, si Clinics utiliza errores específicos como `MissingClinicNameError` o `InvalidClinicStatusError`, no introduzcas errores genéricos parametrizados como `InvalidUserError(field)` para responsabilidades equivalentes.
+
+Utiliza errores específicos conforme a las reglas reales del nuevo módulo.
 
 Antes de crear cualquier archivo nuevo, localiza su equivalente conceptual en Clinics y respeta su carpeta, naming, granularidad y relación con las demás capas.
 
 ---
 
+## 13. Servicios de dominio
+
+Los servicios de dominio deberán mantener responsabilidades pequeñas y explícitas.
+
+Cuando existan reglas diferentes, deberán separarse en servicios diferentes si Clinics utiliza esa granularidad para responsabilidades equivalentes.
+
+No concentres múltiples validaciones o reglas independientes en un servicio genérico únicamente para reducir la cantidad de archivos.
+
+Un servicio deberá representar una responsabilidad de dominio claramente identificable.
+
+No introduzcas servicios genéricos como:
+
+`ValidationService`
+
+si las reglas reales corresponden a responsabilidades de dominio distintas.
+
+Prefiere servicios específicos conforme al patrón existente.
+
+---
+
+## 14. Repositories
+
+Los repositories deberán representar las operaciones requeridas por los casos de uso y mantener responsabilidades específicas.
+
+La dirección esperada es:
+
+`Use Case -> Repository específico -> Adapter específico`
+
+No conviertas los repositories en interfaces genéricas CRUD si el proyecto utiliza interfaces específicas por operación.
+
+No agregues operaciones a un repository únicamente porque pertenecen a la misma entidad.
+
+La agrupación deberá seguir el patrón arquitectónico establecido por Clinics.
+
+---
+
+## 15. Adapters
+
+Los adapters de persistencia deberán mantenerse separados por operación cuando ese sea el patrón utilizado por Clinics.
+
+No combines múltiples operaciones de persistencia no relacionadas en un único adapter únicamente para reducir archivos.
+
+Cada adapter debe implementar el contrato que le corresponde y conservar una responsabilidad clara.
+
+Los detalles de DynamoDB pertenecen exclusivamente a Infrastructure.
+
+---
+
+## 16. Errores específicos
+
+Los errores deberán representar condiciones concretas del dominio o aplicación.
+
+No utilices errores genéricos parametrizados cuando el proyecto ya utiliza errores específicos para responsabilidades equivalentes.
+
+Por ejemplo:
+
+```text
+MissingUserNameError
+MissingUserEmailError
+InvalidUserRoleError
+InvalidUserStatusError
+```
+
+es preferible a:
+
+```text
+InvalidUserError('name')
+InvalidUserError('email')
+InvalidUserError('role')
+```
+
+cuando el patrón existente utiliza errores específicos.
+
+Los errores de dominio no deberán conocer códigos HTTP.
+
+La traducción a HTTP pertenece a Presentation.
+
+---
+
 ## 17. Prohibición de modificar documentación
 
-Durante la implementación normal de una User Story, toda la documentación técnica es estrictamente de SOLO LECTURA.
+Durante la implementación normal de una User Story, toda la documentación técnica es estrictamente de `SOLO LECTURA`.
 
 Está prohibido modificar, entre otros:
 
@@ -371,18 +467,30 @@ Está prohibido modificar, entre otros:
 * documentación de módulos;
 * otras User Stories.
 
-Dentro de `docs/`, el único archivo que Codex puede modificar durante una implementación normal es la User Story que está ejecutando. Dentro de esa User Story únicamente puede modificar automáticamente:
+Dentro de `docs/`, el único archivo que Codex puede modificar durante una implementación normal es la User Story que está ejecutando.
+
+Dentro de esa User Story únicamente puede modificar automáticamente:
 
 * `Status`;
 * checks de `Definition of Done`.
 
 No puede modificar Historia de usuario, Scope, Descripción, Criterios de aceptación, Reglas de negocio, Dependencias, Consideraciones técnicas ni Referencias salvo solicitud explícita del usuario.
 
-Si detectas que cualquier otro documento necesita un cambio, no lo realices. Reporta el documento, el cambio propuesto y la razón, y espera autorización explícita.
+Si detectas que cualquier otro documento necesita un cambio, no lo realices.
+
+Reporta:
+
+1. el documento;
+2. el cambio propuesto;
+3. la razón.
+
+Después espera autorización explícita.
 
 La Definition of Done nunca constituye autorización para modificar documentación técnica.
 
-Antes de finalizar, revisa el diff. Si aparece documentación protegida modificada sin autorización explícita, revierte esos cambios.
+Antes de finalizar, revisa el diff.
+
+Si aparece documentación protegida modificada sin autorización explícita, revierte esos cambios.
 
 ---
 
@@ -390,15 +498,67 @@ Antes de finalizar, revisa el diff. Si aparece documentación protegida modifica
 
 `docs/database.md` es la fuente de verdad del Single Table Design.
 
-Está prohibido inventar estructuras de persistencia no documentadas, incluyendo nuevos tipos de items, patrones de `pk` o `sk`, models auxiliares, índices, tablas, lookups, estructuras de unicidad, duplicación o desnormalización de datos.
+Está prohibido inventar estructuras de persistencia no documentadas, incluyendo:
 
-No crees estructuras como `UserEmailModel`, `UserLookupModel`, `EmailIndexModel` o equivalentes si no están definidas en `docs/database.md`.
+* nuevos tipos de items;
+* patrones de `pk`;
+* patrones de `sk`;
+* persistence models auxiliares;
+* índices;
+* tablas;
+* lookups;
+* estructuras de unicidad;
+* duplicación de datos;
+* desnormalización no documentada.
 
-Si un criterio de aceptación, como la unicidad de email, parece requerir una estructura no documentada, identifica la limitación y reporta las alternativas técnicas, pero no selecciones ni implementes una por iniciativa propia.
+No crees estructuras como:
+
+```text
+UserEmailModel
+UserLookupModel
+EmailIndexModel
+```
+
+o equivalentes si no están definidas en `docs/database.md`.
+
+Esta regla también aplica a mecanismos de autenticación y seguridad.
+
+No inventes estructuras como:
+
+```text
+PublicOperationTokenModel
+PasswordRecoveryTokenModel
+SessionModel
+TokenLookupModel
+```
+
+ni items, índices o patrones de claves equivalentes si no están definidos previamente en `docs/database.md`.
+
+Si un criterio de aceptación, como la unicidad de email, parece requerir una estructura no documentada:
+
+1. identifica el criterio afectado;
+2. explica la limitación del modelo actual;
+3. presenta las alternativas técnicas;
+4. no selecciones una alternativa por iniciativa propia;
+5. no modifiques `docs/database.md`;
+6. detén únicamente la parte afectada;
+7. solicita una decisión al responsable del proyecto.
+
+La misma regla aplica cuando una funcionalidad requiere persistencia para garantizar propiedades como:
+
+* unicidad;
+* single-use;
+* anti-replay;
+* revocación;
+* expiración persistida;
+* consumo de tokens;
+* recuperación de contraseña.
+
+No resuelvas silenciosamente estas necesidades creando persistencia nueva.
 
 ---
 
-## 19. Entorno de ejecución, Node.js y comandos permitidos
+## 19. Entorno de ejecución, Node.js, dependencias y comandos permitidos
 
 El proyecto utiliza obligatoriamente Node.js `24.21.0`.
 
@@ -410,27 +570,147 @@ La versión debe ser:
 
 `v24.21.0`
 
-El entorno de Codex es Ubuntu. Si la terminal está utilizando otra versión y NVM está disponible, cambia la versión en esa misma terminal mediante:
+El entorno de Codex es Ubuntu.
+
+Si la terminal está utilizando otra versión y NVM está disponible, cambia la versión en esa misma terminal mediante:
 
 `nvm use 24.21.0`
 
-Después vuelve a ejecutar `node --version` y confirma `v24.21.0`.
+Después vuelve a ejecutar:
 
-No ejecutes los tests con otra versión de Node.js. No atribuyas errores de Jest, TypeScript, ESM, CommonJS o dependencias al código antes de comprobar la versión de Node.
+`node --version`
 
-Si Node.js `24.21.0` no puede activarse, no modifiques Jest, TypeScript, dependencias o configuración del proyecto para adaptarlo a otra versión. Reporta el bloqueo.
+y confirma:
 
-El único comando npm de validación permitido es:
+`v24.21.0`
+
+No ejecutes los tests con otra versión de Node.js.
+
+No atribuyas errores de Jest, TypeScript, ESM, CommonJS o dependencias al código antes de comprobar la versión de Node.
+
+Si Node.js `24.21.0` no puede activarse:
+
+* no ejecutes las pruebas con otra versión;
+* no modifiques Jest;
+* no modifiques TypeScript;
+* no modifiques dependencias para adaptarlas al entorno;
+* no modifiques configuración de módulos;
+* no adaptes el proyecto a la versión disponible.
+
+Reporta el bloqueo.
+
+### Instalación de dependencias
+
+Codex no debe instalar dependencias bajo ninguna circunstancia durante una implementación normal.
+
+Está prohibido ejecutar:
+
+```text
+npm install
+npm i
+npm ci
+npm install <package>
+npm i <package>
+npm uninstall
+npm update
+npx <comando que instale o descargue paquetes>
+yarn
+yarn install
+yarn add
+pnpm install
+pnpm add
+```
+
+Esta lista no es exhaustiva.
+
+La regla general es:
+
+**Codex no instala, actualiza ni elimina dependencias del entorno.**
+
+Si una User Story requiere una dependencia nueva:
+
+1. identifica la dependencia necesaria;
+2. determina el paquete y, cuando corresponda, la versión compatible con el proyecto;
+3. realiza únicamente los cambios de código y configuración necesarios para utilizarla;
+4. actualiza `package.json` únicamente si forma parte del cambio requerido;
+5. no ejecutes la instalación;
+6. no generes ni actualices `package-lock.json` mediante una instalación;
+7. reporta al finalizar la dependencia que debe instalar manualmente el responsable del proyecto;
+8. proporciona el comando que el responsable debe ejecutar manualmente.
+
+Si una dependencia necesaria no está instalada y esto impide ejecutar las pruebas, no la instales.
+
+Reporta:
+
+```text
+Pruebas: no ejecutadas o bloqueadas por dependencia pendiente de instalación manual.
+```
+
+e indica cuál dependencia falta.
+
+No consumas tiempo de ejecución intentando preparar automáticamente el entorno.
+
+### Comandos npm permitidos
+
+El único comando npm de validación que Codex puede ejecutar es:
 
 `npm run test`
 
-Está estrictamente prohibido ejecutar:
+Pueden utilizarse argumentos soportados por dicho script cuando sean necesarios para ejecutar una parte específica de las pruebas.
 
-`npm run build`
+No ejecutes otros scripts npm por iniciativa propia.
 
-No ejecutes variantes cuyo objetivo sea realizar el build. El build no es requisito para pasar una User Story a `Under Review`. Si la Definition of Done contiene un check de compilación, déjalo sin marcar y repórtalo como no verificado por restricción del proyecto.
+Está prohibido ejecutar, entre otros:
 
-En la respuesta final indica:
+```text
+npm run build
+npm run lint
+npm run format
+npm run typecheck
+npm run compile
+npm run generate
+npm run migrate
+npm run migration
+npm run seed
+npm run start
+npm run dev
+```
+
+salvo que una regla futura del proyecto autorice explícitamente alguno de ellos.
+
+### Builds
+
+Está estrictamente prohibido ejecutar cualquier build.
+
+Esto incluye:
+
+```text
+npm run build
+nest build
+tsc
+tsc --build
+vite build
+webpack
+next build
+```
+
+y cualquier otro comando cuyo propósito sea compilar, empaquetar o generar un build del proyecto.
+
+No ejecutes un comando equivalente utilizando directamente una herramienta para evitar la restricción de `npm run build`.
+
+El build será ejecutado manualmente por el responsable del proyecto cuando corresponda.
+
+El build no es requisito para pasar una User Story a `Under Review`.
+
+Si la Definition of Done contiene:
+
+`[ ] El proyecto compila correctamente.`
+
+debe permanecer sin marcar.
+
+Ese elemento no autoriza la ejecución del build.
+
+En la respuesta final indica exactamente:
 
 `Build: no ejecutado por restricción del proyecto.`
 
@@ -457,9 +737,11 @@ No conviertas los repositories en interfaces genéricas con múltiples responsab
 
 No conviertas los adapters en componentes con múltiples operaciones no relacionadas.
 
+No introduzcas dependencias desde Domain hacia NestJS, DynamoDB, JWT, bcrypt, cookies, headers u otras tecnologías concretas.
+
 ---
 
-## 17. Persistencia, dominio y HTTP
+## 21. Persistencia, dominio y HTTP
 
 Debes mantener la separación entre:
 
@@ -478,15 +760,20 @@ Los DTO HTTP tampoco deben depender de la estructura interna de DynamoDB.
 
 Utiliza mappers para transformar las representaciones cuando corresponda.
 
+Los nombres HTTP pueden diferir de los nombres utilizados por Domain o Persistence.
+
+No modifiques una capa únicamente para hacerla coincidir artificialmente con otra.
+
 ---
 
-## 18. Controllers
+## 22. Controllers
 
 Los controllers deben permanecer delgados.
 
 Sus responsabilidades deben limitarse principalmente a:
 
 * recibir la petición;
+* obtener información propia del transporte;
 * validar mediante los mecanismos establecidos;
 * invocar el caso de uso correspondiente;
 * devolver la respuesta.
@@ -495,9 +782,11 @@ No coloques reglas de negocio en controllers.
 
 No coloques lógica de persistencia en controllers.
 
+No implementes manualmente autorización compleja dentro de controllers si el proyecto dispone de guards, decorators o capacidades específicas para dicha responsabilidad.
+
 ---
 
-## 19. Comunicación entre módulos
+## 23. Comunicación entre módulos
 
 Un módulo no debe acceder directamente a repositories, adapters o modelos de persistencia internos de otro módulo.
 
@@ -511,9 +800,20 @@ El módulo proveedor conserva la responsabilidad sobre su información y su impl
 
 No rompas los límites entre módulos para simplificar una implementación.
 
+Por ejemplo, `AuthModule` no deberá importar directamente un adapter DynamoDB interno de `UsersModule`.
+
+Si Auth necesita:
+
+* consultar un usuario;
+* verificar su estado;
+* obtener información necesaria para autenticación;
+* modificar una contraseña;
+
+deberá utilizar una capacidad explícita expuesta por el módulo propietario.
+
 ---
 
-## 20. DynamoDB
+## 24. DynamoDB
 
 El proyecto utiliza DynamoDB con Single Table Design.
 
@@ -530,9 +830,11 @@ No expongas detalles de DynamoDB en:
 * request DTOs;
 * response DTOs.
 
+No agregues items, índices o relaciones no documentadas para facilitar una implementación.
+
 ---
 
-## 21. API HTTP
+## 25. API HTTP
 
 Los contratos HTTP deben respetar:
 
@@ -545,6 +847,10 @@ No inventes:
 * propiedades de request;
 * propiedades de response;
 * códigos de estado;
+* mecanismos de seguridad;
+* headers;
+* cookies;
+* scopes;
 * comportamiento del API;
 
 cuando ya exista una definición en la documentación.
@@ -557,11 +863,17 @@ Cada endpoint versionado de NestJS debe utilizar explícitamente:
 
 Respeta las convenciones existentes del proyecto.
 
+Los mecanismos de seguridad definidos por cada operación en OpenAPI forman parte del contrato HTTP y deben respetarse.
+
+No conviertas una operación protegida mediante sesión en una operación pública.
+
+No sustituyas un Public Operation Token por una sesión, ni una sesión por un Public Operation Token, salvo que las fuentes de verdad hayan sido modificadas explícitamente.
+
 ---
 
-## 22. Seguridad
+## 26. Seguridad
 
-La información sensible nunca debe exponerse mediante respuestas del API.
+La información sensible nunca debe exponerse mediante respuestas del API salvo que el contrato defina expresamente que una credencial debe entregarse al cliente.
 
 Las contraseñas:
 
@@ -571,11 +883,203 @@ Las contraseñas:
 
 No utilices cifrado reversible como sustituto del hashing de contraseñas.
 
+Las confirmaciones de contraseña:
+
+* son datos transitorios de entrada;
+* deben validarse antes del hashing;
+* no deben persistirse;
+* no deben devolverse mediante el API.
+
+Los hashes de contraseña nunca deben exponerse.
+
+Los tokens y credenciales sensibles no deben escribirse en logs.
+
 Las reglas de seguridad definidas en las User Stories y documentación son obligatorias.
 
 ---
 
-## 23. Implementación
+## 27. Autenticación y sesión
+
+Vera Balance distingue entre:
+
+```text
+Public Operation Token
+Session JWT
+Password Recovery Token o credencial de recuperación
+```
+
+Estos conceptos tienen propósitos diferentes.
+
+No los combines ni reutilices indistintamente.
+
+### Session JWT
+
+El JWT de sesión:
+
+* representa una sesión autenticada;
+* identifica al usuario autenticado;
+* se entrega mediante la cookie `HttpOnly` definida en `docs/openapi.yaml`;
+* no debe devolverse en el body;
+* no debe almacenarse en `localStorage`;
+* no debe almacenarse en `sessionStorage`;
+* no debe requerir que el frontend lea directamente su contenido.
+
+La identidad utilizada para operaciones autenticadas debe obtenerse de la sesión cuando así lo defina el contrato.
+
+No confíes en un `user_id`, email u otro identificador enviado por el frontend para sustituir la identidad autenticada cuando la operación debe actuar sobre el usuario de la sesión.
+
+### Public Operation Token
+
+El Public Operation Token no representa una sesión.
+
+Actualmente se utiliza únicamente para proteger:
+
+```text
+POST /v1/users
+POST /v1/auth/sign-in
+POST /v1/auth/forgot-password
+```
+
+Los scopes definidos actualmente son:
+
+```text
+users:create
+auth:sign-in
+auth:forgot-password
+```
+
+El endpoint:
+
+```text
+POST /v1/auth/public-token
+```
+
+es el único endpoint de este flujo que no requiere previamente sesión autenticada ni otro Public Operation Token.
+
+Un Public Operation Token:
+
+* debe corresponder al scope de la operación;
+* tiene vigencia limitada;
+* es de un solo uso;
+* no identifica una sesión de usuario;
+* no puede utilizarse como JWT de sesión;
+* no puede utilizarse para otra operación;
+* debe rechazarse si está expirado;
+* debe rechazarse si ya fue consumido;
+* debe rechazarse si su scope no corresponde.
+
+No agregues nuevos scopes ni nuevas operaciones protegidas mediante Public Operation Token salvo que las fuentes de verdad los definan.
+
+### Consumo del Public Operation Token
+
+El token debe validarse antes de ejecutar la operación protegida.
+
+Cuando la solicitud haya sido aceptada para ejecutar la operación correspondiente, el token debe consumirse conforme a las reglas documentadas.
+
+No implementes un mecanismo de single-use únicamente confiando en un JWT autocontenido si no existe una forma documentada de determinar que ya fue utilizado.
+
+Si garantizar single-use requiere persistencia que todavía no está definida en `docs/database.md`, reporta el bloqueo.
+
+No inventes la persistencia.
+
+### Recuperación de contraseña
+
+El Public Operation Token con scope:
+
+`auth:forgot-password`
+
+únicamente autoriza la solicitud inicial de recuperación de contraseña.
+
+No debe utilizarse como credencial para establecer posteriormente una nueva contraseña.
+
+Una futura credencial de recuperación deberá considerarse independiente de:
+
+* Public Operation Token;
+* Session JWT.
+
+No inventes:
+
+* endpoint de finalización de recuperación;
+* formato del Recovery Token;
+* persistencia del Recovery Token;
+* expiración;
+* mecanismo de envío;
+* proveedor de email;
+* comportamiento de consumo;
+
+si todavía no están definidos en las fuentes de verdad.
+
+---
+
+## 28. Autenticación vs autorización
+
+Autenticación y autorización son responsabilidades diferentes.
+
+Conceptualmente:
+
+```text
+Request
+↓
+Autenticación
+↓
+Identidad
+↓
+Autorización
+↓
+Caso de uso
+```
+
+Una sesión válida identifica al usuario.
+
+No implica automáticamente que el usuario pueda acceder a cualquier recurso.
+
+El backend debe validar, según corresponda:
+
+* rol;
+* clínica;
+* propiedad del recurso;
+* estado del usuario;
+* permisos definidos por las reglas funcionales.
+
+El frontend puede ocultar acciones, pero eso no sustituye la autorización backend.
+
+No confíes en filtros enviados por el frontend para determinar el alcance de acceso.
+
+---
+
+## 29. Implementación de autenticación
+
+Las capas Application y Domain no deberán depender directamente de implementaciones concretas como:
+
+* JWT libraries;
+* bcrypt;
+* cookies;
+* headers;
+* SDKs de proveedores de identidad;
+* Cognito;
+* servicios externos de autenticación.
+
+Cuando una operación necesite estas capacidades, utiliza ports o abstracciones explícitas conforme a la arquitectura del proyecto.
+
+Conceptualmente:
+
+```text
+Application
+↓
+Authentication / Session / Password Port
+↓
+Infrastructure
+↓
+JWT / bcrypt / proveedor externo
+```
+
+La implementación actual deberá permitir sustituir la infraestructura de autenticación en el futuro sin obligar a reescribir las reglas centrales del sistema.
+
+No crees abstracciones especulativas que no correspondan a una necesidad real de la User Story.
+
+---
+
+## 30. Implementación
 
 Implementa el cambio mínimo y coherente que satisfaga completamente la User Story.
 
@@ -590,15 +1094,28 @@ No:
 * modifiques contratos públicos innecesariamente;
 * implementes endpoints no definidos;
 * modifiques otras User Stories sin necesidad;
-* agregues abstracciones especulativas.
+* agregues abstracciones especulativas;
+* instales dependencias;
+* actualices dependencias;
+* elimines dependencias;
+* ejecutes builds;
+* ejecutes comandos auxiliares no autorizados para validar el proyecto.
 
 Crear más archivos es correcto cuando la separación de responsabilidades lo requiere.
 
 Crear más abstracciones sin una responsabilidad real no lo es.
 
+Si una implementación requiere una dependencia nueva, puedes preparar el código y `package.json`, pero la instalación será responsabilidad manual del usuario.
+
+Una solución más corta no es automáticamente una mejor solución.
+
+Una solución técnicamente válida no es suficiente si rompe la consistencia del proyecto.
+
+No es suficiente que funcione o que los tests pasen.
+
 ---
 
-## 24. Pruebas
+## 31. Pruebas
 
 Las pruebas forman parte de la implementación cuando la Definition of Done las requiere.
 
@@ -616,34 +1133,74 @@ Para pruebas de casos de uso:
 * utiliza los Domain Services reales relacionados con el flujo;
 * mockea repositories y dependencias externas.
 
+No sustituyas este patrón por instanciación manual como:
+
+```ts
+new SomeUseCase(...)
+```
+
+cuando el flujo equivalente del proyecto utiliza `TestingModule`.
+
 Las pruebas deben validar comportamiento y reglas de negocio.
 
 Los criterios de aceptación que puedan comprobarse automáticamente deben estar cubiertos por pruebas cuando corresponda.
 
 No modifiques una prueba únicamente para hacer que una implementación incorrecta pase.
 
+Para funcionalidades de autenticación, prueba según corresponda:
+
+* credencial ausente;
+* credencial inválida;
+* credencial expirada;
+* scope incorrecto;
+* credencial ya consumida;
+* sesión ausente;
+* sesión inválida;
+* sesión expirada;
+* usuario inactivo;
+* permisos insuficientes;
+* reglas funcionales específicas del endpoint.
+
+No inventes comportamientos HTTP que no estén definidos por OpenAPI o las User Stories.
+
+Si las pruebas no pueden ejecutarse porque falta una dependencia, no instales la dependencia.
+
+Reporta la dependencia pendiente para instalación manual.
+
 ---
 
-## 25. Validación posterior a la implementación
+## 32. Validación posterior a la implementación
 
 Después de implementar debes:
 
-1. ejecutar las pruebas relacionadas;
-2. ejecutar la suite relevante cuando sea posible mediante `npm run test`;
-3. no ejecutar `npm run build`;
-4. revisar cada criterio de aceptación;
-5. revisar cada regla de negocio;
-6. revisar la Definition of Done;
-7. revisar el diff completo;
-8. confirmar que no existen cambios ajenos a la User Story.
+1. verificar `node --version`;
+2. confirmar Node.js `v24.21.0`;
+3. determinar si las dependencias necesarias ya están instaladas;
+4. ejecutar las pruebas relacionadas mediante `npm run test` cuando el entorno ya esté preparado;
+5. ejecutar la suite relevante cuando sea posible mediante `npm run test`;
+6. no instalar dependencias;
+7. no ejecutar `npm run build`;
+8. no ejecutar ningún otro build equivalente;
+9. no ejecutar scripts npm auxiliares no autorizados;
+10. revisar cada criterio de aceptación;
+11. revisar cada regla de negocio;
+12. revisar la Definition of Done;
+13. revisar el diff completo;
+14. confirmar que no existen cambios ajenos a la User Story;
+15. confirmar que no se modificó documentación protegida sin autorización;
+16. identificar todas las acciones manuales pendientes para el responsable del proyecto.
 
 Nunca indiques que una prueba o build pasó si no fue ejecutado correctamente.
 
-Si una validación no puede ejecutarse debido al entorno, indícalo explícitamente. No modifiques la configuración del proyecto para adaptarla a una versión distinta de Node.js.
+Si una validación no puede ejecutarse debido al entorno o a una dependencia pendiente, indícalo explícitamente.
+
+No prepares el entorno automáticamente.
+
+No instales paquetes para intentar completar una validación.
 
 ---
 
-## 26. Definition of Done
+## 33. Definition of Done
 
 Antes de considerar que la implementación está lista para revisión, verifica cada elemento de `Definition of Done`.
 
@@ -669,28 +1226,42 @@ a:
 
 No marques como completado un elemento que no hayas podido verificar.
 
-Por ejemplo, si el build no pudo ejecutarse, no marques:
+Si la Definition of Done contiene:
 
-`[x] El proyecto compila correctamente.`
+`[ ] El proyecto compila correctamente.`
 
-Una User Story puede pasar a `Under Review` únicamente cuando la implementación esté lista para que el responsable del proyecto la revise.
+debe permanecer sin marcar porque los builds están prohibidos por las reglas del proyecto.
+
+No ejecutes el build para intentar satisfacer ese elemento.
+
+Si las pruebas no pudieron ejecutarse porque falta una dependencia que debe instalar manualmente el responsable, tampoco marques:
+
+`[x] Las pruebas pasan correctamente.`
+
+La imposibilidad de ejecutar un build o una prueba por estas restricciones no impide por sí sola pasar la User Story a `Under Review`, siempre que la implementación esté terminada y el pendiente se reporte claramente.
 
 Los elementos que requieran explícitamente validación humana pueden permanecer pendientes.
 
 ---
 
-## 27. Finalización de una User Story
+## 34. Finalización de una User Story
 
 Cuando termines la implementación:
 
 1. compara el resultado contra todos los criterios de aceptación;
 2. verifica las reglas de negocio;
-3. verifica Node.js `24.21.0` y ejecuta `npm run test`;
-4. no ejecutes `npm run build`;
-5. revisa la Definition of Done;
-6. actualiza los elementos verificables de la Definition of Done;
-7. revisa el diff final;
-8. cambia el `Status` de la User Story a `Under Review`.
+3. verifica Node.js `24.21.0`;
+4. ejecuta `npm run test` únicamente si las dependencias necesarias ya están instaladas;
+5. no instales dependencias;
+6. no ejecutes ningún build;
+7. no ejecutes scripts npm auxiliares no autorizados;
+8. revisa la Definition of Done;
+9. actualiza únicamente los elementos verificables de la Definition of Done;
+10. revisa el diff final;
+11. confirma que no se modificó documentación protegida;
+12. identifica dependencias pendientes de instalación manual;
+13. identifica comandos que deba ejecutar manualmente el responsable;
+14. cambia el `Status` de la User Story a `Under Review`.
 
 El estado final del trabajo realizado por Codex debe ser:
 
@@ -704,7 +1275,7 @@ No:
 
 ---
 
-## 28. Modificación de especificaciones
+## 35. Modificación de especificaciones
 
 Durante la implementación no debes modificar:
 
@@ -713,6 +1284,9 @@ Durante la implementación no debes modificar:
 * Descripción;
 * Criterios de aceptación;
 * Reglas de negocio;
+* Dependencias;
+* Consideraciones técnicas;
+* Referencias;
 
 salvo que el usuario solicite explícitamente un cambio en la especificación.
 
@@ -723,9 +1297,11 @@ Sí puedes modificar durante el flujo normal:
 
 siguiendo las reglas establecidas en este documento.
 
+No modifiques otras User Stories.
+
 ---
 
-## 29. Revisión final
+## 36. Revisión final
 
 Antes de finalizar, compara directamente la implementación contra la User Story solicitada.
 
@@ -741,9 +1317,24 @@ Si existe un bloqueo, repórtalo claramente.
 
 Comprueba también que la solución no viole documentación de mayor autoridad.
 
+Verifica especialmente:
+
+* que no existan cambios no relacionados;
+* que no se hayan agregado estructuras DynamoDB no documentadas;
+* que no se hayan inventado endpoints;
+* que no se hayan inventado códigos HTTP;
+* que no se hayan agregado scopes no documentados;
+* que no se haya expuesto información sensible;
+* que no se hayan modificado documentos protegidos;
+* que el patrón de Clinics se haya respetado cuando corresponda;
+* que no se hayan instalado dependencias;
+* que no se hayan ejecutado builds;
+* que no se hayan ejecutado scripts npm no autorizados;
+* que todas las acciones manuales pendientes estén identificadas.
+
 ---
 
-## 30. Respuesta final
+## 37. Respuesta final
 
 Al finalizar el trabajo, informa de forma concisa:
 
@@ -753,13 +1344,60 @@ Al finalizar el trabajo, informa de forma concisa:
 * resultado de las pruebas;
 * versión de Node.js utilizada;
 * resultado de `npm run test`;
-* `Build: no ejecutado por restricción del proyecto.`;
+* dependencias nuevas requeridas;
+* dependencias pendientes de instalación manual;
+* comandos que debe ejecutar manualmente el responsable del proyecto;
 * estado de los criterios de aceptación;
 * elementos de Definition of Done que no pudieron verificarse;
 * bloqueos o pendientes;
 * nuevo estado de la User Story.
 
-Si todo lo implementable fue completado y validado, el nuevo estado debe ser:
+Incluye siempre una sección:
+
+```text
+Acciones manuales requeridas:
+```
+
+Si existe una dependencia nueva, indica por ejemplo:
+
+```text
+Acciones manuales requeridas:
+- Instalar dependencia: bcrypt
+- Ejecutar: npm install bcrypt
+```
+
+Si existen varias:
+
+```text
+Acciones manuales requeridas:
+- Instalar dependencia: bcrypt
+  npm install bcrypt
+- Instalar dependencia de desarrollo: @types/bcrypt
+  npm install --save-dev @types/bcrypt
+```
+
+Si no existe ninguna acción manual pendiente, indica:
+
+```text
+Acciones manuales requeridas:
+- Ninguna.
+```
+
+No ejecutes estos comandos.
+
+Son instrucciones para el responsable del proyecto.
+
+Indica también exactamente:
+
+`Build: no ejecutado por restricción del proyecto.`
+
+Si las pruebas no pudieron ejecutarse debido a una dependencia pendiente, indícalo explícitamente.
+
+Por ejemplo:
+
+`Tests: no ejecutados; requieren instalación manual de las dependencias indicadas.`
+
+Si todo lo implementable fue completado, el nuevo estado puede ser:
 
 `Under Review`
 
@@ -768,3 +1406,40 @@ La aprobación final y el cambio a:
 `Done`
 
 corresponden exclusivamente al responsable del proyecto.
+
+---
+
+## 38. Regla principal de consistencia
+
+Antes de elegir una solución, verifica:
+
+1. si la documentación ya define el comportamiento;
+2. si Clinics ya define un patrón equivalente;
+3. si otro módulo validado implementa la misma responsabilidad;
+4. si la solución respeta la separación de capas;
+5. si requiere persistencia no documentada;
+6. si modifica un contrato público;
+7. si introduce una decisión funcional nueva;
+8. si requiere una dependencia nueva;
+9. si requiere una acción manual del responsable.
+
+No selecciones una solución únicamente porque:
+
+* utiliza menos archivos;
+* requiere menos código;
+* parece más moderna;
+* utiliza una abstracción genérica;
+* es un patrón común en otros proyectos;
+* facilita temporalmente la implementación.
+
+La solución debe ser coherente con Vera Balance.
+
+**El patrón de Clinics es obligatorio.**
+
+Una solución técnicamente válida no es suficiente si rompe la consistencia del proyecto.
+
+No es suficiente que funcione o que los tests pasen.
+
+Codex debe concentrarse en implementar el código y las pruebas requeridas.
+
+La instalación de dependencias, ejecución de builds y preparación manual del entorno corresponden al responsable del proyecto.

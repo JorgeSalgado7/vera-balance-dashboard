@@ -6,13 +6,13 @@ Todos los proyectos deben seguir principios de **Clean Architecture**, mantenien
 
 La arquitectura debe favorecer:
 
-- Separación de responsabilidades.
-- Bajo acoplamiento.
-- Alta cohesión.
-- Código fácilmente testeable.
-- Independencia entre dominio, infraestructura y frameworks.
-- Escalabilidad por módulos o features.
-- Organización consistente entre backend y frontend.
+* Separación de responsabilidades.
+* Bajo acoplamiento.
+* Alta cohesión.
+* Código fácilmente testeable.
+* Independencia entre dominio, infraestructura y frameworks.
+* Escalabilidad por módulos o features.
+* Organización consistente entre backend y frontend.
 
 Estos lineamientos son generales y no deben contener decisiones de dominio específicas de un proyecto.
 
@@ -24,13 +24,13 @@ Estos lineamientos son generales y no deben contener decisiones de dominio espec
 
 En backend, cada contexto funcional deberá representarse mediante un módulo independiente.
 
-```text
+```text id="x7kvfw"
 src/modules/[nombre-del-modulo]
 ```
 
 Ejemplo:
 
-```text
+```text id="iw6fkd"
 src/modules/clients
 ```
 
@@ -40,7 +40,7 @@ Cada módulo debe encapsular la lógica correspondiente a su contexto funcional 
 
 ## 2.2 Estructura base de un módulo interno
 
-```text
+```text id="eah0hr"
 src/
 └── modules/
     └── clients/
@@ -82,15 +82,15 @@ Contiene los casos de uso y la orquestación de la lógica de aplicación.
 
 Responsabilidades:
 
-- Ejecutar casos de uso.
-- Coordinar dominio y dependencias externas mediante abstracciones.
-- Definir DTOs de entrada y salida.
-- Definir puertos necesarios por la aplicación.
-- No contener detalles concretos de persistencia o transporte HTTP.
+* Ejecutar casos de uso.
+* Coordinar dominio y dependencias externas mediante abstracciones.
+* Definir DTOs de entrada y salida.
+* Definir puertos necesarios por la aplicación.
+* No contener detalles concretos de persistencia o transporte HTTP.
 
 Ejemplo:
 
-```text
+```text id="ob7p31"
 application/use-cases/create-client.use-case.ts
 application/dtos/create-client.dto.ts
 application/dtos/create-client-response.dto.ts
@@ -104,13 +104,13 @@ Contiene las reglas centrales del negocio.
 
 Responsabilidades:
 
-- Entidades de dominio.
-- Reglas e invariantes.
-- Errores propios del dominio.
-- Interfaces de repositorios.
-- Interfaces de providers cuando representan una necesidad del dominio.
-- Servicios de dominio.
-- Value Objects cuando sean necesarios.
+* Entidades de dominio.
+* Reglas e invariantes.
+* Errores propios del dominio.
+* Interfaces de repositorios.
+* Interfaces de providers cuando representan una necesidad del dominio.
+* Servicios de dominio.
+* Value Objects cuando sean necesarios.
 
 El dominio no debe depender de frameworks ni detalles de infraestructura.
 
@@ -122,12 +122,15 @@ Contiene implementaciones concretas para interactuar con bases de datos, APIs, S
 
 Responsabilidades:
 
-- Implementar repositorios.
-- Implementar providers.
-- Acceso a bases de datos.
-- Consumo de APIs externas.
-- Transformación entre modelos de persistencia y entidades.
-- Uso de SDKs y librerías concretas.
+* Implementar repositorios.
+* Implementar providers.
+* Acceso a bases de datos.
+* Consumo de APIs externas.
+* Transformación entre modelos de persistencia y entidades.
+* Uso de SDKs y librerías concretas.
+* Implementación concreta de mecanismos de autenticación, hashing, tokens y sesiones cuando corresponda.
+
+Los casos de uso y el dominio no deberán depender directamente de estas implementaciones concretas.
 
 ---
 
@@ -137,15 +140,18 @@ Es la capa de entrada del módulo.
 
 Responsabilidades:
 
-- Recibir requests HTTP.
-- Ejecutar casos de uso.
-- Definir documentación Swagger cuando corresponda.
-- Traducir errores de dominio/aplicación a errores HTTP.
-- Aplicar validaciones propias del transporte.
-- Aplicar autenticación y autorización cuando corresponda.
-- No implementar lógica de negocio.
+* Recibir requests HTTP.
+* Ejecutar casos de uso.
+* Definir documentación Swagger cuando corresponda.
+* Traducir errores de dominio/aplicación a errores HTTP.
+* Aplicar validaciones propias del transporte.
+* Aplicar autenticación y autorización cuando corresponda.
+* Extraer credenciales, cookies, headers u otra información propia del transporte.
+* No implementar lógica de negocio.
 
 Los controllers deben mantenerse delgados.
+
+La validación técnica de una credencial puede ejecutarse mediante guards, decorators, interceptors u otros mecanismos de `presentation`, pero las reglas funcionales asociadas a una operación deberán permanecer en las capas correspondientes.
 
 ---
 
@@ -155,7 +161,7 @@ Los controllers deben mantenerse delgados.
 
 Representa una entidad, agregado o contexto funcional propio del sistema.
 
-```text
+```text id="e4yz9s"
 src/modules/clients/
 ├── application/
 ├── domain/
@@ -170,7 +176,7 @@ Representa la integración con otro sistema, servicio o API.
 
 Ejemplos:
 
-```text
+```text id="eou7mq"
 oauth
 payments
 notifications
@@ -179,7 +185,7 @@ storage
 
 Puede utilizar una estructura como:
 
-```text
+```text id="bzf42e"
 src/modules/inboxes/
 ├── application/
 ├── domain/
@@ -204,13 +210,15 @@ Los módulos deberán exportar sólo los providers, casos de uso, servicios o ab
 
 Un módulo no deberá consumir directamente adapters, repositories concretos, schemas o modelos de infraestructura pertenecientes a otro módulo.
 
+Cuando un módulo necesite información o comportamiento perteneciente a otro contexto, deberá consumir una capacidad explícitamente expuesta por el módulo propietario.
+
 ---
 
 ## 2.9 Manejo de errores HTTP
 
 Los errores de dominio no deben conocer códigos HTTP.
 
-```ts
+```ts id="o0qrjz"
 export class ClientNotFoundError extends Error {
   constructor() {
     super('Client not found.');
@@ -220,11 +228,13 @@ export class ClientNotFoundError extends Error {
 
 La traducción hacia HTTP pertenece a `presentation`.
 
-```text
+```text id="8g8e8n"
 presentation/errors/client-error.translator.ts
 ```
 
 Puede existir una implementación compartida para normalizar la estructura común de errores HTTP, manteniendo los traductores específicos dentro de cada módulo.
+
+Los errores relacionados con autenticación o autorización deberán seguir la misma separación: las capas internas expresan errores funcionales o técnicos propios de su responsabilidad y la capa externa determina su representación HTTP.
 
 ---
 
@@ -232,13 +242,13 @@ Puede existir una implementación compartida para normalizar la estructura comú
 
 El código verdaderamente transversal del backend deberá quedar en:
 
-```text
+```text id="hnogpd"
 src/shared
 ```
 
 Ejemplos:
 
-```text
+```text id="g8zjck"
 src/shared/http-problem
 src/shared/logger
 src/shared/config
@@ -246,6 +256,8 @@ src/shared/utils
 ```
 
 `shared` no debe convertirse en un lugar para colocar lógica que pertenece a un módulo.
+
+Una utilidad de seguridad no deberá moverse automáticamente a `shared` sólo porque pueda reutilizarse. Si pertenece conceptualmente a un contexto funcional, deberá permanecer dentro de su módulo.
 
 ---
 
@@ -255,13 +267,17 @@ La tecnología o estrategia de persistencia no modifica los límites de los mód
 
 Aunque diferentes módulos compartan una misma base de datos, tabla, conexión o cliente técnico, cada módulo deberá conservar la responsabilidad sobre:
 
-- Sus queries.
-- Sus comandos de persistencia.
-- Sus mappers.
-- Sus modelos.
-- Sus reglas de persistencia.
+* Sus queries.
+* Sus comandos de persistencia.
+* Sus mappers.
+* Sus modelos.
+* Sus reglas de persistencia.
 
 La configuración técnica común de la base de datos puede ubicarse en `shared`, siempre que no contenga lógica funcional de los módulos.
+
+Las necesidades de persistencia relacionadas con sesiones, credenciales temporales, tokens u otros mecanismos de seguridad deberán seguir las mismas reglas.
+
+No deberán introducirse tablas, índices, modelos o estructuras de persistencia no definidos por las fuentes de verdad del proyecto únicamente para resolver una necesidad de implementación.
 
 ---
 
@@ -269,7 +285,7 @@ La configuración técnica común de la base de datos puede ubicarse en `shared`
 
 Deben mantenerse separados conceptualmente:
 
-```text
+```text id="bpyq8o"
 Persistence Model
        ↓
      Mapper
@@ -285,9 +301,107 @@ Un modelo de persistencia no deberá utilizarse automáticamente como entidad de
 
 Las transformaciones entre representaciones deberán ser explícitas.
 
+Esta separación también aplica a información de autenticación y seguridad.
+
+Una representación persistida de una sesión, token o credencial no deberá utilizarse automáticamente como contrato HTTP ni filtrarse hacia otras capas.
+
 ---
 
-## 2.13 Autorización
+## 2.13 Autenticación
+
+La autenticación deberá mantenerse separada de la lógica funcional de los módulos.
+
+Las capas internas deberán depender de capacidades o abstracciones cuando necesiten:
+
+* Validar credenciales.
+* Verificar hashes.
+* Generar o validar sesiones.
+* Generar, validar o consumir credenciales temporales.
+* Interactuar con proveedores externos de identidad.
+
+No deberán depender directamente de:
+
+* Librerías concretas de JWT.
+* Librerías concretas de hashing.
+* SDKs de proveedores de identidad.
+* Cookies.
+* Headers HTTP.
+* APIs concretas de frameworks.
+
+Conceptualmente:
+
+```text id="gqg4ft"
+Application / Domain
+        ↓
+Ports / Capabilities
+        ↓
+Infrastructure
+        ↓
+JWT / Hashing / Identity Provider / Storage
+```
+
+La decisión de utilizar JWT, cookies, tokens opacos u otro mecanismo concreto pertenece a las fuentes de verdad específicas del proyecto.
+
+Los mecanismos de autenticación deberán diseñarse de forma que una implementación concreta pueda sustituirse sin obligar a modificar la lógica central del sistema.
+
+---
+
+## 2.14 Sesiones y credenciales temporales
+
+Una sesión autenticada y una credencial temporal para ejecutar una operación no deberán considerarse equivalentes.
+
+Conceptualmente:
+
+```text id="of5yvk"
+Credencial temporal
+        ↓
+autoriza una operación limitada
+
+Sesión autenticada
+        ↓
+representa una identidad autenticada durante un periodo
+```
+
+Cuando un proyecto utilice credenciales temporales:
+
+* Deberá definirse explícitamente su propósito.
+* Deberá definirse su alcance.
+* Deberá definirse su expiración.
+* Deberá definirse si son reutilizables o de un solo uso.
+* No deberán convertirse implícitamente en sesiones.
+* No deberán conceder permisos distintos de aquellos para los que fueron creadas.
+
+Cuando una credencial sea de un solo uso, su consumo deberá poder determinarse de manera confiable.
+
+La persistencia o estrategia necesaria para garantizar dicha propiedad deberá estar definida en las fuentes de verdad del proyecto antes de implementarse.
+
+No deberá asumirse que un token firmado y autocontenido garantiza por sí mismo que una credencial de un solo uso no pueda reutilizarse.
+
+---
+
+## 2.15 Manejo seguro de credenciales
+
+Las credenciales deberán tratarse como información sensible.
+
+Como regla general:
+
+* Las contraseñas no deberán almacenarse en texto plano.
+* Los hashes de contraseña no deberán exponerse mediante contratos HTTP.
+* Las confirmaciones de contraseña son datos transitorios y no deberán persistirse.
+* Los tokens de sesión no deberán exponerse innecesariamente.
+* Las credenciales temporales deberán limitarse al propósito para el cual fueron creadas.
+* Las credenciales no deberán registrarse en logs.
+* Los datos sensibles no deberán formar parte de mensajes de error innecesariamente.
+
+Cuando una sesión utilice una cookie `HttpOnly`, el frontend no deberá depender de leer directamente su contenido.
+
+Cuando el contrato utilice cookies para autenticación, el cliente HTTP deberá configurarse para enviarlas según las reglas del proyecto.
+
+Los detalles concretos de seguridad, expiración, cookies, scopes y mecanismos de transporte deberán definirse en la documentación específica de cada proyecto.
+
+---
+
+## 2.16 Autorización
 
 Los permisos reales deberán aplicarse siempre en backend.
 
@@ -295,9 +409,29 @@ El frontend puede ocultar o deshabilitar acciones para mejorar la experiencia de
 
 No se deberá confiar en filtros o valores enviados por el frontend para determinar el alcance de acceso de un usuario.
 
+Autenticación y autorización son responsabilidades distintas.
+
+Conceptualmente:
+
+```text id="wxn2tt"
+Request
+↓
+Autenticación
+↓
+Identidad
+↓
+Autorización
+↓
+Caso de uso
+```
+
+Una identidad autenticada no implica automáticamente acceso a cualquier recurso.
+
+El backend deberá determinar los permisos utilizando información confiable obtenida de la sesión y de sus propias fuentes de datos.
+
 ---
 
-## 2.14 Eliminaciones y relaciones
+## 2.17 Eliminaciones y relaciones
 
 La existencia de un endpoint `DELETE` no implica que el controller sea responsable de manejar relaciones o eliminaciones en cascada.
 
@@ -313,13 +447,13 @@ El controller únicamente deberá recibir la petición y ejecutar el caso de uso
 
 Cada contexto funcional del backend deberá representarse en frontend como un **feature** cuando exista funcionalidad frontend asociada.
 
-```text
+```text id="m2grwk"
 src/features/[nombre-del-feature]
 ```
 
 El frontend tendrá además elementos globales:
 
-```text
+```text id="80o1ao"
 src/
 ├── common/
 ├── features/
@@ -335,7 +469,7 @@ No existe una carpeta global `shared` en frontend.
 
 ## 3.2 Estructura global
 
-```text
+```text id="h9e7h2"
 src/
 ├── common/
 │   ├── constants/
@@ -362,7 +496,7 @@ Las carpetas globales únicamente contendrán elementos realmente transversales.
 
 ## 3.3 Estructura de un feature
 
-```text
+```text id="1iz0hh"
 src/features/clients/
 ├── application/
 │   ├── dto/
@@ -399,7 +533,7 @@ El estado Redux funcional vive dentro de su feature.
 
 Cuando existan contextos independientes deberán separarse por flujo o caso de uso.
 
-```text
+```text id="8kzud7"
 application/store/
 ├── client-list/
 ├── create-client/
@@ -409,7 +543,7 @@ application/store/
 
 Cada store puede contener:
 
-```text
+```text id="76i8aa"
 interface/
 initial-state/
 slice/
@@ -420,6 +554,10 @@ Crear y editar deberán considerarse casos de uso independientes cuando represen
 
 El store global no contiene lógica funcional.
 
+Las credenciales sensibles no deberán almacenarse automáticamente en Redux.
+
+Si la sesión utiliza una cookie `HttpOnly`, Redux deberá representar únicamente el estado funcional necesario para la UI y no una copia del token de sesión.
+
 ---
 
 ## 3.5 Hooks
@@ -428,16 +566,16 @@ Los hooks de un feature sirven como capa de composición entre React y la aplica
 
 Pueden:
 
-- Leer selectors.
-- Ejecutar dispatch.
-- Invocar casos de uso.
-- Preparar información para componentes.
+* Leer selectors.
+* Ejecutar dispatch.
+* Invocar casos de uso.
+* Preparar información para componentes.
 
 No deberán concentrar toda la lógica del feature.
 
 Los hooks tipados globales de Redux pertenecen a:
 
-```text
+```text id="mnhmtg"
 src/store/hooks.ts
 ```
 
@@ -447,17 +585,24 @@ src/store/hooks.ts
 
 Los detalles de comunicación HTTP pertenecen a:
 
-```text
+```text id="lny90q"
 features/[feature]/infrastructure/http
 ```
 
 Aquí deberán permanecer detalles como:
 
-- Axios o Fetch.
-- Headers.
-- Tokens.
-- Serialización.
-- Interpretación técnica de respuestas.
+* Axios o Fetch.
+* Headers.
+* Cookies y configuración de credenciales HTTP cuando corresponda.
+* Credenciales temporales requeridas por una operación.
+* Serialización.
+* Interpretación técnica de respuestas.
+
+El frontend no deberá asumir que todos los mecanismos de autenticación se administran de la misma manera.
+
+Cuando el backend utilice una cookie `HttpOnly` para representar la sesión, el frontend no deberá intentar leer, almacenar o decodificar directamente el token contenido en ella.
+
+Las credenciales temporales utilizadas para una operación deberán conservarse únicamente durante el tiempo necesario para completar dicha operación y no deberán tratarse como una sesión.
 
 ---
 
@@ -465,13 +610,13 @@ Aquí deberán permanecer detalles como:
 
 La UI específica pertenece a:
 
-```text
+```text id="yvhz4w"
 features/[feature]/ui
 ```
 
 La UI transversal pertenece a:
 
-```text
+```text id="q6zggb"
 src/ui
 ```
 
@@ -479,7 +624,7 @@ Un componente global no deberá depender de un feature concreto.
 
 Ejemplos globales:
 
-```text
+```text id="oqnvcn"
 VBCard
 VBLoadingModal
 VBButton
@@ -489,7 +634,7 @@ EmptyState
 
 Ejemplo específico:
 
-```text
+```text id="pznjtr"
 features/patients/ui/components/PatientForm.tsx
 ```
 
@@ -499,11 +644,11 @@ features/patients/ui/components/PatientForm.tsx
 
 `src/common` contiene elementos técnicos o declarativos realmente reutilizables:
 
-- Constantes globales.
-- Tipos globales.
-- Interfaces compartidas.
-- Helpers puros.
-- Utilidades sin estado.
+* Constantes globales.
+* Tipos globales.
+* Interfaces compartidas.
+* Helpers puros.
+* Utilidades sin estado.
 
 No deberá contener lógica funcional de un feature.
 
@@ -513,17 +658,19 @@ No deberá contener lógica funcional de un feature.
 
 `src/routes` es responsable exclusivamente de la composición del enrutamiento.
 
-```text
+```text id="qx19ao"
 src/routes/PageRouter.tsx
 ```
 
 Las rutas podrán apoyarse en constantes globales:
 
-```text
+```text id="cy8t1i"
 src/common/constants/routes.constant.ts
 ```
 
 No deberá contener lógica funcional.
+
+La protección visual o navegación condicionada por autenticación no sustituye las validaciones de autenticación y autorización realizadas por el backend.
 
 ---
 
@@ -531,7 +678,7 @@ No deberá contener lógica funcional.
 
 Los layouts compartidos pertenecen a:
 
-```text
+```text id="b36hdx"
 src/ui/layouts
 ```
 
@@ -543,7 +690,7 @@ No deberá crearse un layout nuevo para una única pantalla si no existe una est
 
 ## 3.11 Store global
 
-```text
+```text id="abkx9p"
 src/store/
 ├── hooks.ts
 └── store.ts
@@ -551,17 +698,17 @@ src/store/
 
 Su responsabilidad es:
 
-- Configurar Redux.
-- Registrar reducers.
-- Exponer `RootState`.
-- Exponer `AppDispatch`.
-- Exponer hooks Redux tipados.
+* Configurar Redux.
+* Registrar reducers.
+* Exponer `RootState`.
+* Exponer `AppDispatch`.
+* Exponer hooks Redux tipados.
 
 Los reducers siguen perteneciendo a sus features.
 
 Ejemplo:
 
-```ts
+```ts id="vg0ecq"
 import { configureStore } from '@reduxjs/toolkit';
 
 import { clientsReducer } from '../features/clients/application/store/client-list/slice/client-list.slice';
@@ -586,11 +733,12 @@ export type AppDispatch = typeof store.dispatch;
 
 Puede:
 
-- Crear el root de React.
-- Registrar providers globales.
-- Registrar Redux.
-- Inicializar el router.
-- Importar estilos globales.
+* Crear el root de React.
+* Registrar providers globales.
+* Registrar Redux.
+* Inicializar el router.
+* Importar estilos globales.
+* Configurar infraestructura HTTP global cuando corresponda.
 
 No deberá contener lógica funcional de features.
 
@@ -600,7 +748,7 @@ No deberá contener lógica funcional de features.
 
 La correspondencia entre módulos y features es conceptual y organizacional.
 
-```text
+```text id="rj2i7g"
 BACKEND                    FRONTEND
 
 src/modules/clients   ->   src/features/clients
@@ -616,7 +764,7 @@ Sólo deberá existir un feature cuando exista funcionalidad frontend asociada.
 
 Conceptualmente:
 
-```text
+```text id="3f5eqy"
 UI / Presentation
        ↓
 Application
@@ -628,18 +776,20 @@ Infrastructure
 
 Reglas:
 
-- `domain` no depende de infraestructura.
-- `domain` no depende de UI/presentation.
-- `application` puede depender de `domain`.
-- `infrastructure` implementa contratos definidos por capas internas.
-- `presentation` o `ui` consume la aplicación.
-- Los modelos de persistencia no deberán filtrarse hacia dominio o presentación.
-- Los DTOs HTTP no deberán utilizarse como modelos de persistencia.
-- Un módulo backend no deberá acceder directamente a la infraestructura interna de otro módulo.
-- `src/store` puede importar reducers desde features.
-- `routes` puede importar páginas de features.
-- `common` no depende de features.
-- `src/ui` global no depende de features concretos.
+* `domain` no depende de infraestructura.
+* `domain` no depende de UI/presentation.
+* `application` puede depender de `domain`.
+* `infrastructure` implementa contratos definidos por capas internas.
+* `presentation` o `ui` consume la aplicación.
+* Los modelos de persistencia no deberán filtrarse hacia dominio o presentación.
+* Los DTOs HTTP no deberán utilizarse como modelos de persistencia.
+* Un módulo backend no deberá acceder directamente a la infraestructura interna de otro módulo.
+* Los mecanismos concretos de autenticación no deberán filtrarse hacia dominio.
+* Las cookies y headers pertenecen al límite HTTP y no al dominio.
+* `src/store` puede importar reducers desde features.
+* `routes` puede importar páginas de features.
+* `common` no depende de features.
+* `src/ui` global no depende de features concretos.
 
 ---
 
@@ -678,6 +828,13 @@ Reglas:
 31. Un módulo no importará infraestructura concreta de otro módulo.
 32. Crear y editar deberán separarse cuando representen flujos independientes.
 33. Antes de crear una abstracción, carpeta, módulo, provider o servicio deberá existir una necesidad real.
+34. Autenticación y autorización deberán tratarse como responsabilidades diferentes.
+35. Las implementaciones concretas de autenticación, hashing y sesiones deberán permanecer detrás de abstracciones cuando sean consumidas por capas internas.
+36. Una credencial temporal no deberá tratarse automáticamente como una sesión autenticada.
+37. Las credenciales de un solo uso deberán contar con un mecanismo que permita impedir su reutilización.
+38. Las credenciales sensibles no deberán almacenarse innecesariamente en estado global del frontend.
+39. Una sesión almacenada mediante cookie `HttpOnly` no deberá requerir acceso directo al token desde JavaScript.
+40. Los mecanismos de seguridad concretos deberán seguir las fuentes de verdad específicas de cada proyecto y no inventarse durante la implementación.
 
 ---
 
@@ -689,9 +846,11 @@ Cada capa debe tener una responsabilidad real y sus dependencias deben respetar 
 
 La estructura deberá permitir que un módulo o feature pueda entenderse, modificarse y evolucionar con el menor conocimiento posible del resto del proyecto.
 
+La seguridad deberá seguir el mismo principio: las decisiones concretas sobre autenticación, sesiones, credenciales y proveedores externos no deberán acoplar innecesariamente las reglas centrales del sistema a frameworks o implementaciones específicas.
+
 En frontend:
 
-```text
+```text id="vtepfj"
 features   -> funcionalidad de negocio
 common     -> elementos técnicos/declarativos transversales
 ui         -> componentes y estructuras visuales globales
@@ -702,7 +861,7 @@ main.tsx   -> composición e inicialización
 
 En backend:
 
-```text
+```text id="xkk0s6"
 modules        -> contextos funcionales
 application    -> casos de uso y orquestación
 domain         -> reglas y modelos centrales

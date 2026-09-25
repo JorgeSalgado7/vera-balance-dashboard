@@ -85,23 +85,27 @@ El estado pertenece al proceso terapéutico y no al paciente.
 ```text
 pk: string -> uuid
 sk: string -> 'PATIENT'
+clinic: {
+    pk: string -> uuid
+    sk: string -> 'CLINIC'
+}
 name: string
 age: number
 guardian: {
-	name: string
-	phone_number: string
-	relationship: string
+    name: string
+    phone_number: string
+    relationship: string
 } | null
-phone_number: string | null -> si age es mayor de 18 no es nullo
+phone_number: string | null
 sex: string
 education: string
 occupation: string
-marital_status: string
+marital_status: string | null
 partner_data: {
-	name: string
-	age: number
-	relationship_time: string
-	occupation: string
+    name: string
+    age: number
+    relationship_time: string
+    occupation: string
 } | null
 religion: string
 address: string

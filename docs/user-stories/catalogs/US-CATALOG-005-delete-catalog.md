@@ -1,101 +1,298 @@
+# US-CATALOG-005 — Delete Catalog
+
 ## Historia de usuario
 
-Como administrador de Vera Balance,
-quiero eliminar un catálogo global,
-para retirar del sistema catálogos que ya no deben estar disponibles.
+Como administrador global autorizado de Vera Balance,  
+quiero eliminar catálogos globales que ya no son necesarios,  
+para mantener actualizados los recursos reutilizables del sistema sin afectar su integridad.
 
-Scope: Backend
-Status: Backlog
+**Scope:** Backend  
+**Status:** Backlog
 
 ## Descripción
 
-El sistema debe permitir eliminar catálogos globales creados para el uso del sistema.
+El sistema debe permitir eliminar un catálogo global mediante:
 
-Los catálogos iniciales forman parte de la configuración base de Vera Balance y no deben poder eliminarse.
+`DELETE /v1/catalogs/{id}`
 
-Esta funcionalidad permanecerá pendiente hasta que exista un mecanismo de administración global que permita autorizar la operación.
+Los catálogos son recursos globales y no pertenecen a una clínica.
+
+Los catálogos iniciales de Vera Balance forman parte de la configuración base del sistema y no podrán eliminarse:
+
+- `MARITAL_STATUS`
+- `SCHOOL`
+- `GENDER`
+
+Los catálogos adicionales únicamente podrán eliminarse cuando no existan referencias que requieran conservarlos.
+
+La operación requiere permisos de administración global.
+
+Los usuarios con rol `clinic` o `therapist` no podrán eliminar catálogos.
+
+Esta funcionalidad permanecerá en Backlog hasta que exista un mecanismo de administración global aprobado.
 
 ## Criterios de aceptación
 
-### CA-01 - Eliminar catálogo
+### CA-01 - Validar autenticación
 
-Dado que existe un catálogo que puede eliminarse,
-cuando un administrador autorizado solicita eliminarlo,
-entonces el sistema debe eliminar el catálogo correspondiente.
+Dado que se solicita eliminar un catálogo,  
+cuando el sistema recibe la solicitud,  
+entonces debe validar la identidad mediante el mecanismo de autenticación administrativa global aprobado.
 
-### CA-02 - Catálogo global
+Si no existe autenticación válida, debe responder con `401 Unauthorized`.
 
-Dado que se elimina un catálogo,
-cuando se ejecuta la operación,
-entonces la eliminación debe aplicar al catálogo global y no a información de una clínica específica.
+### CA-02 - Validar autorización global
 
-### CA-03 - Proteger catálogo MARITAL_STATUS
+Dado que existe una identidad autenticada,  
+cuando se solicita eliminar un catálogo,  
+entonces debe comprobarse que tenga permisos administrativos globales.
 
-Dado que `MARITAL_STATUS` es un catálogo inicial del sistema,
-cuando se intenta eliminar,
-entonces el sistema debe rechazar la operación.
+Si no cuenta con dichos permisos, debe responder con `403 Forbidden`.
 
-### CA-04 - Proteger catálogo SCHOOL
+### CA-03 - Impedir eliminación desde roles de clínica
 
-Dado que `SCHOOL` es un catálogo inicial del sistema,
-cuando se intenta eliminar,
-entonces el sistema debe rechazar la operación.
+Dado que un usuario autenticado tiene rol `clinic` o `therapist`,  
+cuando solicita eliminar un catálogo,  
+entonces el sistema debe rechazar la operación con `403 Forbidden`.
 
-### CA-05 - Proteger catálogo GENDER
+### CA-04 - Validar identificador
 
-Dado que `GENDER` es un catálogo inicial del sistema,
-cuando se intenta eliminar,
-entonces el sistema debe rechazar la operación.
+Dado que se solicita eliminar un catálogo,  
+cuando se recibe el parámetro `id`,  
+entonces debe validarse conforme al formato definido para Catalogs.
+
+Si el identificador es inválido, debe responder con `400 Bad Request`.
+
+### CA-05 - Verificar existencia
+
+Dado que se solicita eliminar un catálogo,  
+cuando el sistema procesa la operación,  
+entonces debe comprobar que exista un catálogo con el identificador proporcionado.
 
 ### CA-06 - Catálogo inexistente
 
-Dado que no existe un catálogo con el identificador solicitado,
-cuando se intenta eliminar,
-entonces el sistema debe devolver la respuesta correspondiente a un recurso no encontrado.
+Dado que no existe el catálogo solicitado,  
+cuando se intenta eliminar,  
+entonces el sistema debe responder con `404 Not Found`.
 
-### CA-07 - Autorización administrativa
+### CA-07 - Proteger MARITAL_STATUS
 
-Dado que los catálogos únicamente pueden ser administrados globalmente,
-cuando un usuario sin permisos administrativos intenta eliminar un catálogo,
-entonces el sistema debe rechazar la operación.
+Dado que existe el catálogo `MARITAL_STATUS`,  
+cuando se solicita eliminarlo,  
+entonces el sistema debe rechazar la operación con `409 Conflict`.
 
-### CA-08 - Respuesta
+### CA-08 - Proteger SCHOOL
 
-Dado que un catálogo fue eliminado correctamente,
-cuando finaliza la operación,
-entonces el sistema debe devolver la respuesta definida para el endpoint.
+Dado que existe el catálogo `SCHOOL`,  
+cuando se solicita eliminarlo,  
+entonces el sistema debe rechazar la operación con `409 Conflict`.
+
+### CA-09 - Proteger GENDER
+
+Dado que existe el catálogo `GENDER`,  
+cuando se solicita eliminarlo,  
+entonces el sistema debe rechazar la operación con `409 Conflict`.
+
+### CA-10 - Validar referencias existentes
+
+Dado que se solicita eliminar un catálogo adicional,  
+cuando el sistema comprueba sus relaciones,  
+entonces debe verificar que no existan referencias persistidas que requieran conservarlo.
+
+Si existen referencias que impiden su eliminación, debe responder con `409 Conflict`.
+
+### CA-11 - Eliminar catálogo permitido
+
+Dado que existe un catálogo adicional,  
+y la identidad cuenta con permisos administrativos globales,  
+y el catálogo no pertenece a los tipos protegidos,  
+y no existen relaciones que impidan su eliminación,  
+cuando se solicita eliminarlo,  
+entonces el sistema debe eliminar el catálogo correspondiente.
+
+### CA-12 - Mantener alcance global
+
+Dado que se elimina un catálogo,  
+cuando se ejecuta la operación,  
+entonces la eliminación debe aplicarse exclusivamente al recurso global solicitado.
+
+No deberá modificar información de una clínica específica por el simple hecho de eliminar el catálogo.
+
+### CA-13 - No eliminar información relacionada
+
+Dado que se elimina un catálogo,  
+cuando finaliza la operación,  
+entonces no deberán eliminarse automáticamente pacientes, usuarios, procesos terapéuticos ni registros clínicos.
+
+### CA-14 - Mantener consistencia de persistencia
+
+Dado que un catálogo cumple las condiciones para eliminarse,  
+cuando el sistema ejecuta la operación,  
+entonces deberá mantener la integridad de las referencias y restricciones correspondientes.
+
+Si ocurre un error, no deberán quedar registros inconsistentes.
+
+### CA-15 - Respuesta correcta
+
+Dado que el catálogo fue eliminado correctamente,  
+cuando finaliza la operación,  
+entonces el sistema debe responder con `204 No Content`.
+
+La respuesta no deberá contener información del catálogo eliminado.
+
+### CA-16 - Proteger contra CSRF
+
+Dado que la operación utiliza autenticación mediante cookies,  
+cuando se solicita eliminar un catálogo,  
+entonces deben aplicarse los controles CSRF establecidos para Vera Balance.
+
+### CA-17 - Evitar condiciones de carrera
+
+Dado que se solicita eliminar un catálogo,  
+cuando existen operaciones concurrentes que pueden crear nuevas referencias al catálogo,  
+entonces el sistema debe garantizar que la eliminación no deje referencias inválidas.
+
+Una comprobación previa de referencias no será suficiente si no existe un mecanismo de consistencia que proteja la operación.
+
+### CA-18 - Mantener funcionalidad restringida
+
+Dado que el mecanismo de administración global no está definido,  
+cuando se despliega Vera Balance,  
+entonces el endpoint no deberá quedar habilitado para los roles `clinic` o `therapist`.
+
+La implementación permanecerá pendiente hasta contar con autorización global aprobada.
 
 ## Reglas de negocio
 
-* Los catálogos son globales.
-* Los catálogos no pertenecen a una clínica.
-* `MARITAL_STATUS`, `SCHOOL` y `GENDER` son catálogos iniciales del sistema.
-* Los catálogos iniciales no pueden eliminarse.
-* Los usuarios con rol `clinic` o `therapist` no pueden eliminar catálogos.
-* La eliminación de catálogos requiere permisos administrativos globales.
-* No debe implementarse un nuevo rol administrativo como parte de esta historia de usuario.
+- Los catálogos son globales.
+- No pertenecen a una clínica.
+- La eliminación requiere permisos administrativos globales.
+- Los roles `clinic` y `therapist` no pueden eliminar catálogos.
+- La eliminación debe realizarse mediante el identificador definido para Catalogs.
+- El catálogo debe existir.
+- `MARITAL_STATUS` no puede eliminarse.
+- `SCHOOL` no puede eliminarse.
+- `GENDER` no puede eliminarse.
+- Los catálogos adicionales pueden eliminarse únicamente cuando no existan restricciones de integridad.
+- La eliminación no debe afectar automáticamente otros recursos.
+- No deben generarse referencias inválidas.
+- No debe implementarse un nuevo rol administrativo.
+- La funcionalidad permanece pendiente hasta definir la administración global.
 
 ## Dependencias
 
-* Definición del mecanismo de administración global del sistema.
+- Definición del mecanismo de administración global.
+- Catalogs.
+- Definición de las relaciones entre catálogos y módulos consumidores.
+- Política de integridad referencial para eliminación.
 
 ## Consideraciones técnicas
 
-* El contrato HTTP debe respetar `docs/baas-vera-balance-dashboard.yaml`.
-* La persistencia debe respetar `docs/DB.md`.
-* La implementación debe respetar `docs/PROJECT_ARCHITECTURE.md`.
-* Esta historia no debe implementarse hasta que exista el mecanismo de autorización administrativa correspondiente.
+### Endpoint
+
+`DELETE /v1/catalogs/{id}`
+
+### Parámetros
+
+`id`: identificador del catálogo conforme al modelo definido.
+
+### Autenticación y autorización
+
+- Debe utilizarse el mecanismo de administración global aprobado.
+- No debe utilizarse el rol `clinic` como administrador global.
+- Los roles `clinic` y `therapist` no pueden eliminar catálogos.
+- Si se utilizan cookies, deben aplicarse controles CSRF.
+- El endpoint no debe habilitarse sin autorización global.
+
+### Validaciones previas
+
+Antes de eliminar el catálogo, el sistema deberá:
+
+1. Validar la autenticación.
+2. Validar los permisos administrativos globales.
+3. Validar el identificador.
+4. Consultar el catálogo solicitado.
+5. Comprobar que exista.
+6. Comprobar que su `type` no sea uno de los tipos protegidos.
+7. Comprobar que no existan referencias que impidan su eliminación.
+8. Ejecutar la eliminación mediante un mecanismo consistente de persistencia.
+
+### Catálogos protegidos
+
+Los siguientes tipos deberán conservarse permanentemente como catálogos base:
+
+- `MARITAL_STATUS`
+- `SCHOOL`
+- `GENDER`
+
+La protección deberá basarse en el `type` persistido del catálogo, no en un identificador fijo asumido.
+
+### Integridad de referencias
+
+- No deberán eliminarse automáticamente registros de otros módulos.
+- Deberán comprobarse las relaciones que requieran conservar el catálogo.
+- La política de integridad deberá definirse antes de implementar la operación.
+- No deberán quedar referencias inválidas después de eliminar un catálogo.
+- Las comprobaciones deberán mantenerse correctas ante solicitudes concurrentes.
+
+### Persistencia
+
+- Debe respetarse el modelo Single Table de DynamoDB.
+- La eliminación debe utilizar el patrón de acceso definido para Catalogs.
+- Deben utilizarse operaciones condicionales o transacciones cuando corresponda.
+- No deben eliminarse registros pertenecientes a otros módulos.
+- Los detalles de DynamoDB no deben exponerse en el dominio.
+
+### Respuestas HTTP
+
+| Código | Descripción |
+|---|---|
+| `204 No Content` | Catálogo eliminado correctamente. |
+| `400 Bad Request` | Identificador inválido. |
+| `401 Unauthorized` | Autenticación inexistente o inválida. |
+| `403 Forbidden` | Identidad sin permisos globales. |
+| `404 Not Found` | Catálogo inexistente. |
+| `409 Conflict` | Catálogo protegido o con referencias que impiden su eliminación. |
+
+Los códigos definitivos deberán respetar OpenAPI.
+
+### Arquitectura
+
+- `presentation`: recepción del request, autenticación, validación y respuesta HTTP.
+- `application`: ejecución del caso de uso Delete Catalog y coordinación de validaciones.
+- `domain`: reglas de protección de catálogos e integridad.
+- `infrastructure`: consultas, validación de referencias y eliminación mediante adaptadores.
+
+La lógica de eliminación deberá permanecer separada de Create Catalog, Update Catalog y las consultas.
+
+### Contratos y documentación
+
+- El contrato HTTP debe respetar `docs/baas-vera-balance-dashboard.yaml`.
+- La persistencia debe respetar `docs/DB.md`.
+- Las reglas funcionales deben respetar `docs/DEFINITIONS.md`.
+- Los endpoints deben respetar `docs/ENDPOINTS.md`.
+- La arquitectura debe respetar `docs/PROJECT_ARCHITECTURE.md`.
+
+Antes de implementar deberá definirse el mecanismo de administración global y la política de eliminación para catálogos referenciados.
 
 ## Referencias
 
-* `docs/DB.md`
-* `docs/baas-vera-balance-dashboard.yaml`
-* `docs/DEFINITIONS.md`
-* `docs/PROJECT_ARCHITECTURE.md`
+- `docs/DB.md`
+- `docs/baas-vera-balance-dashboard.yaml`
+- `docs/DEFINITIONS.md`
+- `docs/ENDPOINTS.md`
+- `docs/PROJECT_ARCHITECTURE.md`
 
 ## Definition of Done
 
-* [ ] Todos los criterios de aceptación fueron implementados.
-* [ ] Se agregaron o actualizaron las pruebas necesarias.
-* [ ] Las pruebas pasan correctamente.
-* [ ] La implementación fue revisada.
+- [ ] Se definió y aprobó el mecanismo de administración global.
+- [ ] Se definió la política de integridad para catálogos referenciados.
+- [ ] Todos los criterios de aceptación fueron implementados.
+- [ ] Se verificó que `clinic` y `therapist` no puedan eliminar catálogos.
+- [ ] Se verificó la protección de los tres catálogos iniciales.
+- [ ] Se verificó el rechazo de catálogos inexistentes.
+- [ ] Se verificó la eliminación de catálogos permitidos.
+- [ ] Se verificó que no se eliminen recursos relacionados.
+- [ ] Se verificó la consistencia ante solicitudes concurrentes.
+- [ ] Se confirmó la consistencia con OpenAPI.
+- [ ] La implementación fue revisada.

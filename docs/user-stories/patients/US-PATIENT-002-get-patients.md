@@ -1,109 +1,232 @@
+# US-PATIENT-002 — Get Patients
+
 ## Historia de usuario
 
-Como usuario autorizado de Vera Balance,
-quiero consultar los pacientes a los que tengo acceso,
-para poder conocer y administrar la información de los pacientes correspondiente a mi rol.
+Como usuario autorizado de Vera Balance,  
+quiero consultar los pacientes a los que tengo acceso,  
+para conocer su información conforme a mi rol y mis relaciones terapéuticas.
 
-Scope: Backend
-Status: Approved
+**Scope:** Backend  
+**Status:** Approved
 
 ## Descripción
 
-El sistema debe permitir consultar pacientes respetando la clínica y los permisos del usuario autenticado.
+El sistema debe permitir consultar pacientes mediante:
 
-Un usuario con rol `clinic` puede consultar los pacientes pertenecientes a su clínica.
+`GET /v1/patients`
 
-Un usuario con rol `therapist` únicamente puede consultar pacientes relacionados con sus propios procesos terapéuticos.
+La operación requiere una sesión autenticada válida.
 
-La pertenencia de un paciente a una clínica y su relación con un terapeuta representan conceptos diferentes. La clínica se encuentra asociada directamente al paciente, mientras que el acceso del terapeuta se determina mediante los procesos terapéuticos en los que participa.
+Los usuarios con rol `clinic` podrán consultar todos los pacientes pertenecientes a su clínica.
 
-La consulta nunca debe exponer pacientes de otra clínica ni pacientes a los que el usuario autenticado no tenga acceso.
+Los usuarios con rol `therapist` únicamente podrán consultar pacientes relacionados con sus propios procesos terapéuticos.
+
+La relación entre terapeuta y paciente se determina mediante los procesos terapéuticos, no mediante un campo de terapeuta almacenado directamente en el paciente.
+
+La consulta deberá ser exclusivamente de lectura.
 
 ## Criterios de aceptación
 
-### CA-01 - Consultar pacientes como clínica
+### CA-01 - Validar autenticación
 
-Dado que existe una sesión autenticada con rol `clinic`,
-cuando se consultan los pacientes,
-entonces el sistema debe devolver los pacientes pertenecientes a la misma clínica del usuario autenticado.
+Dado que se solicita consultar pacientes,  
+cuando no existe una sesión válida,  
+entonces el sistema debe responder con `401 Unauthorized`.
 
-### CA-02 - Incluir pacientes de los terapeutas de la clínica
+### CA-02 - Validar rol
 
-Dado que existe una sesión autenticada con rol `clinic`,
-cuando se consultan los pacientes,
-entonces la respuesta puede incluir pacientes atendidos por los terapeutas pertenecientes a la misma clínica.
+Dado que existe una sesión válida,  
+cuando el usuario tiene rol `clinic` o `therapist`,  
+entonces podrá consultar los pacientes correspondientes a sus permisos.
 
-### CA-03 - Consultar pacientes como terapeuta
+Cualquier otro rol no autorizado deberá recibir `403 Forbidden`.
 
-Dado que existe una sesión autenticada con rol `therapist`,
-cuando se consultan los pacientes,
-entonces el sistema debe devolver únicamente los pacientes relacionados con procesos terapéuticos del terapeuta autenticado.
+### CA-03 - Validar usuario activo
 
-### CA-04 - No mostrar pacientes sin relación con el terapeuta
+Dado que un usuario solicita consultar pacientes,  
+cuando su estado actual es `inactive`,  
+entonces el sistema debe rechazar la operación.
 
-Dado que un paciente pertenece a la misma clínica que un terapeuta pero no participa en ninguno de sus procesos terapéuticos,
-cuando el terapeuta consulta sus pacientes,
-entonces dicho paciente no debe incluirse en la respuesta.
+### CA-04 - Validar clínica activa
 
-### CA-05 - No exponer pacientes de otra clínica
+Dado que existe un usuario autenticado,  
+cuando su clínica no existe o está inactiva,  
+entonces el sistema debe rechazar la consulta.
 
-Dado que existen pacientes pertenecientes a otras clínicas,
-cuando un usuario consulta pacientes,
-entonces dichos pacientes no deben incluirse en la respuesta.
+### CA-05 - Consultar pacientes como clínica
 
-### CA-06 - Evitar pacientes duplicados en la respuesta
+Dado que un usuario tiene rol `clinic`,  
+cuando solicita la lista de pacientes,  
+entonces el sistema debe devolver los pacientes pertenecientes a su clínica.
 
-Dado que un paciente participa en más de un proceso terapéutico del mismo terapeuta,
-cuando el terapeuta consulta sus pacientes,
-entonces el paciente debe aparecer una sola vez en la respuesta.
+### CA-06 - Incluir pacientes atendidos por terapeutas
 
-### CA-07 - Devolver colección vacía
+Dado que un paciente pertenece a la clínica del administrador,  
+cuando se consulta la lista,  
+entonces deberá incluirse aunque sea atendido por uno o varios terapeutas de esa clínica.
 
-Dado que el usuario autenticado no tiene pacientes disponibles de acuerdo con sus permisos,
-cuando consulta los pacientes,
-entonces el sistema debe devolver una colección vacía.
+### CA-07 - Incluir pacientes sin proceso terapéutico para clínica
 
-### CA-08 - Requerir sesión autenticada
+Dado que existe un paciente registrado sin procesos terapéuticos,  
+cuando un administrador de su clínica consulta pacientes,  
+entonces el paciente deberá incluirse en la respuesta.
 
-Dado que no existe una sesión autenticada válida,
-cuando se intenta consultar los pacientes,
-entonces el sistema debe rechazar la operación como no autenticada.
+### CA-08 - Consultar pacientes como terapeuta
+
+Dado que un usuario tiene rol `therapist`,  
+cuando solicita sus pacientes,  
+entonces el sistema debe obtener únicamente aquellos relacionados con procesos terapéuticos del terapeuta autenticado.
+
+### CA-09 - Excluir pacientes sin relación
+
+Dado que un paciente pertenece a la misma clínica que el terapeuta,  
+pero no participa en ninguno de sus procesos terapéuticos,  
+cuando el terapeuta consulta pacientes,  
+entonces dicho paciente no deberá incluirse.
+
+Esto también aplica a pacientes que el terapeuta haya registrado sin crear posteriormente un proceso terapéutico.
+
+### CA-10 - Impedir exposición entre clínicas
+
+Dado que existen pacientes pertenecientes a otras clínicas,  
+cuando un usuario consulta pacientes,  
+entonces dichos pacientes no deberán aparecer en la respuesta.
+
+### CA-11 - Evitar duplicados
+
+Dado que un paciente participa en varios procesos del mismo terapeuta,  
+cuando se construye la respuesta,  
+entonces deberá aparecer una sola vez.
+
+La deduplicación deberá realizarse mediante el identificador del paciente.
+
+### CA-12 - Respetar relaciones terapéuticas
+
+Dado que un paciente participa en distintos procesos terapéuticos,  
+cuando se determina su visibilidad,  
+entonces deberán considerarse las relaciones definidas en el modelo de procesos terapéuticos.
+
+La consulta no deberá depender exclusivamente de procesos activos, salvo que exista una regla expresa que limite la visibilidad histórica.
+
+### CA-13 - Devolver colección vacía
+
+Dado que el usuario no tiene pacientes accesibles,  
+cuando solicita la lista,  
+entonces el sistema debe responder con `200 OK` y una colección vacía.
+
+### CA-14 - Devolver información pública
+
+Dado que existen pacientes accesibles,  
+cuando se genera la respuesta,  
+entonces deberá incluirse la información definida en el contrato OpenAPI.
+
+No deberán exponerse atributos internos de DynamoDB.
+
+### CA-15 - No modificar información
+
+Dado que se consultan pacientes,  
+cuando finaliza la operación,  
+entonces no deberá modificarse información persistida ni fechas de auditoría.
+
+### CA-16 - Respuesta correcta
+
+Dado que el usuario está autenticado y autorizado,  
+cuando la consulta se completa,  
+entonces el sistema debe responder con `200 OK`.
 
 ## Reglas de negocio
 
-* Los roles `clinic` y `therapist` pueden consultar pacientes.
-* Un usuario `clinic` puede consultar los pacientes pertenecientes a su clínica.
-* Un usuario `therapist` únicamente puede consultar pacientes relacionados con sus propios procesos terapéuticos.
-* La pertenencia a la misma clínica no otorga por sí sola a un terapeuta acceso a todos los pacientes de esa clínica.
-* La relación entre terapeuta y paciente se determina mediante los procesos terapéuticos.
-* Un paciente puede participar en diferentes procesos terapéuticos.
-* Un paciente debe aparecer una sola vez en la colección aunque tenga múltiples procesos con el mismo terapeuta.
-* No deben exponerse pacientes pertenecientes a otras clínicas.
-* Si no existen pacientes accesibles, se devuelve una colección vacía.
+- Los roles `clinic` y `therapist` pueden consultar pacientes.
+- El usuario y su clínica deben estar activos.
+- `clinic` puede consultar todos los pacientes de su clínica.
+- `therapist` solo puede consultar pacientes vinculados a sus propios procesos terapéuticos.
+- Registrar un paciente no otorga automáticamente acceso de consulta al terapeuta.
+- Compartir clínica no concede acceso terapéutico.
+- Un paciente puede participar en varios procesos terapéuticos.
+- Cada paciente debe aparecer una sola vez.
+- No deben exponerse pacientes de otras clínicas.
+- Una colección sin resultados debe devolverse vacía.
+- La consulta no modifica información.
 
 ## Dependencias
 
-* Para determinar los pacientes accesibles por un terapeuta deben poder consultarse sus procesos terapéuticos.
+- Auth.
+- Users.
+- Clinics.
+- Patients.
+- Therapeutic Processes.
 
 ## Consideraciones técnicas
 
-* El contrato HTTP debe respetar `docs/baas-vera-balance-dashboard.yaml`.
-* La persistencia debe respetar `docs/DB.md`.
-* Las reglas funcionales deben respetar `docs/DEFINITIONS.md`.
-* La implementación debe respetar `docs/PROJECT_ARCHITECTURE.md`.
-* La clínica y el usuario autenticado deben obtenerse de la sesión.
-* La visibilidad de pacientes para un terapeuta debe determinarse mediante la relación definida en los procesos terapéuticos.
+### Endpoint
+
+`GET /v1/patients`
+
+### Autenticación
+
+- Obtener la sesión desde `vera_balance_session`.
+- Validar el JWT.
+- Validar el usuario y la clínica activos.
+- Obtener `user_id`, `role` y clínica desde el contexto autenticado.
+
+### Consulta para clínica
+
+- Utilizar el patrón de acceso por clínica definido en `docs/DB.md`.
+- Devolver pacientes pertenecientes a esa clínica.
+- Incluir pacientes con y sin procesos terapéuticos.
+- No consultar pacientes de otras clínicas.
+
+### Consulta para terapeuta
+
+- Consultar las relaciones entre el terapeuta y sus procesos terapéuticos.
+- Obtener los identificadores de pacientes relacionados.
+- Validar la pertenencia de los pacientes a la clínica autenticada.
+- Eliminar identificadores duplicados.
+- Recuperar únicamente pacientes autorizados.
+- No utilizar un campo `therapist` directo en Patient.
+
+### Persistencia
+
+- Respetar DynamoDB Single Table.
+- Utilizar patrones de acceso adecuados para clínica y relaciones terapéuticas.
+- Gestionar la paginación interna necesaria para cumplir el contrato.
+- No realizar un escaneo global indiscriminado de pacientes.
+- No modificar registros durante la consulta.
+
+### Respuestas HTTP
+
+| Código | Descripción |
+|---|---|
+| `200 OK` | Pacientes consultados correctamente, incluida una colección vacía. |
+| `401 Unauthorized` | Sesión inexistente o inválida. |
+| `403 Forbidden` | Usuario sin permisos suficientes o inactivo. |
+
+### Arquitectura
+
+- `presentation`: autenticación y respuesta HTTP.
+- `application`: caso de uso Get Patients y aplicación de visibilidad por rol.
+- `domain`: reglas de acceso a pacientes.
+- `infrastructure`: consultas de pacientes y relaciones terapéuticas.
+
+La autorización deberá aplicarse antes de devolver información clínica.
 
 ## Referencias
 
-* `docs/DB.md`
-* `docs/baas-vera-balance-dashboard.yaml`
-* `docs/DEFINITIONS.md`
-* `docs/PROJECT_ARCHITECTURE.md`
+- `docs/DB.md`
+- `docs/baas-vera-balance-dashboard.yaml`
+- `docs/DEFINITIONS.md`
+- `docs/ENDPOINTS.md`
+- `docs/PROJECT_ARCHITECTURE.md`
 
 ## Definition of Done
 
-* [ ] Todos los criterios de aceptación fueron implementados.
-* [ ] Se agregaron o actualizaron las pruebas necesarias.
-* [ ] Las pruebas pasan correctamente.
-* [ ] La implementación fue revisada.
+- [ ] Todos los criterios de aceptación fueron implementados.
+- [ ] Se verificó la consulta para `clinic`.
+- [ ] Se verificó la consulta para `therapist`.
+- [ ] Se verificó el aislamiento entre clínicas.
+- [ ] Se verificó la exclusión de pacientes sin relación terapéutica.
+- [ ] Se verificó la eliminación de duplicados.
+- [ ] Se verificó la colección vacía.
+- [ ] Se verificó que la consulta no modifique registros.
+- [ ] Se confirmó la consistencia con OpenAPI.
+- [ ] La implementación fue revisada.

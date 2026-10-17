@@ -1,109 +1,166 @@
+# US-AUTH-005 — Reset Password
+
 ## Historia de usuario
 
-Como usuario autenticado de Vera Balance,
-quiero cambiar mi contraseña,
-para actualizar mis credenciales de acceso.
+Como usuario autenticado de Vera Balance,  
+quiero cambiar mi contraseña,  
+para mantener seguras mis credenciales de acceso al sistema.
 
-Scope: Backend
-Status: Approved
+**Scope:** Backend  
+**Status:** Approved
 
 ## Descripción
 
-El sistema debe permitir que un usuario con una sesión autenticada establezca una nueva contraseña.
+El sistema debe permitir que un usuario autenticado cambie su propia contraseña mediante:
 
-La identidad del usuario debe obtenerse de la sesión autenticada y no mediante un email o identificador proporcionado en el request.
+`POST /v1/auth/reset-password`
+
+Este endpoint requiere una sesión autenticada válida.
+
+El usuario deberá proporcionar una nueva contraseña y su confirmación.
+
+La contraseña deberá procesarse mediante un algoritmo de hashing adecuado antes de almacenarse.
+
+La operación únicamente podrá modificar la contraseña del usuario autenticado.
 
 ## Criterios de aceptación
 
-### CA-01 - Requerir sesión
+### CA-01 - Validar autenticación
 
-Dado que se solicita cambiar una contraseña,
-cuando se recibe la solicitud,
-entonces debe existir una sesión autenticada válida.
+Dado que se solicita cambiar una contraseña,  
+cuando no existe una sesión autenticada válida,  
+entonces el sistema debe rechazar la operación con `401 Unauthorized`.
 
-### CA-02 - Identificar usuario
+### CA-02 - Identificar usuario autenticado
 
-Dado que existe una sesión autenticada,
-cuando se solicita cambiar la contraseña,
-entonces la identidad del usuario debe obtenerse de la sesión.
+Dado que existe una sesión válida,  
+cuando se solicita cambiar la contraseña,  
+entonces el sistema debe identificar al usuario mediante el contexto autenticado.
 
-### CA-03 - Información obligatoria
+No deberá permitirse seleccionar otro usuario mediante el cuerpo de la solicitud.
 
-Dado que se solicita cambiar la contraseña,
-cuando `password` o `password_confirmation` están vacíos o no fueron proporcionados,
+### CA-03 - Validar usuario activo
+
+Dado que el usuario solicita cambiar su contraseña,  
+cuando su estado es `inactive`,  
 entonces el sistema debe rechazar la operación.
 
-### CA-04 - Confirmar contraseña
+### CA-04 - Validar clínica activa
 
-Dado que se proporciona una nueva contraseña,
-cuando se procesa la solicitud,
-entonces `password` y `password_confirmation` deben coincidir.
+Dado que se solicita cambiar una contraseña,  
+cuando la clínica del usuario está inactiva o no existe,  
+entonces el sistema debe rechazar la operación.
 
-### CA-05 - Validar antes de persistir
+### CA-05 - Validar información obligatoria
 
-Dado que se solicita cambiar la contraseña,
-cuando las contraseñas no coinciden,
-entonces el sistema debe rechazar la operación antes de modificar información persistida.
+Dado que se solicita cambiar una contraseña,  
+cuando `password` o `password_confirmation` están vacíos o no fueron proporcionados,  
+entonces el sistema debe rechazar la operación.
 
-### CA-06 - Protección de contraseña
+### CA-06 - Validar confirmación
 
-Dado que la nueva contraseña es válida,
-cuando se actualiza el usuario,
-entonces debe convertirse en un hash antes de persistirse.
+Dado que se proporciona una nueva contraseña,  
+cuando `password` y `password_confirmation` no coinciden,  
+entonces el sistema debe rechazar la operación.
 
-### CA-07 - No persistir confirmación
+### CA-07 - Validar política de contraseña
 
-Dado que se proporciona `password_confirmation`,
-cuando se actualiza la contraseña,
-entonces este valor no debe almacenarse.
+Dado que se proporciona una contraseña,  
+cuando no cumple la política de seguridad definida para Vera Balance,  
+entonces el sistema debe rechazar la operación.
 
-### CA-08 - Actualizar usuario autenticado
+### CA-08 - Generar hash seguro
 
-Dado que la nueva contraseña es válida,
-cuando se ejecuta la operación,
-entonces debe modificarse la contraseña del usuario identificado mediante la sesión.
+Dado que se proporciona una contraseña válida,  
+cuando se procesa el cambio,  
+entonces el sistema debe generar un hash seguro antes de persistirla.
 
-### CA-09 - Respuesta
+La contraseña original no debe almacenarse.
 
-Dado que la contraseña fue actualizada correctamente,
-cuando finaliza la operación,
-entonces el sistema debe devolver la respuesta definida para el endpoint.
+### CA-09 - Actualizar contraseña
 
-La contraseña, su confirmación y su hash no deben formar parte de la respuesta.
+Dado que el usuario está autorizado y la contraseña es válida,  
+cuando se solicita el cambio,  
+entonces el sistema debe actualizar el hash de contraseña del usuario autenticado.
+
+### CA-10 - Conservar información
+
+Dado que se cambia la contraseña,  
+cuando finaliza la operación,  
+entonces los demás datos del usuario deben conservarse.
+
+La fecha `updated_at` deberá actualizarse cuando el cambio se persista correctamente.
+
+### CA-11 - No exponer credenciales
+
+Dado que la contraseña fue modificada,  
+cuando se genera la respuesta,  
+entonces no deben incluirse la contraseña, su confirmación ni el hash.
+
+### CA-12 - Respuesta correcta
+
+Dado que la contraseña se actualizó correctamente,  
+cuando finaliza la operación,  
+entonces el sistema debe devolver la respuesta de éxito definida en OpenAPI.
+
+### CA-13 - Proteger contra CSRF
+
+Dado que el endpoint utiliza autenticación mediante cookies,  
+cuando se solicita cambiar la contraseña,  
+entonces deben aplicarse los controles CSRF definidos para Vera Balance.
 
 ## Reglas de negocio
 
-* La operación requiere una sesión autenticada.
-* La identidad del usuario se obtiene de la sesión.
-* `password` y `password_confirmation` deben coincidir.
-* La validación debe realizarse antes de generar el hash.
-* `password_confirmation` nunca debe persistirse.
-* Las contraseñas nunca deben almacenarse en texto plano.
-* La contraseña y su hash nunca deben exponerse mediante el API.
-* Esta operación es independiente de la recuperación de una contraseña olvidada.
+- El cambio de contraseña requiere autenticación.
+- Únicamente puede modificarse la contraseña del usuario autenticado.
+- El usuario y su clínica deben estar activos.
+- La contraseña y su confirmación son obligatorias.
+- Ambos valores deben coincidir.
+- La contraseña debe cumplir la política de seguridad definida.
+- La contraseña debe almacenarse exclusivamente mediante un hash seguro.
+- La contraseña y su hash nunca deben exponerse mediante el API.
+- La operación no debe modificar otros datos del usuario.
+- El cambio debe actualizar `updated_at`.
+- Deben aplicarse controles CSRF.
 
 ## Dependencias
 
-* Users.
-* Sesión autenticada.
+- Auth.
+- Users.
+- Clinics.
+- Servicio de hashing de contraseñas.
 
 ## Consideraciones técnicas
 
-* El contrato HTTP debe respetar `docs/baas-vera-balance-dashboard.yaml`.
-* La persistencia debe respetar `docs/DB.md`.
-* La implementación debe respetar `docs/PROJECT_ARCHITECTURE.md`.
-* Auth no debe acceder directamente a la persistencia interna de Users.
+- El endpoint debe ser `POST /v1/auth/reset-password`.
+- El usuario debe obtenerse desde la sesión autenticada.
+- El request debe respetar el contrato OpenAPI.
+- Debe validarse `password` y `password_confirmation`.
+- Debe utilizarse un algoritmo de hashing adecuado, como bcrypt.
+- El hash anterior debe reemplazarse únicamente después de validar la solicitud.
+- No deben registrarse contraseñas en logs.
+- El cambio no debe modificar otros atributos salvo `updated_at`.
+- La operación no debe generar automáticamente un nuevo JWT.
+- La invalidación inmediata de otras sesiones no puede garantizarse con JWT stateless sin un mecanismo adicional de revocación o versionado de credenciales.
+- El contrato debe respetar `docs/baas-vera-balance-dashboard.yaml`.
+- La persistencia debe respetar `docs/DB.md`.
+- La implementación debe respetar `docs/PROJECT_ARCHITECTURE.md`.
 
 ## Referencias
 
-* `docs/DB.md`
-* `docs/baas-vera-balance-dashboard.yaml`
-* `docs/DEFINITIONS.md`
-* `docs/PROJECT_ARCHITECTURE.md`
+- `docs/DB.md`
+- `docs/baas-vera-balance-dashboard.yaml`
+- `docs/DEFINITIONS.md`
+- `docs/ENDPOINTS.md`
+- `docs/PROJECT_ARCHITECTURE.md`
 
 ## Definition of Done
 
-* [ ] Todos los criterios de aceptación fueron implementados.
-* [ ] Se agregaron o actualizaron las pruebas necesarias.
-* [ ] Las pruebas pasan correctamente.
-* [ ] La implementación fue revisada.
+- [ ] Todos los criterios de aceptación fueron implementados.
+- [ ] Se verificó que únicamente pueda cambiarse la contraseña propia.
+- [ ] Se verificó la confirmación de contraseña.
+- [ ] Se verificó el almacenamiento seguro del hash.
+- [ ] Se verificó que no se expongan credenciales.
+- [ ] Se verificó la protección CSRF.
+- [ ] Se confirmó la consistencia con OpenAPI.
+- [ ] La implementación fue revisada.

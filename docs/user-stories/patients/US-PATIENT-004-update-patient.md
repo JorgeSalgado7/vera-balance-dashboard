@@ -1,203 +1,351 @@
+# US-PATIENT-004 — Update Patient
+
 ## Historia de usuario
 
-Como usuario autorizado de Vera Balance,
-quiero actualizar la información de un paciente,
-para mantener sus datos personales correctamente registrados.
+Como usuario autorizado de Vera Balance,  
+quiero actualizar la información de un paciente al que tengo acceso,  
+para mantener correctamente registrados sus datos personales.
 
-Scope: Backend
-Status: Approved
+**Scope:** Backend  
+**Status:** Approved
 
 ## Descripción
 
-El sistema debe permitir actualizar la información de un paciente respetando las reglas de acceso del usuario autenticado.
+El sistema debe permitir actualizar pacientes mediante:
 
-Un usuario con rol `clinic` puede actualizar pacientes pertenecientes a su clínica.
+`PUT /v1/patients/{id}`
 
-Un usuario con rol `therapist` únicamente puede actualizar pacientes relacionados con sus propios procesos terapéuticos.
+Los usuarios con rol `clinic` podrán actualizar pacientes de su clínica.
 
-La clínica a la que pertenece el paciente no puede modificarse.
+Los usuarios con rol `therapist` únicamente podrán actualizar pacientes vinculados a sus propios procesos terapéuticos.
 
-La actualización debe mantener las reglas relacionadas con edad, teléfono, tutor, datos de pareja, catálogos y duplicidad aplicables al registro de pacientes.
+La operación permitirá modificar los campos autorizados conforme al contrato del API, conservando los campos omitidos.
+
+La clínica del paciente y su identificador no podrán modificarse.
+
+El sistema deberá validar el estado final de la información antes de persistir los cambios, considerando edad, teléfono, tutor, pareja, catálogos y duplicidad.
 
 ## Criterios de aceptación
 
-### CA-01 - Actualizar paciente como clínica
+### CA-01 - Validar autenticación
 
-Dado que existe una sesión autenticada con rol `clinic`
-y el paciente pertenece a su clínica,
-cuando se envía una solicitud válida de actualización,
-entonces el sistema debe actualizar la información del paciente.
+Dado que se solicita actualizar un paciente,  
+cuando no existe una sesión válida,  
+entonces el sistema debe responder con `401 Unauthorized`.
 
-### CA-02 - Actualizar paciente como terapeuta
+### CA-02 - Validar roles
 
-Dado que existe una sesión autenticada con rol `therapist`
-y el paciente participa en al menos uno de sus procesos terapéuticos,
-cuando se envía una solicitud válida de actualización,
-entonces el sistema debe actualizar la información del paciente.
+Dado que existe una sesión válida,  
+cuando el usuario tiene rol `clinic` o `therapist`,  
+entonces podrá actualizar pacientes conforme a sus permisos.
 
-### CA-03 - Impedir actualización por terapeuta sin relación
+### CA-03 - Validar usuario activo
 
-Dado que existe una sesión autenticada con rol `therapist`
-y el paciente no participa en ninguno de sus procesos terapéuticos,
-cuando se intenta actualizar al paciente,
-entonces el sistema debe rechazar la operación como no autorizada para ese recurso.
+Dado que el usuario se encuentra inactivo,  
+cuando intenta actualizar un paciente,  
+entonces el sistema debe rechazar la operación.
 
-### CA-04 - Impedir actualización de paciente de otra clínica
+### CA-04 - Validar clínica activa
 
-Dado que el paciente pertenece a una clínica diferente de la del usuario autenticado,
-cuando se intenta actualizar al paciente,
-entonces el sistema debe rechazar la operación como no autorizada para ese recurso.
+Dado que la clínica del usuario no existe o está inactiva,  
+cuando se solicita actualizar un paciente,  
+entonces el sistema debe rechazar la operación.
 
-### CA-05 - Mantener la clínica del paciente
+### CA-05 - Validar identificador
 
-Dado que un paciente ya pertenece a una clínica,
-cuando se actualiza su información,
-entonces su clínica debe permanecer sin cambios.
+Dado que se recibe el parámetro `id`,  
+cuando no cumple el formato esperado,  
+entonces el sistema debe responder con `400 Bad Request`.
 
-### CA-06 - Actualizar paciente adulto
+### CA-06 - Actualizar como clínica
 
-Dado que después de la actualización el paciente tiene 18 años o más,
-cuando se actualiza su información,
-entonces debe contar con un número telefónico propio
-y los datos de tutor no deben mantenerse como información requerida por su edad.
+Dado que un usuario tiene rol `clinic` y el paciente pertenece a su clínica,  
+cuando proporciona una actualización válida,  
+entonces el sistema debe guardar los cambios.
 
-### CA-07 - Actualizar paciente menor de edad
+### CA-07 - Actualizar como terapeuta
 
-Dado que después de la actualización el paciente tiene menos de 18 años,
-cuando se actualiza su información,
-entonces su teléfono personal puede no proporcionarse
-y la información de tutor debe mantenerse únicamente cuando corresponda según las reglas del proceso terapéutico.
+Dado que un usuario tiene rol `therapist` y el paciente participa en uno de sus procesos terapéuticos,  
+cuando proporciona una actualización válida,  
+entonces el sistema debe guardar los cambios.
 
-### CA-08 - Cambiar de menor a adulto
+### CA-08 - Impedir actualización sin relación
 
-Dado que un paciente previamente menor de edad pasa a tener 18 años o más,
-cuando se actualiza su edad,
-entonces debe proporcionarse la información requerida para un paciente adulto
-y los datos que correspondían exclusivamente a su condición de menor deben dejar de aplicar.
+Dado que un terapeuta no tiene procesos terapéuticos asociados al paciente,  
+cuando intenta actualizarlo,  
+entonces el sistema debe responder con `404 Not Found`.
 
-### CA-09 - Cambiar de adulto a menor
+### CA-09 - Impedir actualización entre clínicas
 
-Dado que la edad de un paciente se modifica a un valor menor de 18 años,
-cuando se actualiza su información,
-entonces deben aplicarse las reglas correspondientes a un paciente menor de edad
-y los datos que correspondan exclusivamente a un adulto deben dejar de aplicar.
+Dado que un paciente pertenece a otra clínica,  
+cuando se intenta actualizarlo,  
+entonces el sistema debe responder con `404 Not Found`.
 
-### CA-10 - Validar valores provenientes de catálogos
+### CA-10 - Paciente inexistente
 
-Dado que se modifica un campo asociado a un catálogo,
-cuando se actualiza al paciente,
-entonces el nuevo valor debe existir dentro del catálogo global correspondiente.
+Dado que no existe el paciente solicitado,  
+cuando se intenta actualizarlo,  
+entonces el sistema debe responder con `404 Not Found`.
 
-### CA-11 - Rechazar valores inexistentes en catálogos
+### CA-11 - Mantener identificador y clínica
 
-Dado que la actualización contiene un valor que no existe en el catálogo correspondiente,
-cuando se intenta actualizar al paciente,
-entonces el sistema debe rechazar la solicitud
-y conservar la información existente.
+Dado que se actualiza un paciente,  
+cuando se procesa la operación,  
+entonces su identificador y clínica deberán permanecer sin cambios.
 
-### CA-12 - Actualizar datos de pareja
+Si el request intenta modificarlos, deberá rechazarse.
 
-Dado que a un paciente adulto le corresponden datos de pareja según su situación sentimental,
-cuando se actualiza su información,
-entonces el sistema debe permitir registrar o modificar esos datos como información complementaria.
+### CA-12 - Actualización parcial
 
-### CA-13 - Retirar datos de pareja cuando dejan de aplicar
+Dado que se proporcionan únicamente algunos campos modificables,  
+cuando se solicita la actualización,  
+entonces los campos omitidos deberán conservar sus valores actuales.
 
-Dado que la situación sentimental del paciente cambia y los datos de pareja dejan de corresponder,
-cuando se actualiza al paciente,
-entonces dichos datos no deben mantenerse como información aplicable del paciente.
+La validación deberá realizarse sobre el resultado completo de combinar los datos existentes y los cambios solicitados.
 
-### CA-14 - No utilizar datos de pareja como segundo paciente
+### CA-13 - Validar paciente adulto
 
-Dado que se actualizan los datos de pareja de un paciente,
-cuando se procesa la actualización,
-entonces el sistema no debe crear, modificar o relacionar automáticamente otro paciente.
+Dado que el estado final del paciente corresponde a una persona de 18 años o más,  
+cuando se actualiza,  
+entonces deberá contar con un teléfono válido.
 
-### CA-15 - Detectar duplicidad
+### CA-14 - Validar paciente menor
 
-Dado que la actualización provoca que el paciente tenga la misma combinación de nombre y número telefónico utilizada para identificar a otro paciente,
-cuando se intenta guardar la actualización,
-entonces el sistema debe rechazarla por conflicto.
+Dado que el estado final corresponde a una persona menor de 18 años,  
+cuando se actualiza,  
+entonces su teléfono personal podrá omitirse.
 
-### CA-16 - Permitir conservar la identidad del mismo paciente
+Los datos de tutor se validarán conforme a las reglas funcionales aplicables.
 
-Dado que el nombre y número telefónico del paciente no cambian
-o continúan correspondiendo al mismo registro que se está actualizando,
-cuando se procesa la actualización,
-entonces el propio paciente no debe considerarse un duplicado de sí mismo.
+### CA-15 - Transición de menor a adulto
 
-### CA-17 - Permitir números telefónicos compartidos
+Dado que una actualización modifica la información de edad de un paciente hasta convertirlo en adulto,  
+cuando se valida el resultado,  
+entonces deberán exigirse los datos obligatorios para adultos.
 
-Dado que otro paciente utiliza el mismo número telefónico pero tiene un nombre diferente,
-cuando se actualiza al paciente,
-entonces el sistema debe permitir la actualización siempre que no exista la combinación utilizada para determinar duplicidad.
+Los campos que únicamente correspondían a la condición de menor deberán gestionarse conforme a las reglas de conservación y eliminación definidas.
 
-### CA-18 - Paciente inexistente
+### CA-16 - Transición de adulto a menor
 
-Dado que no existe un paciente con el identificador proporcionado,
-cuando se intenta actualizarlo,
-entonces el sistema debe indicar que el recurso no fue encontrado.
+Dado que una corrección modifica la edad del paciente a menos de 18 años,  
+cuando se valida el resultado,  
+entonces deberán aplicarse las reglas correspondientes a menores.
 
-### CA-19 - Identificador inválido
+Los campos exclusivos de adultos deberán dejar de considerarse aplicables.
 
-Dado que el identificador proporcionado no cumple con el formato esperado,
-cuando se intenta actualizar al paciente,
-entonces el sistema debe rechazar la solicitud como inválida.
+### CA-17 - Validar catálogos
 
-### CA-20 - No modificar parcialmente ante un error
+Dado que se modifica un campo asociado a un catálogo global,  
+cuando se procesa la actualización,  
+entonces su valor deberá existir en el catálogo correspondiente.
 
-Dado que alguno de los datos proporcionados no cumple las reglas de actualización,
-cuando la solicitud es rechazada,
-entonces el sistema debe conservar la información anterior del paciente sin aplicar cambios parciales.
+### CA-18 - Rechazar catálogos inválidos
 
-### CA-21 - Requerir sesión autenticada
+Dado que un valor proporcionado no existe en el catálogo correspondiente,  
+cuando se intenta actualizar,  
+entonces el sistema debe responder con `400 Bad Request`.
 
-Dado que no existe una sesión autenticada válida,
-cuando se intenta actualizar un paciente,
-entonces el sistema debe rechazar la operación como no autenticada.
+La información anterior deberá conservarse.
+
+### CA-19 - Actualizar datos de pareja
+
+Dado que los datos de pareja corresponden a la situación sentimental del paciente adulto,  
+cuando se proporcionan cambios válidos,  
+entonces deberán actualizarse como información complementaria.
+
+### CA-20 - Retirar datos de pareja no aplicables
+
+Dado que cambia la situación sentimental y los datos de pareja dejan de aplicar,  
+cuando se actualiza al paciente,  
+entonces el estado final persistido deberá reflejar esa condición.
+
+No deberán mantenerse como datos vigentes de pareja los campos que ya no correspondan.
+
+### CA-21 - No modificar otro paciente
+
+Dado que se actualizan datos de pareja,  
+cuando se procesa la operación,  
+entonces no deberá crearse, modificarse ni relacionarse automáticamente otro paciente.
+
+### CA-22 - Validar duplicidad
+
+Dado que la actualización produce una combinación normalizada de nombre y teléfono que corresponde a otro paciente de la misma clínica,  
+cuando se intenta guardar,  
+entonces el sistema debe responder con `409 Conflict`.
+
+### CA-23 - Excluir el propio registro
+
+Dado que el paciente conserva su combinación de nombre y teléfono,  
+cuando se verifica la duplicidad,  
+entonces no deberá considerarse duplicado de sí mismo.
+
+### CA-24 - Permitir teléfonos compartidos
+
+Dado que otro paciente tiene el mismo teléfono pero un nombre diferente,  
+cuando se actualiza el registro,  
+entonces deberá permitirse la operación si no existe una combinación duplicada.
+
+### CA-25 - Mantener independencia terapéutica
+
+Dado que se actualiza un paciente,  
+cuando finaliza la operación,  
+entonces no deberán modificarse automáticamente sus procesos terapéuticos ni sus relaciones con terapeutas.
+
+### CA-26 - No modificar estado de paciente
+
+Dado que se actualiza un paciente,  
+cuando se procesa la solicitud,  
+entonces no deberá aceptarse ni generarse un campo `status` propio.
+
+### CA-27 - Actualizar fecha
+
+Dado que la información del paciente cambia correctamente,  
+cuando se persisten los cambios,  
+entonces deberá actualizarse `updated_at`.
+
+`created_at` deberá conservarse.
+
+### CA-28 - No aplicar cambios parciales ante errores
+
+Dado que la actualización contiene datos inválidos o incumple una restricción,  
+cuando se rechaza,  
+entonces el paciente deberá conservar su información anterior.
+
+### CA-29 - Mantener consistencia ante concurrencia
+
+Dado que existen actualizaciones simultáneas,  
+cuando afectan la combinación utilizada para determinar duplicidad,  
+entonces el sistema deberá garantizar que no se creen registros equivalentes.
+
+### CA-30 - Respuesta correcta
+
+Dado que la actualización se completó correctamente,  
+cuando finaliza la operación,  
+entonces el sistema debe responder con `200 OK` y la información actualizada conforme a OpenAPI.
+
+### CA-31 - Proteger contra CSRF
+
+Dado que la operación utiliza autenticación mediante cookies,  
+cuando se recibe la solicitud,  
+entonces deberán aplicarse los controles CSRF correspondientes.
 
 ## Reglas de negocio
 
-* Los roles `clinic` y `therapist` pueden actualizar pacientes de acuerdo con sus permisos.
-* Un usuario `clinic` puede actualizar pacientes pertenecientes a su clínica.
-* Un usuario `therapist` únicamente puede actualizar pacientes relacionados con sus propios procesos terapéuticos.
-* La clínica de un paciente no puede modificarse.
-* Una persona se considera adulta a partir de los 18 años.
-* Un paciente adulto debe contar con su número telefónico.
-* La necesidad de información de tutor para un menor depende de las reglas del proceso terapéutico.
-* Al modificar la edad deben aplicarse las reglas correspondientes a la nueva edad del paciente.
-* Los valores provenientes de catálogos se almacenan como `string` y deben existir en el catálogo correspondiente.
-* Los datos de pareja son información complementaria y no representan otro paciente.
-* En terapia de pareja, cada integrante se mantiene como un paciente independiente relacionado mediante el proceso terapéutico.
-* La actualización no debe provocar que existan dos pacientes con la misma combinación de nombre y número telefónico utilizada para determinar duplicidad.
-* Un paciente no debe considerarse duplicado de sí mismo durante una actualización.
-* Diferentes pacientes pueden compartir un mismo número telefónico.
-* El paciente no tiene un estatus propio.
+- Los roles `clinic` y `therapist` pueden actualizar conforme a sus permisos.
+- El usuario y su clínica deben estar activos.
+- `clinic` puede actualizar pacientes de su clínica.
+- `therapist` solo puede actualizar pacientes vinculados a sus procesos.
+- La clínica del paciente es inmutable.
+- El identificador del paciente es inmutable.
+- Los campos omitidos conservan su valor.
+- Debe validarse el estado final completo.
+- La mayoría de edad comienza a los 18 años.
+- Los adultos deben contar con teléfono.
+- Los menores pueden omitir teléfono personal.
+- Los datos de tutor dependen de las reglas aplicables.
+- Los valores de catálogos deben existir.
+- Los datos de pareja no representan otro paciente.
+- Debe impedirse la duplicidad por nombre y teléfono dentro de la clínica.
+- Un paciente no puede considerarse duplicado de sí mismo.
+- Los teléfonos pueden compartirse.
+- La actualización no modifica procesos terapéuticos.
+- El paciente no tiene `status`.
+- Debe actualizarse `updated_at` cuando existan cambios efectivos.
 
 ## Dependencias
 
-* Deben existir los catálogos globales requeridos para validar los campos modificables del paciente.
-* Para validar el acceso de un terapeuta deben poder consultarse sus procesos terapéuticos.
+- Auth.
+- Users.
+- Clinics.
+- Patients.
+- Catalogs.
+- Therapeutic Processes.
 
 ## Consideraciones técnicas
 
-* El contrato HTTP debe respetar `docs/baas-vera-balance-dashboard.yaml`.
-* La persistencia debe respetar `docs/DB.md`.
-* Las reglas funcionales deben respetar `docs/DEFINITIONS.md`.
-* La implementación debe respetar `docs/PROJECT_ARCHITECTURE.md`.
-* La autorización debe evaluarse utilizando la sesión autenticada, la clínica del paciente y, cuando corresponda, su relación mediante procesos terapéuticos.
-* La actualización debe validar el estado final del paciente antes de persistir los cambios.
+### Endpoint
+
+`PUT /v1/patients/{id}`
+
+Aunque utiliza `PUT`, la historia define actualización parcial. Esta semántica deberá reflejarse expresamente en OpenAPI para evitar interpretaciones diferentes entre frontend y backend.
+
+### Autorización
+
+- Validar sesión y usuario activo.
+- Validar clínica activa.
+- Obtener identidad y clínica desde la sesión.
+- Comprobar pertenencia del paciente a la clínica.
+- Para `therapist`, comprobar relación mediante procesos terapéuticos.
+- No aceptar cambios de clínica ni identificador.
+
+### Validación del estado final
+
+- Consultar el paciente actual.
+- Combinar los campos proporcionados con los existentes.
+- Evaluar edad y campos obligatorios.
+- Evaluar condiciones de tutor.
+- Evaluar datos de pareja.
+- Validar valores de catálogos.
+- Validar duplicidad.
+- Persistir únicamente después de superar todas las validaciones.
+
+### Normalización y duplicidad
+
+- Utilizar la misma normalización de Create Patient.
+- Excluir el propio identificador al comprobar duplicidad.
+- Aplicar la unicidad dentro de la clínica.
+- Mantener la consistencia cuando cambien nombre o teléfono.
+- No depender exclusivamente de una consulta previa sin garantías ante concurrencia.
+
+### Persistencia
+
+- Respetar DynamoDB Single Table.
+- Actualizar únicamente los campos permitidos.
+- Conservar `created_at`, `id` y clínica.
+- Actualizar `updated_at` cuando corresponda.
+- No modificar procesos terapéuticos.
+- Utilizar operaciones consistentes para actualizar las referencias de unicidad cuando cambie la identidad utilizada para detectar duplicados.
+
+### Respuestas HTTP
+
+| Código | Descripción |
+|---|---|
+| `200 OK` | Paciente actualizado correctamente. |
+| `400 Bad Request` | Identificador o información inválida. |
+| `401 Unauthorized` | Sesión inexistente o inválida. |
+| `403 Forbidden` | Usuario sin permisos de operación. |
+| `404 Not Found` | Paciente inexistente o fuera del alcance autorizado. |
+| `409 Conflict` | Duplicidad o conflicto de integridad. |
+
+### Arquitectura
+
+- `presentation`: DTO, autenticación y respuesta HTTP.
+- `application`: caso de uso Update Patient y coordinación de autorización.
+- `domain`: reglas de edad, catálogos, pareja, tutor y duplicidad.
+- `infrastructure`: consultas y actualización mediante adaptadores.
+
+El caso de uso deberá permanecer separado de Create Patient, aunque ambos puedan reutilizar validaciones de dominio.
 
 ## Referencias
 
-* `docs/DB.md`
-* `docs/baas-vera-balance-dashboard.yaml`
-* `docs/DEFINITIONS.md`
-* `docs/PROJECT_ARCHITECTURE.md`
+- `docs/DB.md`
+- `docs/baas-vera-balance-dashboard.yaml`
+- `docs/DEFINITIONS.md`
+- `docs/ENDPOINTS.md`
+- `docs/PROJECT_ARCHITECTURE.md`
 
 ## Definition of Done
 
-* [ ] Todos los criterios de aceptación fueron implementados.
-* [ ] Se agregaron o actualizaron las pruebas necesarias.
-* [ ] Las pruebas pasan correctamente.
-* [ ] La implementación fue revisada.
+- [ ] Todos los criterios de aceptación fueron implementados.
+- [ ] Se verificó la autorización para `clinic` y `therapist`.
+- [ ] Se verificó el aislamiento entre clínicas.
+- [ ] Se verificó la actualización parcial.
+- [ ] Se verificó la inmutabilidad de clínica e identificador.
+- [ ] Se verificaron las transiciones de edad.
+- [ ] Se verificaron los valores de catálogos.
+- [ ] Se verificó la actualización de datos de pareja.
+- [ ] Se verificó la duplicidad y la exclusión del propio registro.
+- [ ] Se verificó que no se modifiquen procesos terapéuticos.
+- [ ] Se verificó la consistencia ante concurrencia.
+- [ ] Se confirmó la consistencia con OpenAPI.
+- [ ] La implementación fue revisada.

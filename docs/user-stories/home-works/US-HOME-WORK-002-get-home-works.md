@@ -1,104 +1,91 @@
+# US-HOME-WORK-002 — Get Home Works
+
+**Scope:** Backend  
+**Status:** Approved
+
 ## Historia de usuario
 
-Como usuario autorizado de Vera Balance,
-quiero consultar las tareas asociadas a los registros de sesión a los que tengo acceso,
-para revisar las actividades asignadas durante los procesos terapéuticos.
-
-Scope: Backend
-Status: Approved
+Como usuario autorizado de Vera Balance, quiero consultar las tareas asociadas a los registros de sesión a los que tengo acceso, para revisar las actividades asignadas durante los procesos terapéuticos.
 
 ## Descripción
 
-El sistema debe permitir consultar Home Works de acuerdo con el acceso que el usuario autenticado tiene sobre los Records donde se encuentran asociadas.
+El sistema debe permitir consultar Home Works respetando los permisos sobre los Records a los que pertenecen.
 
-Las Home Works no almacenan directamente información sobre clínica, terapeuta, paciente o proceso terapéutico. Su contexto y visibilidad se determinan mediante los Records que las referencian a través de `home_work_ids`.
+Cada Home Work está asociada a un Record, y este pertenece a un Therapeutic Process.
 
-Un usuario con rol `clinic` puede consultar Home Works relacionadas con Records pertenecientes a procesos de su clínica.
+Un usuario con rol `clinic` puede consultar las Home Works de todos los Records pertenecientes a procesos de su clínica.
 
-Un usuario con rol `therapist` puede consultar Home Works relacionadas con Records pertenecientes a procesos donde sea el terapeuta asignado.
+Un usuario con rol `therapist` únicamente puede consultar Home Works de Records pertenecientes a procesos donde sea responsable.
+
+La consulta debe incluir tareas de Records históricos, independientemente del estado actual del proceso terapéutico.
 
 ## Criterios de aceptación
 
-### CA-01 - Consultar Home Works como clinic
+### CA-01 — Consultar como clinic
+Dado que existe una sesión autenticada con rol `clinic`, cuando consulta las Home Works, entonces deben devolverse las tareas pertenecientes a Records de su clínica.
 
-Dado que existe una sesión autenticada con rol `clinic`,
-cuando consulta las Home Works,
-entonces el sistema debe devolver las tareas asociadas a Records de procesos pertenecientes a su clínica.
+### CA-02 — Consultar tareas de diferentes terapeutas
+Dado que existen Home Works de procesos asignados a distintos terapeutas de la clínica, cuando `clinic` realiza la consulta, entonces deben incluirse las tareas accesibles.
 
-### CA-02 - Consultar Home Works de diferentes terapeutas como clinic
+### CA-03 — Consultar como therapist
+Dado que existe una sesión autenticada con rol `therapist`, cuando consulta las Home Works, entonces únicamente deben devolverse las tareas pertenecientes a sus procesos.
 
-Dado que existen Records de diferentes terapeutas pertenecientes a la misma clínica,
-cuando un usuario con rol `clinic` consulta las Home Works,
-entonces debe poder obtener las tareas asociadas a dichos Records.
+### CA-04 — Excluir tareas de otros terapeutas
+Dado que existen tareas pertenecientes a procesos de otros terapeutas, cuando `therapist` consulta la colección, entonces dichas tareas no deben incluirse.
 
-### CA-03 - Consultar Home Works como therapist
+### CA-05 — Excluir tareas de otras clínicas
+Dado que existen Home Works pertenecientes a Records de otras clínicas, cuando se realiza la consulta, entonces dichas tareas no deben exponerse.
 
-Dado que existe una sesión autenticada con rol `therapist`,
-cuando consulta las Home Works,
-entonces el sistema debe devolver únicamente las tareas asociadas a Records de procesos donde sea el terapeuta asignado.
+### CA-06 — Determinar acceso mediante Record
+Dado que una Home Work pertenece a un Record, cuando se evalúa la autorización, entonces debe verificarse el acceso al proceso terapéutico relacionado.
 
-### CA-04 - No mostrar Home Works de otros terapeutas
+### CA-07 — Consultar tareas históricas
+Dado que el proceso asociado ya no está `active`, cuando un usuario autorizado consulta las Home Works, entonces sus tareas existentes deben continuar disponibles.
 
-Dado que existen Home Works asociadas a Records de procesos asignados a otros terapeutas,
-cuando un usuario con rol `therapist` realiza la consulta,
-entonces dichas tareas no deben incluirse.
+### CA-08 — Evitar resultados duplicados
+Dado que existen múltiples tareas accesibles, cuando se devuelve la colección, entonces cada Home Work debe aparecer una sola vez.
 
-### CA-05 - No mostrar Home Works de otras clínicas
+### CA-09 — Devolver colección vacía
+Dado que no existen Home Works accesibles, cuando se realiza la consulta, entonces debe devolverse una colección vacía.
 
-Dado que existen Home Works asociadas a Records de procesos pertenecientes a otras clínicas,
-cuando el usuario realiza la consulta,
-entonces dichas tareas no deben incluirse.
-
-### CA-06 - Determinar visibilidad mediante Records
-
-Dado que una Home Work no almacena directamente información de clínica o terapeuta,
-cuando se determina si el usuario puede consultarla,
-entonces el acceso debe resolverse mediante los Records donde se encuentra asociada.
-
-### CA-07 - Devolver colección vacía
-
-Dado que no existen Home Works accesibles para el usuario,
-cuando realiza la consulta,
-entonces el sistema debe devolver una colección vacía.
-
-### CA-08 - Requerir autenticación
-
-Dado que no existe una sesión autenticada válida,
-cuando se intentan consultar las Home Works,
-entonces el sistema debe rechazar la operación como no autenticada.
+### CA-10 — Requerir autenticación
+Dado que no existe una sesión válida, cuando se consultan las Home Works, entonces debe rechazarse la operación como no autenticada.
 
 ## Reglas de negocio
 
-* Las Home Works se consultan en el contexto de los Records donde se encuentran asociadas.
-* La visibilidad de una Home Work se determina mediante los Records que la referencian.
-* `clinic` puede consultar Home Works asociadas a Records de procesos pertenecientes a su clínica.
-* `therapist` puede consultar Home Works asociadas a Records de procesos donde sea el terapeuta asignado.
-* No deben exponerse Home Works asociadas exclusivamente a Records a los que el usuario no tenga acceso.
-* Si no existen Home Works accesibles, se devuelve una colección vacía.
+- La visibilidad de las Home Works depende de sus Records.
+- `clinic` puede consultar tareas de todos los procesos de su clínica.
+- `therapist` únicamente puede consultar tareas de sus procesos.
+- No deben exponerse tareas de otras clínicas.
+- Los cambios de estado del proceso no eliminan ni ocultan automáticamente las tareas históricas.
+- Si no existen tareas accesibles, se devuelve una colección vacía.
 
 ## Dependencias
 
-* Debe existir una sesión autenticada.
-* La determinación de acceso depende de las relaciones existentes entre Home Works y Records.
+- Autenticación.
+- Home Works existentes.
+- Records asociados.
+- Therapeutic Processes relacionados.
 
 ## Consideraciones técnicas
 
-* El contrato HTTP debe respetar `docs/baas-vera-balance-dashboard.yaml`.
-* La persistencia debe respetar `docs/DB.md`.
-* Las reglas funcionales deben respetar `docs/DEFINITIONS.md`.
-* La implementación debe respetar `docs/PROJECT_ARCHITECTURE.md`.
-* La autorización debe resolverse mediante los Records que contienen el identificador de la Home Work en `home_work_ids`.
+- Respetar `docs/baas-vera-balance-dashboard.yaml`.
+- Respetar `docs/DB.md`.
+- Respetar `docs/DEFINITIONS.md`.
+- Respetar `docs/PROJECT_ARCHITECTURE.md`.
+- Resolver la autorización mediante la relación Home Work → Record → Therapeutic Process.
+- Aplicar filtros de acceso antes de devolver resultados.
 
 ## Referencias
 
-* `docs/DB.md`
-* `docs/baas-vera-balance-dashboard.yaml`
-* `docs/DEFINITIONS.md`
-* `docs/PROJECT_ARCHITECTURE.md`
+- `docs/DB.md`
+- `docs/baas-vera-balance-dashboard.yaml`
+- `docs/DEFINITIONS.md`
+- `docs/PROJECT_ARCHITECTURE.md`
 
 ## Definition of Done
 
-* [ ] Todos los criterios de aceptación fueron implementados.
-* [ ] Se agregaron o actualizaron las pruebas necesarias.
-* [ ] Las pruebas pasan correctamente.
-* [ ] La implementación fue revisada.
+- [ ] Todos los criterios de aceptación fueron implementados.
+- [ ] Se agregaron o actualizaron las pruebas necesarias.
+- [ ] Las pruebas pasan correctamente.
+- [ ] La implementación fue revisada.

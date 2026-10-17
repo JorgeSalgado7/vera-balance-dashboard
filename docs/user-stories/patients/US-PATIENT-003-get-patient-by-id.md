@@ -1,109 +1,201 @@
+# US-PATIENT-003 — Get Patient By ID
+
 ## Historia de usuario
 
-Como usuario autorizado de Vera Balance,
-quiero consultar la información de un paciente específico,
-para poder conocer sus datos cuando tenga autorización para acceder a ellos.
+Como usuario autorizado de Vera Balance,  
+quiero consultar un paciente mediante su identificador,  
+para conocer su información cuando tenga permisos para acceder a ella.
 
-Scope: Backend
-Status: Approved
+**Scope:** Backend  
+**Status:** Approved
 
 ## Descripción
 
-El sistema debe permitir obtener un paciente específico mediante su identificador respetando las reglas de acceso del usuario autenticado.
+El sistema debe permitir consultar un paciente mediante:
 
-Un usuario con rol `clinic` puede consultar un paciente cuando este pertenece a su clínica.
+`GET /v1/patients/{id}`
 
-Un usuario con rol `therapist` únicamente puede consultar un paciente cuando existe una relación con él mediante alguno de sus procesos terapéuticos.
+Los usuarios con rol `clinic` podrán consultar pacientes pertenecientes a su clínica.
 
-La existencia del paciente no debe permitir omitir las restricciones de acceso definidas por clínica y terapeuta.
+Los usuarios con rol `therapist` únicamente podrán consultar pacientes que participen en alguno de sus procesos terapéuticos.
+
+La existencia de un paciente no deberá permitir omitir las restricciones de acceso por clínica y relación terapéutica.
 
 ## Criterios de aceptación
 
-### CA-01 - Consultar paciente como clínica
+### CA-01 - Validar autenticación
 
-Dado que existe una sesión autenticada con rol `clinic`
-y el paciente pertenece a la misma clínica,
-cuando se consulta el paciente por su identificador,
+Dado que se solicita consultar un paciente,  
+cuando no existe una sesión válida,  
+entonces el sistema debe responder con `401 Unauthorized`.
+
+### CA-02 - Validar autorización por rol
+
+Dado que existe una sesión válida,  
+cuando el usuario tiene rol `clinic` o `therapist`,  
+entonces podrá consultar pacientes conforme a sus permisos.
+
+Los roles no autorizados deberán recibir `403 Forbidden`.
+
+### CA-03 - Validar usuario activo
+
+Dado que un usuario solicita consultar un paciente,  
+cuando su estado actual es `inactive`,  
+entonces el sistema debe rechazar la operación.
+
+### CA-04 - Validar clínica activa
+
+Dado que existe una sesión autenticada,  
+cuando la clínica del usuario no existe o está inactiva,  
+entonces el sistema debe rechazar la operación.
+
+### CA-05 - Validar identificador
+
+Dado que se proporciona el parámetro `id`,  
+cuando no cumple el formato definido para Patient,  
+entonces el sistema debe responder con `400 Bad Request`.
+
+### CA-06 - Consultar paciente como clínica
+
+Dado que un usuario tiene rol `clinic` y el paciente pertenece a su clínica,  
+cuando solicita consultarlo,  
 entonces el sistema debe devolver su información.
 
-### CA-02 - Consultar paciente como terapeuta
+### CA-07 - Consultar paciente como terapeuta
 
-Dado que existe una sesión autenticada con rol `therapist`
-y el paciente participa en al menos uno de sus procesos terapéuticos,
-cuando se consulta el paciente por su identificador,
+Dado que un usuario tiene rol `therapist` y el paciente participa en uno de sus procesos terapéuticos,  
+cuando solicita consultarlo,  
 entonces el sistema debe devolver su información.
 
-### CA-03 - Impedir acceso de terapeuta sin relación
+### CA-08 - Impedir acceso de terapeuta sin relación
 
-Dado que existe una sesión autenticada con rol `therapist`
-y el paciente no participa en ninguno de sus procesos terapéuticos,
-cuando se intenta consultar el paciente,
-entonces el sistema debe rechazar la operación como no autorizada para ese recurso.
+Dado que un paciente pertenece a la misma clínica del terapeuta,  
+pero no participa en ninguno de sus procesos terapéuticos,  
+cuando el terapeuta intenta consultarlo,  
+entonces el sistema debe responder con `404 Not Found`.
 
-### CA-04 - Impedir acceso a paciente de otra clínica
+Esta respuesta evitará revelar la existencia de pacientes fuera del alcance autorizado.
 
-Dado que el paciente pertenece a una clínica diferente de la del usuario autenticado,
-cuando se intenta consultar el paciente,
-entonces el sistema debe rechazar la operación como no autorizada para ese recurso.
+### CA-09 - Impedir acceso entre clínicas
 
-### CA-05 - Paciente inexistente
+Dado que el paciente pertenece a otra clínica,  
+cuando un usuario intenta consultarlo,  
+entonces el sistema debe responder con `404 Not Found`.
 
-Dado que no existe un paciente con el identificador proporcionado,
-cuando se intenta consultarlo,
-entonces el sistema debe indicar que el recurso no fue encontrado.
+### CA-10 - Paciente inexistente
 
-### CA-06 - Identificador inválido
+Dado que no existe un paciente con el identificador proporcionado,  
+cuando se realiza la consulta,  
+entonces el sistema debe responder con `404 Not Found`.
 
-Dado que el identificador proporcionado no cumple con el formato esperado,
-cuando se intenta consultar el paciente,
-entonces el sistema debe rechazar la solicitud como inválida.
+### CA-11 - Validar relación terapéutica
 
-### CA-07 - Devolver información del paciente
+Dado que el usuario tiene rol `therapist`,  
+cuando se evalúa su acceso,  
+entonces deberá comprobarse su participación en al menos un proceso terapéutico del paciente.
 
-Dado que el paciente existe
-y el usuario autenticado tiene acceso a él,
-cuando se consulta el paciente,
-entonces el sistema debe devolver la información definida para el paciente en el contrato del API.
+No deberá utilizarse una asignación directa en Patient.
 
-### CA-08 - Requerir sesión autenticada
+### CA-12 - Devolver información del paciente
 
-Dado que no existe una sesión autenticada válida,
-cuando se intenta consultar un paciente,
-entonces el sistema debe rechazar la operación como no autenticada.
+Dado que el paciente existe y el usuario tiene acceso,  
+cuando se construye la respuesta,  
+entonces deberán incluirse los campos definidos en OpenAPI.
+
+No deberán exponerse detalles internos de persistencia.
+
+### CA-13 - No modificar información
+
+Dado que se consulta un paciente,  
+cuando finaliza la operación,  
+entonces no deberá modificarse información persistida ni actualizarse `updated_at`.
+
+### CA-14 - Respuesta correcta
+
+Dado que el paciente existe y el usuario tiene autorización,  
+cuando la consulta se completa,  
+entonces el sistema debe responder con `200 OK`.
 
 ## Reglas de negocio
 
-* Los roles `clinic` y `therapist` pueden consultar pacientes de acuerdo con sus permisos.
-* Un usuario `clinic` puede consultar pacientes pertenecientes a su clínica.
-* Un usuario `therapist` únicamente puede consultar pacientes relacionados con sus propios procesos terapéuticos.
-* La pertenencia del paciente a la misma clínica no otorga automáticamente acceso al terapeuta.
-* La relación entre paciente y terapeuta se determina mediante los procesos terapéuticos.
-* No puede consultarse información de pacientes pertenecientes a otra clínica.
-* La existencia de un paciente no elimina las reglas de autorización sobre el recurso.
+- La consulta requiere autenticación.
+- Los roles `clinic` y `therapist` pueden consultar conforme a sus permisos.
+- El usuario y su clínica deben estar activos.
+- `clinic` puede consultar pacientes de su clínica.
+- `therapist` solo puede consultar pacientes vinculados a sus procesos terapéuticos.
+- Compartir clínica no concede acceso automático al terapeuta.
+- Los pacientes de otras clínicas no pueden consultarse.
+- Un recurso inexistente o fuera del alcance autorizado debe responder con `404 Not Found`.
+- La consulta no modifica información.
 
 ## Dependencias
 
-* Para validar el acceso de un terapeuta deben poder consultarse sus procesos terapéuticos.
+- Auth.
+- Users.
+- Clinics.
+- Patients.
+- Therapeutic Processes.
 
 ## Consideraciones técnicas
 
-* El contrato HTTP debe respetar `docs/baas-vera-balance-dashboard.yaml`.
-* La persistencia debe respetar `docs/DB.md`.
-* Las reglas funcionales deben respetar `docs/DEFINITIONS.md`.
-* La implementación debe respetar `docs/PROJECT_ARCHITECTURE.md`.
-* El identificador del paciente debe validarse de acuerdo con el formato definido por el contrato.
-* La autorización debe evaluarse utilizando la sesión autenticada, la clínica del paciente y, cuando corresponda, su relación mediante procesos terapéuticos.
+### Endpoint
+
+`GET /v1/patients/{id}`
+
+### Parámetros
+
+`id`: identificador del paciente, conforme al formato definido en OpenAPI y `docs/DB.md`.
+
+### Autorización
+
+- Validar sesión, rol, usuario activo y clínica activa.
+- Obtener la identidad y clínica desde el contexto autenticado.
+- Comprobar que el paciente pertenece a la clínica.
+- Para `therapist`, comprobar la existencia de una relación mediante procesos terapéuticos.
+- No revelar información del paciente antes de autorizar el acceso.
+
+### Persistencia
+
+- Consultar el paciente mediante su identificador.
+- Utilizar las abstracciones de Patients y Therapeutic Processes.
+- No consultar ni modificar procesos salvo lo necesario para verificar autorización.
+- No modificar información persistida.
+
+### Respuestas HTTP
+
+| Código | Descripción |
+|---|---|
+| `200 OK` | Paciente consultado correctamente. |
+| `400 Bad Request` | Identificador inválido. |
+| `401 Unauthorized` | Sesión inexistente o inválida. |
+| `403 Forbidden` | Usuario sin permisos de operación. |
+| `404 Not Found` | Paciente inexistente o fuera del alcance autorizado. |
+
+### Arquitectura
+
+- `presentation`: recepción del identificador, autenticación y respuesta HTTP.
+- `application`: caso de uso Get Patient By ID y autorización.
+- `domain`: reglas de acceso.
+- `infrastructure`: consulta de paciente y relaciones terapéuticas.
+
+El caso de uso no deberá depender directamente de Dynamoose ni de controladores HTTP.
 
 ## Referencias
 
-* `docs/DB.md`
-* `docs/baas-vera-balance-dashboard.yaml`
-* `docs/DEFINITIONS.md`
-* `docs/PROJECT_ARCHITECTURE.md`
+- `docs/DB.md`
+- `docs/baas-vera-balance-dashboard.yaml`
+- `docs/DEFINITIONS.md`
+- `docs/ENDPOINTS.md`
+- `docs/PROJECT_ARCHITECTURE.md`
 
 ## Definition of Done
 
-* [ ] Todos los criterios de aceptación fueron implementados.
-* [ ] Se agregaron o actualizaron las pruebas necesarias.
-* [ ] Las pruebas pasan correctamente.
-* [ ] La implementación fue revisada.
+- [ ] Todos los criterios de aceptación fueron implementados.
+- [ ] Se verificó la consulta para `clinic`.
+- [ ] Se verificó la consulta para `therapist`.
+- [ ] Se verificó el acceso mediante procesos terapéuticos.
+- [ ] Se verificó el rechazo de pacientes de otras clínicas.
+- [ ] Se verificó el rechazo de pacientes sin relación con el terapeuta.
+- [ ] Se verificaron identificadores inválidos e inexistentes.
+- [ ] Se confirmó la consistencia con OpenAPI.
+- [ ] La implementación fue revisada.

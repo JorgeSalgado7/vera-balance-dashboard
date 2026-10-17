@@ -5,7 +5,7 @@ quiero consultar la clínica asociada a un usuario,
 para poder obtener la información de la clínica a la que pertenece.
 
 Scope: Backend
-Status: Under Review
+Status: Approved
 
 ## Descripción
 
@@ -73,7 +73,7 @@ entonces la respuesta debe incluir el identificador, nombre, logo, dirección, t
 
 ## Definition of Done
 
-* [x] Todos los criterios de aceptación fueron implementados.
-* [x] Se agregaron o actualizaron las pruebas necesarias.
-* [x] Las pruebas pasan correctamente.
-* [x] La implementación fue revisada.
+* [] Todos los criterios de aceptación fueron implementados.
+* [] Se agregaron o actualizaron las pruebas necesarias.
+* [] Las pruebas pasan correctamente.
+* [] La implementación fue revisada.

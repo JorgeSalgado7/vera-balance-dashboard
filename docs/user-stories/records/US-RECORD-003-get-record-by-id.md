@@ -1,101 +1,71 @@
+# US-RECORD-003 — Get Record By ID
+
+**Scope:** Backend  
+**Status:** Approved  
+**Método:** `GET /v1/records/{id}`
+
 ## Historia de usuario
 
-Como usuario autorizado de Vera Balance,
-quiero consultar un registro de sesión específico,
-para revisar la información documentada durante una sesión terapéutica.
-
-Scope: Backend
-Status: Approved
+Como usuario autorizado de Vera Balance, quiero consultar un registro de sesión específico, para revisar la información documentada durante una sesión terapéutica.
 
 ## Descripción
 
-El sistema debe permitir consultar un Record mediante su identificador respetando los permisos del usuario autenticado.
+El sistema debe recuperar un Record por su identificador, comprobando la autorización mediante el proceso terapéutico al que pertenece.
 
-Un usuario con rol `clinic` puede consultar Records pertenecientes a cualquier proceso de su clínica.
-
-Un usuario con rol `therapist` únicamente puede consultar Records pertenecientes a procesos donde sea el terapeuta asignado.
+La consulta debe estar disponible para usuarios `clinic` de la misma clínica y usuarios `therapist` asignados al proceso.
 
 ## Criterios de aceptación
 
-### CA-01 - Consultar Record como clinic
+### CA-01 — Consultar como clinic
+Dado que el Record pertenece a un proceso de la clínica autenticada, cuando un usuario `clinic` lo consulta, entonces debe devolverse su información.
 
-Dado que existe una sesión autenticada con rol `clinic`
-y el Record pertenece a un proceso de su clínica,
-cuando se consulta mediante su identificador,
-entonces el sistema debe devolver su información.
+### CA-02 — Consultar como therapist
+Dado que el Record pertenece a un proceso asignado al terapeuta autenticado, cuando lo consulta, entonces debe devolverse su información.
 
-### CA-02 - Consultar Record como therapist
+### CA-03 — Impedir acceso de therapist no asignado
+Dado que el Record pertenece a un proceso de otro terapeuta, cuando un usuario `therapist` intenta consultarlo, entonces debe rechazarse la operación.
 
-Dado que existe una sesión autenticada con rol `therapist`
-y el Record pertenece a un proceso donde el usuario es el terapeuta asignado,
-cuando se consulta mediante su identificador,
-entonces el sistema debe devolver su información.
+### CA-04 — Impedir acceso entre clínicas
+Dado que el Record pertenece a otra clínica, cuando se intenta consultarlo, entonces debe rechazarse la operación.
 
-### CA-03 - Impedir acceso a therapist no asignado
+### CA-05 — Consultar Record histórico
+Dado que el proceso ya no tiene `status = active`, cuando un usuario autorizado consulta un Record existente, entonces debe poder recuperarlo.
 
-Dado que el Record pertenece a un proceso asignado a otro terapeuta,
-cuando un usuario con rol `therapist` intenta consultarlo,
-entonces el sistema debe rechazar la operación como no autorizada.
+### CA-06 — Devolver información del Record
+Dado que el usuario tiene acceso, cuando consulta el Record, entonces deben devolverse los campos definidos en el contrato, incluyendo las referencias a Home Works cuando corresponda.
 
-### CA-04 - Impedir acceso entre clínicas
+### CA-07 — Record inexistente
+Dado que el identificador no corresponde a un Record existente, cuando se consulta, entonces debe devolverse un error de recurso no encontrado.
 
-Dado que el Record pertenece a un proceso de otra clínica,
-cuando el usuario intenta consultarlo,
-entonces el sistema debe rechazar la operación como no autorizada.
+### CA-08 — Identificador inválido
+Dado que el identificador tiene un formato inválido, cuando se consulta, entonces debe rechazarse la solicitud.
 
-### CA-05 - Consultar Record histórico
-
-Dado que el proceso relacionado ya no tiene estado `active`,
-cuando un usuario con permisos consulta un Record existente,
-entonces el sistema debe permitir su consulta.
-
-### CA-06 - Record inexistente
-
-Dado que no existe un Record con el identificador proporcionado,
-cuando se intenta consultarlo,
-entonces el sistema debe indicar que el recurso no fue encontrado.
-
-### CA-07 - Identificador inválido
-
-Dado que el identificador no cumple con el formato esperado,
-cuando se intenta consultar el Record,
-entonces el sistema debe rechazar la solicitud como inválida.
-
-### CA-08 - Requerir autenticación
-
-Dado que no existe una sesión autenticada válida,
-cuando se intenta consultar el Record,
-entonces el sistema debe rechazar la operación como no autenticada.
+### CA-09 — Requerir autenticación
+Dado que no existe una sesión válida, cuando se intenta consultar el Record, entonces debe rechazarse la operación como no autenticada.
 
 ## Reglas de negocio
 
-* `clinic` puede consultar Records de cualquier proceso de su clínica.
-* `therapist` únicamente puede consultar Records correspondientes a sus procesos.
-* Los Records históricos continúan disponibles aunque cambie el estado del proceso.
-* No deben exponerse Records pertenecientes a otra clínica.
+- La autorización del Record depende de su proceso terapéutico.
+- `clinic` puede consultar Records de su clínica.
+- `therapist` únicamente puede consultar Records de sus procesos.
+- Los Records históricos siguen siendo consultables.
+- La consulta no debe modificar el Record ni sus Home Works.
 
 ## Dependencias
 
-* El Record debe existir.
-* Debe existir una sesión autenticada.
+- Autenticación.
+- Record existente.
+- Therapeutic Process asociado.
 
 ## Consideraciones técnicas
 
-* El contrato HTTP debe respetar `docs/baas-vera-balance-dashboard.yaml`.
-* La persistencia debe respetar `docs/DB.md`.
-* Las reglas funcionales deben respetar `docs/DEFINITIONS.md`.
-* La implementación debe respetar `docs/PROJECT_ARCHITECTURE.md`.
-
-## Referencias
-
-* `docs/DB.md`
-* `docs/baas-vera-balance-dashboard.yaml`
-* `docs/DEFINITIONS.md`
-* `docs/PROJECT_ARCHITECTURE.md`
+- Respetar `docs/baas-vera-balance-dashboard.yaml`, `docs/DB.md`, `docs/DEFINITIONS.md` y `docs/PROJECT_ARCHITECTURE.md`.
+- Validar el identificador.
+- Verificar la autorización antes de devolver información clínica.
 
 ## Definition of Done
 
-* [ ] Todos los criterios de aceptación fueron implementados.
-* [ ] Se agregaron o actualizaron las pruebas necesarias.
-* [ ] Las pruebas pasan correctamente.
-* [ ] La implementación fue revisada.
+- [ ] Todos los criterios de aceptación fueron implementados.
+- [ ] Se agregaron o actualizaron las pruebas necesarias.
+- [ ] Las pruebas pasan correctamente.
+- [ ] La implementación fue revisada.

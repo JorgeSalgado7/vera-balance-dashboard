@@ -5,7 +5,12 @@ info:
   contact:
     name: Jorge Salgado
     email: jorge.salgado7@outlook.com
-  version: 1.0.0
+  version: 1.1.0
+  description: Autenticación por cookie HttpOnly con JWT de cinco minutos. Todas las operaciones están protegidas
+    por sessionCookie salvo las excepciones públicas indicadas explícitamente. Las operaciones requieren además
+    autorización por rol, clínica y propiedad del recurso. POST /v1/users no es público; el primer usuario
+    se crea mediante un procedimiento de bootstrap restringido, no especificado como endpoint público en esta
+    API. Las mutaciones basadas en cookies deben protegerse contra CSRF mediante controles adecuados al despliegue.
 tags:
 - name: Clinics
   description: Administración de clínicas
@@ -87,6 +92,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ForbiddenResponse'
+      description: Operación protegida de aprovisionamiento de clínicas. Requiere una capacidad administrativa
+        global que todavía no está definida para los roles clinic y therapist. No se utiliza para el bootstrap
+        del primer usuario.
     get:
       tags:
       - Clinics
@@ -119,6 +127,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ForbiddenResponse'
+      description: Requiere autorización administrativa global; los usuarios de clínica no pueden enumerar
+        clínicas ajenas.
   /v1/clinics/{id}:
     parameters:
     - $ref: '#/components/parameters/ClinicId'
@@ -164,6 +174,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ForbiddenResponse'
+      description: Solo permite acceder a la clínica de la sesión, salvo capacidad administrativa global expresamente
+        autorizada.
     put:
       tags:
       - Clinics
@@ -218,6 +230,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ForbiddenResponse'
+      description: El rol clinic puede actualizar únicamente su propia clínica; no puede modificar clínicas
+        ajenas.
     delete:
       tags:
       - Clinics
@@ -262,6 +276,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ForbiddenResponse'
+      description: Operación de administración global restringida. No disponible para los roles clinic ni therapist
+        sin una capacidad administrativa global definida.
   /v1/clinics/user/{userId}:
     parameters:
     - $ref: '#/components/parameters/ClinicUserId'
@@ -307,6 +323,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ForbiddenResponse'
+      description: Solo permite consultar la clínica de usuarios de la misma clínica del solicitante; el rol
+        therapist solo puede consultar la propia.
   /v1/users:
     post:
       tags:
@@ -353,13 +371,31 @@ paths:
               schema:
                 $ref: '#/components/schemas/InternalServerErrorResponse'
         '401':
-          description: Public Operation Token ausente, inválido, expirado, consumido o con scope incorrecto
+          description: Sesión inválida o no autenticada
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Operación no permitida para el rol o la clínica
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
+        '429':
+          description: Demasiadas solicitudes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TooManyRequestsResponse'
       security:
-      - publicOperationToken: []
+      - sessionCookie: []
+      description: Requiere sesión autenticada y rol clinic. Solo puede crear usuarios en la misma clínica
+        del administrador autenticado. El clinic_id solicitado debe coincidir con la clínica de la sesión;
+        nunca se acepta una asignación a otra clínica. La contraseña y su confirmación deben coincidir; la
+        confirmación no se almacena y la contraseña se persiste únicamente mediante hash seguro. El email debe
+        ser único globalmente. El primer usuario se aprovisiona mediante un procedimiento de inicialización
+        restringido, fuera de este endpoint.
     get:
       tags:
       - Users
@@ -392,6 +428,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ForbiddenResponse'
+      description: Requiere rol clinic. Devuelve únicamente los usuarios de la clínica del usuario autenticado;
+        nunca permite consultar usuarios de otras clínicas.
   /v1/users/{id}:
     parameters:
     - $ref: '#/components/parameters/UserId'
@@ -437,6 +475,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ForbiddenResponse'
+      description: Solo puede consultar usuarios de su propia clínica. El rol therapist puede consultar su
+        propio perfil, pero no otros usuarios.
     put:
       tags:
       - Users
@@ -496,6 +536,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ForbiddenResponse'
+      description: El rol clinic puede actualizar usuarios de su propia clínica. El rol therapist solo puede
+        modificar los datos permitidos de su propio perfil, nunca el rol, la clínica ni el estatus. No se permite
+        transferir usuarios entre clínicas. El cambio de contraseña utiliza /v1/auth/reset-password.
     delete:
       tags:
       - Users
@@ -540,6 +583,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ForbiddenResponse'
+      description: Solo rol clinic, sobre usuarios de su propia clínica. Rechaza la eliminación si afecta dependencias
+        o invariantes de integridad. No permite eliminar usuarios de otra clínica ni el propio usuario administrador
+        sin un procedimiento controlado.
   /v1/users/{id}/status:
     parameters:
     - $ref: '#/components/parameters/UserId'
@@ -599,55 +645,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ForbiddenResponse'
-  /v1/auth/public-token:
-    post:
-      tags:
-      - Auth
-      summary: Crear token para operación pública
-      description: Genera un token temporal de un solo uso para una operación que no requiere sesión autenticada. El token queda limitado al scope
-        solicitado, tiene vigencia limitada y no puede utilizarse como token de sesión. Una vez aceptado por el endpoint correspondiente, queda
-        consumido y no puede reutilizarse.
-      operationId: createPublicOperationToken
-      security: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreatePublicOperationTokenRequest'
-            example:
-              scope: auth:sign-in
-      responses:
-        '201':
-          description: Token temporal creado correctamente
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PublicOperationTokenResponse'
-        '400':
-          description: Solicitud inválida
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '500':
-          description: Error interno del servidor
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InternalServerErrorResponse'
+      description: Solo rol clinic. Puede activar o desactivar usuarios de su misma clínica. Impide cambios
+        de usuarios de otra clínica y protege la última cuenta administradora activa de la clínica.
   /v1/auth/sign-in:
     post:
       tags:
       - Auth
       summary: Iniciar sesión
-      description: 'Valida las credenciales del usuario y crea una sesión autenticada.
-
-
-        Requiere un Public Operation Token válido con scope `auth:sign-in`. El token temporal es de un solo uso y se consume al aceptarse la solicitud.
-
-
-        El JWT de sesión se envía exclusivamente mediante una cookie HttpOnly y no forma parte del cuerpo de la respuesta.'
+      description: Valida credenciales y emite un único JWT de sesión con vigencia de 5 minutos mediante cookie
+        HttpOnly. No requiere token previo ni devuelve el JWT en el cuerpo. La sesión puede renovarse antes
+        de su expiración mientras el frontend detecte actividad.
       operationId: signIn
       requestBody:
         required: true
@@ -663,10 +670,11 @@ paths:
           description: Sesión iniciada correctamente
           headers:
             Set-Cookie:
-              description: Cookie HttpOnly que contiene el JWT de sesión.
+              description: Cookie HttpOnly con JWT firmado, expiración de 300 segundos y atributos Secure,
+                SameSite=Lax y Path=/.
               schema:
                 type: string
-              example: vera_balance_session=<jwt>; Path=/; HttpOnly; Secure; SameSite=Lax
+              example: vera_balance_session=<jwt>; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=300
           content:
             application/json:
               schema:
@@ -689,20 +697,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalServerErrorResponse'
-      security:
-      - publicOperationToken: []
+        '429':
+          description: Demasiados intentos de inicio de sesión
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TooManyRequestsResponse'
+      security: []
   /v1/auth/forgot-password:
     post:
       tags:
       - Auth
       summary: Solicitar recuperación de contraseña
-      description: Solicita el inicio del proceso de recuperación de contraseña. Requiere un Public Operation Token válido con scope `auth:forgot-password`.
-        El token temporal es de un solo uso y se consume al aceptarse la solicitud. La respuesta no revela si el email corresponde a un usuario
-        existente. Si el usuario existe, el backend genera un Password Recovery Token de vigencia limitada y un solo uso, y lo envía al correo
-        asociado. El Password Recovery Token no se devuelve mediante el API y la contraseña no se modifica durante esta operación.
+      description: Recibe el email y, si corresponde a una cuenta elegible, genera un código numérico criptográficamente
+        aleatorio de 6 dígitos, válido durante 5 minutos y con un máximo de 5 intentos fallidos. Persiste solo
+        el hash seguro del código y metadatos de expiración/intentos en DynamoDB (no un JWT). Reemplaza cualquier
+        código anterior del usuario. Envía el código mediante Resend utilizando una plantilla de correo propia
+        del backend. La respuesta no revela si el email existe. Se aplica limitación de frecuencia para evitar
+        abuso.
       operationId: forgotPassword
-      security:
-      - publicOperationToken: []
+      security: []
       requestBody:
         required: true
         content:
@@ -724,27 +738,27 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BadRequestResponse'
-        '401':
-          description: Public Operation Token ausente, inválido, expirado, consumido o con scope incorrecto
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
         '500':
           description: Error interno del servidor
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalServerErrorResponse'
+        '429':
+          description: Demasiadas solicitudes de recuperación
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TooManyRequestsResponse'
   /v1/auth/forgot-password/reset:
     post:
       tags:
       - Auth
       summary: Restablecer contraseña olvidada
-      description: Establece una nueva contraseña utilizando el Password Recovery Token recibido mediante el correo de recuperación. No requiere
-        una sesión autenticada ni un Public Operation Token. El Password Recovery Token debe ser válido, vigente, estar asociado a un usuario
-        y no haber sido consumido. La identidad del usuario se obtiene a partir del token validado. Después de actualizar correctamente la contraseña,
-        el Password Recovery Token queda consumido y no puede reutilizarse. La operación no crea automáticamente una sesión autenticada.
+      description: Valida email y código de recuperación de seis dígitos contra su hash persistido, vigencia
+        de 5 minutos y máximo de 5 intentos. Actualiza la contraseña si el código es correcto y consume/elimina
+        atómicamente el registro para impedir reutilización. No inicia sesión. No requiere JWT de sesión. Los
+        errores no deben revelar detalles sensibles.
       operationId: resetForgottenPassword
       security: []
       requestBody:
@@ -754,9 +768,10 @@ paths:
             schema:
               $ref: '#/components/schemas/ResetForgottenPasswordRequest'
             example:
-              recovery_token: password-recovery-token
-              password: NewPassword123
-              password_confirmation: NewPassword123
+              email: monica@verabalance.com
+              verification_code: '123456'
+              password: NewPassword123!
+              password_confirmation: NewPassword123!
       responses:
         '200':
           description: Contraseña actualizada correctamente
@@ -767,36 +782,33 @@ paths:
               schema:
                 $ref: '#/components/schemas/BadRequestResponse'
         '401':
-          description: Password Recovery Token ausente, inválido, expirado o consumido
+          description: Código de verificación inválido, expirado, consumido o con intentos agotados
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/UnauthorizedResponse'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NotFoundResponse'
         '500':
           description: Error interno del servidor
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalServerErrorResponse'
+        '429':
+          description: Demasiados intentos de verificación
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TooManyRequestsResponse'
   /v1/auth/sign-out:
     post:
       tags:
       - Auth
       summary: Cerrar sesión
-      description: 'Cierra la sesión eliminando la cookie HttpOnly utilizada para
-
-        autenticación. El cliente no necesita enviar el JWT en el body.
-
-        '
+      description: 'Elimina la cookie de sesión del navegador, incluso si ya expiró. No se almacena ni se revoca
+        el JWT en DynamoDB: una copia del JWT previamente emitido sigue siendo criptográficamente válida hasta
+        su expiración (máximo 5 minutos). El frontend detiene la renovación y borra su estado de autenticación.'
       operationId: signOut
-      security:
-      - sessionCookie: []
+      security: []
       responses:
         '204':
           description: Sesión cerrada correctamente
@@ -806,18 +818,6 @@ paths:
               schema:
                 type: string
               example: vera_balance_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0
-        '401':
-          description: Sesión inválida o no autenticada
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '403':
-          description: Operación no permitida
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ForbiddenResponse'
         '500':
           description: Error interno del servidor
           content:
@@ -829,11 +829,12 @@ paths:
       tags:
       - Auth
       summary: Verificar sesión
-      description: 'Verifica el JWT recibido automáticamente mediante la cookie HttpOnly
-
-        de sesión. El JWT no se recibe ni se devuelve en el body.
-
-        '
+      description: Valida firma y expiración del JWT de sesión enviado automáticamente mediante cookie HttpOnly.
+        No renueva ni devuelve el JWT. El frontend consulta el estado de la sesión periódicamente (cada 5 minutos
+        como comprobación general), pero debe controlar localmente la inactividad y cerrar sesión al cumplir
+        5 minutos sin interacción; la comprobación periódica no reemplaza el temporizador de inactividad. Para
+        mantener una sesión activa, el frontend debe llamar a /v1/auth/refresh antes del vencimiento, por ejemplo
+        con margen de seguridad, y nunca intentar renovar un JWT ya expirado.
       operationId: verifySession
       security:
       - sessionCookie: []
@@ -856,6 +857,44 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ForbiddenResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+  /v1/auth/refresh:
+    post:
+      tags:
+      - Auth
+      summary: Renovar sesión activa
+      operationId: refreshSession
+      description: Renueva un JWT de sesión válido antes de su expiración, mediante la cookie HttpOnly existente.
+        No acepta JWT expirados ni recibe tokens en el body. El frontend solo debe solicitarlo cuando detecte
+        actividad reciente del usuario y antes de que transcurran 5 minutos de inactividad; el servidor verifica
+        la firma y vigencia del JWT, pero sin estado persistido no puede demostrar por sí mismo la actividad
+        real en la interfaz. El nuevo JWT tiene 5 minutos de vigencia. No se persisten JWT ni tokens de refresh.
+      security:
+      - sessionCookie: []
+      responses:
+        '200':
+          description: Sesión renovada correctamente
+          headers:
+            Set-Cookie:
+              description: Reemplaza la cookie de sesión con un nuevo JWT de 5 minutos.
+              schema:
+                type: string
+              example: vera_balance_session=<jwt>; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=300
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthSessionResponse'
+        '401':
+          description: Sesión ausente, inválida o expirada; se requiere iniciar sesión nuevamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
         '500':
           description: Error interno del servidor
           content:
@@ -910,14 +949,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ForbiddenResponse'
-      description: Cambia la contraseña del usuario autenticado. La identidad se obtiene de la sesión enviada mediante la cookie HttpOnly `vera_balance_session`;
-        el cliente no envía email ni identificador de usuario en el body.
+      description: Cambia la contraseña del usuario autenticado. La identidad se obtiene de la sesión enviada
+        mediante la cookie HttpOnly `vera_balance_session`; el cliente no envía email ni identificador de usuario
+        en el body.
   /v1/catalogs:
     post:
       tags:
       - Catalogs
       summary: Crear catálogo
-      description: Operación reservada para la administración global de Vera Balance. Los roles actuales `clinic` y `therapist` no pueden crear catálogos. La capacidad administrativa global requerida para esta operación aún no está definida.
+      description: Operación reservada para la administración global de Vera Balance. Los roles actuales `clinic`
+        y `therapist` no pueden crear catálogos. La capacidad administrativa global requerida para esta operación
+        aún no está definida.
       operationId: createCatalog
       requestBody:
         required: true
@@ -966,7 +1008,8 @@ paths:
       tags:
       - Catalogs
       summary: Obtener catálogos
-      description: Obtiene los catálogos globales disponibles en el sistema. Los catálogos no pertenecen a una clínica y la consulta incluye tanto los catálogos iniciales como los que se agreguen posteriormente.
+      description: Obtiene los catálogos globales disponibles en el sistema. Los catálogos no pertenecen a
+        una clínica y la consulta incluye tanto los catálogos iniciales como los que se agreguen posteriormente.
       operationId: getCatalogs
       responses:
         '200':
@@ -1002,7 +1045,8 @@ paths:
       tags:
       - Catalogs
       summary: Obtener catálogo
-      description: Obtiene un catálogo global mediante su identificador. El catálogo es independiente de cualquier clínica.
+      description: Obtiene un catálogo global mediante su identificador. El catálogo es independiente de cualquier
+        clínica.
       operationId: getCatalogById
       responses:
         '200':
@@ -1045,7 +1089,10 @@ paths:
       tags:
       - Catalogs
       summary: Actualizar catálogo
-      description: Operación reservada para la administración global de Vera Balance. Permite modificar parcialmente el nombre y las opciones de un catálogo global. El tipo del catálogo es inmutable. Los roles actuales `clinic` y `therapist` no pueden actualizar catálogos. La capacidad administrativa global requerida para esta operación aún no está definida.
+      description: Operación reservada para la administración global de Vera Balance. Permite modificar parcialmente
+        el nombre y las opciones de un catálogo global. El tipo del catálogo es inmutable. Los roles actuales
+        `clinic` y `therapist` no pueden actualizar catálogos. La capacidad administrativa global requerida
+        para esta operación aún no está definida.
       operationId: updateCatalog
       requestBody:
         required: true
@@ -1100,7 +1147,9 @@ paths:
       tags:
       - Catalogs
       summary: Eliminar catálogo
-      description: Operación reservada para la administración global de Vera Balance. Los roles actuales `clinic` y `therapist` no pueden eliminar catálogos. La capacidad administrativa global requerida para esta operación aún no está definida. Los catálogos iniciales del sistema no son eliminables.
+      description: Operación reservada para la administración global de Vera Balance. Los roles actuales `clinic`
+        y `therapist` no pueden eliminar catálogos. La capacidad administrativa global requerida para esta
+        operación aún no está definida. Los catálogos iniciales del sistema no son eliminables.
       operationId: deleteCatalog
       responses:
         '204':
@@ -2215,17 +2264,9 @@ components:
       type: apiKey
       in: cookie
       name: vera_balance_session
-      description: 'Cookie HttpOnly que contiene el JWT de sesión. El frontend no accede
-
-        directamente al token; el navegador envía la cookie automáticamente.
-
-        '
-    publicOperationToken:
-      type: apiKey
-      in: header
-      name: X-Public-Operation-Token
-      description: Token temporal de un solo uso para operaciones sin sesión autenticada. Está limitado a un scope específico, tiene vigencia
-        limitada y se consume cuando el endpoint correspondiente acepta la solicitud.
+      description: Cookie HttpOnly con JWT de sesión de 5 minutos. El navegador la envía automáticamente; no
+        se persiste en base de datos. La renovación se solicita antes de expirar solo mientras el usuario esté
+        activo. Sin estado servidor no es posible revocarlo inmediatamente tras logout.
   parameters:
     ClinicId:
       name: id
@@ -2469,15 +2510,19 @@ components:
         password:
           type: string
           format: password
+          minLength: 12
         password_confirmation:
           type: string
           format: password
+          description: Solo validación de coincidencia con password; nunca se persiste.
         professional_license:
           type: string
         clinic_id:
           type:
           - string
           format: uuid
+          description: Debe coincidir con el identificador de la clínica del administrador autenticado; no
+            autoriza asignaciones entre clínicas.
         role:
           $ref: '#/components/schemas/UserRole'
     UpdateUserRequest:
@@ -2490,9 +2535,6 @@ components:
           format: email
         professional_license:
           type: string
-        clinic_id:
-          type: string
-          format: uuid
         role:
           $ref: '#/components/schemas/UserRole'
     UpdateUserStatusRequest:
@@ -2593,7 +2635,8 @@ components:
           - Viudo
     UpdateCatalogRequest:
       type: object
-      description: Permite actualizar parcialmente un catálogo. El campo `type` no forma parte de la actualización porque es inmutable.
+      description: Permite actualizar parcialmente un catálogo. El campo `type` no forma parte de la actualización
+        porque es inmutable.
       properties:
         name:
           type: string
@@ -3042,7 +3085,8 @@ components:
         type:
           type: string
           format: uri
-          description: Identifica el tipo de problema que ocurrió. Debe ser una URI que describa el detalle del problema.
+          description: Identifica el tipo de problema que ocurrió. Debe ser una URI que describa el detalle
+            del problema.
           example: https://tools.ietf.org/html/rfc7231#section-6.5.1
         title:
           type: string
@@ -3078,7 +3122,8 @@ components:
         type:
           type: string
           format: uri
-          description: Identifica el tipo de problema que ocurrió. Debe ser una URI que describa el detalle del problema.
+          description: Identifica el tipo de problema que ocurrió. Debe ser una URI que describa el detalle
+            del problema.
           example: https://tools.ietf.org/html/rfc7235#section-3.1
         title:
           type: string
@@ -3109,7 +3154,8 @@ components:
         type:
           type: string
           format: uri
-          description: Identifica el tipo de problema que ocurrió. Debe ser una URI que describa el detalle del problema.
+          description: Identifica el tipo de problema que ocurrió. Debe ser una URI que describa el detalle
+            del problema.
           example: https://tools.ietf.org/html/rfc7231#section-6.5.3
         title:
           type: string
@@ -3140,7 +3186,8 @@ components:
         type:
           type: string
           format: uri
-          description: Identifica el tipo de problema que ocurrió. Debe ser una URI que describa el detalle del problema.
+          description: Identifica el tipo de problema que ocurrió. Debe ser una URI que describa el detalle
+            del problema.
           example: https://tools.ietf.org/html/rfc7231#section-6.5.4
         title:
           type: string
@@ -3171,7 +3218,8 @@ components:
         type:
           type: string
           format: uri
-          description: Identifica el tipo de problema que ocurrió. Debe ser una URI que describa el detalle del problema.
+          description: Identifica el tipo de problema que ocurrió. Debe ser una URI que describa el detalle
+            del problema.
           example: https://tools.ietf.org/html/rfc7231#section-6.5.8
         title:
           type: string
@@ -3202,7 +3250,8 @@ components:
         type:
           type: string
           format: uri
-          description: Identifica el tipo de problema que ocurrió. Debe ser una URI que describa el detalle del problema.
+          description: Identifica el tipo de problema que ocurrió. Debe ser una URI que describa el detalle
+            del problema.
           example: https://tools.ietf.org/html/rfc7231#section-6.6.1
         title:
           type: string
@@ -3221,30 +3270,6 @@ components:
           type: string
           description: Explicación específica y legible por humanos sobre el error ocurrido.
           example: An unexpected error has occurred. Please try again later.
-    PublicOperationScope:
-      type: string
-      enum:
-      - users:create
-      - auth:sign-in
-      - auth:forgot-password
-    CreatePublicOperationTokenRequest:
-      type: object
-      required:
-      - scope
-      properties:
-        scope:
-          $ref: '#/components/schemas/PublicOperationScope'
-    PublicOperationTokenResponse:
-      type: object
-      required:
-      - token
-      - expires_at
-      properties:
-        token:
-          type: string
-          description: Token temporal de un solo uso limitado al scope solicitado.
-        expires_at:
-          $ref: '#/components/schemas/DateTime'
     ForgotPasswordRequest:
       type: object
       required:
@@ -3261,22 +3286,52 @@ components:
         accepted:
           type: boolean
           example: true
-          description: Indica que la solicitud fue aceptada sin revelar si el email corresponde a un usuario existente.
+          description: Indica que la solicitud fue aceptada sin revelar si el email corresponde a un usuario
+            existente.
     ResetForgottenPasswordRequest:
       type: object
       required:
-      - recovery_token
+      - email
+      - verification_code
       - password
       - password_confirmation
       properties:
-        recovery_token:
+        email:
           type: string
-          description: Password Recovery Token recibido mediante el correo de recuperación.
+          format: email
+        verification_code:
+          type: string
+          pattern: ^[0-9]{6}$
+          minLength: 6
+          maxLength: 6
+          description: Código de un solo uso recibido por email; expira en 5 minutos y admite hasta 5 intentos
+            fallidos.
         password:
           type: string
           format: password
         password_confirmation:
           type: string
           format: password
+    TooManyRequestsResponse:
+      type: object
+      required:
+      - type
+      - title
+      - status
+      - instance
+      - detail
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+        status:
+          type: integer
+          example: 429
+        instance:
+          type: string
+        detail:
+          type: string
 security:
 - sessionCookie: []

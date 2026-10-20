@@ -3,7 +3,7 @@ import { ApiCookieAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagg
 import type { Request } from 'express';
 import { ResetPasswordUseCase } from '../../application/use-cases/reset-password.use-case';
 import { ResetPasswordDto } from '../../application/dtos/reset-password.dto';
-import { CsrfGuard } from '../guards/csrf.guard';
+import { CsrfGuard } from '../../../../shared/http-security/csrf.guard';
 import { readSessionCookie } from '../http/session-cookie';
 import { SessionValidatedByUseCase } from '../decorators/session-validated-by-use-case.decorator';
 

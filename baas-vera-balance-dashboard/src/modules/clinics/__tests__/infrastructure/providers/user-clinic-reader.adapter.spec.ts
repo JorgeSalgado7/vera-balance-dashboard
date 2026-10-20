@@ -1,5 +1,6 @@
 import * as dynamoose from 'dynamoose';
 import { Test, TestingModule } from '@nestjs/testing';
+import { ConfigService } from '@nestjs/config';
 import { ClinicNotFoundError } from '../../../domain/errors/clinic.error';
 import { GetClinicByUserIdController } from '../../../presentation/controllers/get-clinic-by-user-id.controller';
 import { GetUserClinicIdUseCase } from '../../../../users/application/use-cases/get-user-clinic-id.use-case';
@@ -25,7 +26,10 @@ describe('UserClinicReaderAdapter module integration', () => {
   beforeEach(async () => {
     jest.resetAllMocks();
     dynamoose.aws.ddb.set(ddb as never);
-    module = await Test.createTestingModule({ imports: [UsersModule, ClinicsModule] }).compile();
+    module = await Test.createTestingModule({ imports: [UsersModule, ClinicsModule] })
+      .overrideProvider(ConfigService).useValue(new ConfigService({
+        AUTH_ALLOWED_ORIGINS: 'https://dashboard.example.com'
+      })).compile();
   });
 
   afterEach(async () => {

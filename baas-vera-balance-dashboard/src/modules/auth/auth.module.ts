@@ -17,7 +17,7 @@ import { ForgotPasswordUseCase } from './application/use-cases/forgot-password.u
 import { ForgotPasswordResetUseCase } from './application/use-cases/forgot-password-reset.use-case';
 import { AuthUserReaderAdapter } from './infrastructure/providers/auth-user-reader.adapter';
 import { AuthClinicReaderAdapter } from './infrastructure/providers/auth-clinic-reader.adapter';
-import { ScryptPasswordHasherAdapter } from './infrastructure/providers/scrypt-password-hasher.adapter';
+import { ScryptPasswordHasherAdapter } from '../../shared/security/scrypt-password-hasher.adapter';
 import { JwtSessionAdapter } from './infrastructure/providers/jwt-session.adapter';
 import { HmacRecoveryCodeAdapter } from './infrastructure/providers/hmac-recovery-code.adapter';
 import { RecoveryEmailAdapter } from './infrastructure/providers/recovery-email.adapter';
@@ -26,7 +26,7 @@ import { SavePasswordRecoveryDynamooseAdapter } from './infrastructure/persisten
 import { FindPasswordRecoveryDynamooseAdapter } from './infrastructure/persistence/adapters/find-password-recovery-dynamoose.adapter';
 import { RegisterRecoveryAttemptDynamooseAdapter } from './infrastructure/persistence/adapters/register-recovery-attempt-dynamoose.adapter';
 import { ConsumePasswordRecoveryDynamooseAdapter } from './infrastructure/persistence/adapters/consume-password-recovery-dynamoose.adapter';
-import { CsrfGuard } from './presentation/guards/csrf.guard';
+import { CsrfGuard } from '../../shared/http-security/csrf.guard';
 import { AuthRateLimitGuard } from './presentation/guards/auth-rate-limit.guard';
 import { SignInController } from './presentation/controllers/sign-in.controller';
 import { SignOutController } from './presentation/controllers/sign-out.controller';

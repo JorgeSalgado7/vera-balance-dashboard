@@ -1,5 +1,6 @@
 import * as dynamoose from 'dynamoose';
 import { Test, TestingModule } from '@nestjs/testing';
+import { ConfigService } from '@nestjs/config';
 
 process.env.DYNAMO_TABLE_NAME = 'auth-recovery-test';
 dynamoose.Table.defaults.set({ create: false, waitForActive: false });
@@ -35,7 +36,9 @@ describe('Password recovery DynamoDB boundaries', () => {
         ConsumePasswordRecoveryDynamooseAdapter, RegisterRecoveryAttemptDynamooseAdapter,
         SavePasswordRecoveryDynamooseAdapter, FindPasswordRecoveryDynamooseAdapter
       ]
-    }).compile();
+    }).overrideProvider(ConfigService).useValue(new ConfigService({
+      AUTH_ALLOWED_ORIGINS: 'https://dashboard.example.com'
+    })).compile();
   });
 
   afterEach(async () => { jest.useRealTimers(); await module.close(); });

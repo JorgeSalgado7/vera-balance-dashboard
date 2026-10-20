@@ -6,7 +6,7 @@ import { passwordRecoveryCondition } from '../conditions/password-recovery.condi
 import { UpdateUserPasswordUseCase } from '../../../../users/application/use-cases/update-user-password.use-case';
 import { RequireActiveClinicUseCase } from '../../../../clinics/application/use-cases/require-active-clinic.use-case';
 import { DynamooseTransactionManager } from '../../../../../infrastructure/dynamoose/dynamoose-transaction.manager';
-import { isConditionalTransactionFailure } from '../errors/is-conditional-transaction-failure';
+import { isConditionalTransactionFailure } from '../../../../../infrastructure/dynamoose/is-conditional-transaction-failure';
 
 @Injectable()
 export class ConsumePasswordRecoveryDynamooseAdapter implements IConsumePasswordRecoveryRepository {

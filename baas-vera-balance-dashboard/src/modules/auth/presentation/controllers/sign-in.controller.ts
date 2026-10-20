@@ -5,7 +5,7 @@ import { SignInUseCase } from '../../application/use-cases/sign-in.use-case';
 import { SignInDto } from '../../application/dtos/sign-in.dto';
 import { AuthSessionResponseDto } from '../../application/dtos/auth-session-response.dto';
 import { AuthRateLimitGuard } from '../guards/auth-rate-limit.guard';
-import { CsrfGuard } from '../guards/csrf.guard';
+import { CsrfGuard } from '../../../../shared/http-security/csrf.guard';
 import { setSessionCookie } from '../http/session-cookie';
 import { PublicAuthOperation } from '../decorators/public-auth-operation.decorator';
 

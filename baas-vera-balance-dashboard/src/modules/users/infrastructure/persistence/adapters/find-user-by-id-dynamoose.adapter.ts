@@ -7,7 +7,11 @@ import { UserMapper } from '../../mappers/user.mapper';
 @Injectable()
 export class FindUserByIdDynamooseAdapter implements IFindUserByIdRepository {
   async findById(id: string) {
-    const item = await UserModel.get({ pk: id, sk: 'USER' }, { consistent: true });
-    return item ? UserMapper.toEntity(item as unknown as UserPersistence) : null;
+    try {
+      const item = await UserModel.get({ pk: id, sk: 'USER' }, { consistent: true });
+      return item ? UserMapper.toEntity(item as unknown as UserPersistence) : null;
+    } catch {
+      throw new Error('Unable to read user.');
+    }
   }
 }

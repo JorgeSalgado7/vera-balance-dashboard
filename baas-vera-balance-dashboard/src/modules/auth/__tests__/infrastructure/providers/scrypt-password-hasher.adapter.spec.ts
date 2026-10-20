@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ScryptPasswordHasherAdapter } from '../../../infrastructure/providers/scrypt-password-hasher.adapter';
+import { ScryptPasswordHasherAdapter } from '../../../../../shared/security/scrypt-password-hasher.adapter';
 
 describe('ScryptPasswordHasherAdapter', () => {
   let module: TestingModule;

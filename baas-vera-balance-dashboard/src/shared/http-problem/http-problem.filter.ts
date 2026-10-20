@@ -12,6 +12,7 @@ import { HttpProblem } from './http-problem.util';
 //* Error translators
 import { ClinicErrorTranslator } from '../../modules/clinics/presentation/errors/clinic-error.translator';
 import { UserErrorTranslator } from '../../modules/users/presentation/errors/user-error.translator';
+import { AuthErrorTranslator } from '../../modules/auth/presentation/errors/auth-error.translator';
 
 type ErrorTranslator = { translate(error: unknown, instance: string): never | void; };
 
@@ -31,6 +32,7 @@ type HttpExceptionResponse = {
 const errorTranslators: ErrorTranslator[] = [
   ClinicErrorTranslator,
   UserErrorTranslator,
+  AuthErrorTranslator,
 ];
 
 @Catch()

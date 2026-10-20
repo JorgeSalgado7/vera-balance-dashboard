@@ -10,7 +10,7 @@ export class FindClinicByIdDynamooseAdapter implements IFindClinicByIdRepository
   private readonly model = ClinicModel;
 
   async findById(clinicId: string): Promise<ClinicEntity | null> {
-    const item = await this.model.get({ pk: clinicId, sk: 'CLINIC' });
+    const item = await this.model.get({ pk: clinicId, sk: 'CLINIC' }, { consistent: true });
 
     if (!item) {
       return null;

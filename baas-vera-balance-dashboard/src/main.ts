@@ -6,16 +6,19 @@ import {
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { ConfigService } from '@nestjs/config';
 import { HttpProblemFilter } from './shared/http-problem/http-problem.filter';
 import { HttpProblem } from './shared/http-problem/http-problem.util';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const config = app.get(ConfigService);
 
   app.enableVersioning({ type: VersioningType.URI  });
 
   app.enableCors({
-    origin: '*',
+    origin: config.getOrThrow<string>('AUTH_ALLOWED_ORIGINS').split(',').map(origin => origin.trim()),
+    credentials: true,
     methods: 'GET,POST,PATCH,PUT,DELETE',
     allowedHeaders: 'Content-Type, Authorization'
   });
@@ -58,6 +61,7 @@ async function bootstrap() {
     .setDescription('Vera Balance Dashboard API documentation')
     .setVersion('1.0')
     .addBearerAuth()
+    .addCookieAuth('vera_balance_session', {}, 'vera_balance_session')
     .build();
 
   const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);

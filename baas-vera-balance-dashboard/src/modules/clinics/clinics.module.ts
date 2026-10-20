@@ -1,6 +1,10 @@
 import { Module } from '@nestjs/common';
-import { UsersClinicReaderModule } from '../users/users-clinic-reader.module';
+import { UsersModule } from '../users/users.module';
+import { DynamooseModule } from '../../infrastructure/dynamoose/dynamoose.module';
 import { UserClinicReaderAdapter } from './infrastructure/providers/user-clinic-reader.adapter';
+import { IsClinicActiveUseCase } from './application/use-cases/is-clinic-active.use-case';
+import { RequireActiveClinicUseCase } from './application/use-cases/require-active-clinic.use-case';
+import { RequireActiveClinicDynamooseAdapter } from './infrastructure/persistence/adapters/require-active-clinic-dynamoose.adapter';
 
 import { CreateClinicController } from './presentation/controllers/create-clinic.controller';
 import { UpdateClinicController } from './presentation/controllers/update-clinic.controller';
@@ -28,7 +32,7 @@ import { FindClinicsDynamooseAdapter } from './infrastructure/persistence/adapte
 import { DeleteClinicDynamooseAdapter } from './infrastructure/persistence/adapters/delete-clinic-dynamoose.adapter';
 
 @Module({
-  imports: [UsersClinicReaderModule],
+  imports: [UsersModule, DynamooseModule],
   controllers: [
     CreateClinicController,
     UpdateClinicController,
@@ -39,6 +43,9 @@ import { DeleteClinicDynamooseAdapter } from './infrastructure/persistence/adapt
   ],
 
   providers: [
+    IsClinicActiveUseCase,
+    RequireActiveClinicUseCase,
+    { provide: 'IRequireActiveClinicRepository', useClass: RequireActiveClinicDynamooseAdapter },
     CreateClinicDomainService,
     UpdateClinicDomainService,
     ValidateClinicStatusDomainService,
@@ -78,11 +85,12 @@ import { DeleteClinicDynamooseAdapter } from './infrastructure/persistence/adapt
   ],
 
   exports: [
+    IsClinicActiveUseCase,
+    RequireActiveClinicUseCase,
     CreateClinicUseCase,
     UpdateClinicUseCase,
     GetClinicByIdUseCase,
-    GetClinicsUseCase,
-    'IFindClinicByIdRepository'
+    GetClinicsUseCase
   ]
 })
 export class ClinicsModule {}

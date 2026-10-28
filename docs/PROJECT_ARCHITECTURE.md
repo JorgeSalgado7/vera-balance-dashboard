@@ -41,6 +41,8 @@ Vera Balance Dashboard
 │
 ├── BAAS (Node.js + NestJS + TypeScript)
 │   │
+│   ├── Autenticación y JWT
+│   │
 │   └── Clean Architecture
 │       ├── Presentation
 │       ├── Application
@@ -79,7 +81,8 @@ Vera Balance Dashboard
 | Arquitectura | Clean Architecture | |
 | API | REST | |
 | Contrato | OpenAPI | 3.1 |
-| Autenticación | JWT | |
+| Autenticación | `@nestjs/authentication` | Por verificar |
+| JWT | `@nestjs/jwt` | |
 | Base de datos | Amazon DynamoDB | |
 | Persistencia | Single Table Design | |
 | Contenedores | Docker | |
@@ -165,7 +168,7 @@ BAAS
 Presentation ──► Application ──► Domain
                        ▲
                        │
-                 Infrastructure
+                  Infrastructure
 
 
 MFE
@@ -173,7 +176,7 @@ MFE
 UI ────────────► Application ──► Domain
                        ▲
                        │
-                 Infrastructure
+                  Infrastructure
 ```
 
 Las implementaciones concretas deberán depender de las abstracciones internas, manteniendo independientes los casos de uso.
@@ -418,20 +421,20 @@ La configuración de Material UI deberá consumir estas variables sin duplicar l
 src/ui/scss/theme/_theme.scss
               │
               ▼
-        Tokens globales
+         Tokens globales
               │
-       ┌──────┴──────┐
-       │             │
-       ▼             ▼
-   Material UI     Estilos SCSS
-       │             │
-       ▼             │
- Librería propia     │
-       │             │
-       └──────┬──────┘
-              │
-              ▼
-       Features del MFE
+        ┌──────┴──────┐
+        │             │
+        ▼             ▼
+    Material UI     Estilos SCSS
+        │             │
+        ▼             │
+  Librería propia     │
+        │             │
+        └──────┬──────┘
+               │
+               ▼
+        Features del MFE
 ```
 
 ### 7.5 Personalización global
@@ -599,9 +602,14 @@ BAAS
 
 ## 11. Seguridad y autenticación
 
-La autenticación utilizará **JSON Web Tokens (JWT)**.
+La autenticación del BAAS utilizará **JSON Web Tokens (JWT)**.
 
-El BAAS será responsable de generar, firmar y validar los tokens.
+Se establecen las siguientes dependencias para el proyecto:
+
+- `@nestjs/authentication`: paquete solicitado para implementar las capacidades de autenticación, sujeto a verificación de disponibilidad y compatibilidad.
+- `@nestjs/jwt`: paquete oficial de NestJS para la generación y verificación de JWT.
+
+El BAAS será responsable de validar credenciales, gestionar la autenticación, generar y verificar tokens y aplicar los permisos correspondientes.
 
 ### 11.1 Flujo de autenticación
 
@@ -636,6 +644,8 @@ Caso de uso autorizado
 ### 11.2 Reglas de seguridad
 
 - Utilizar JWT firmados y con tiempo de expiración.
+- Utilizar `@nestjs/jwt` para generar y verificar JWT.
+- Utilizar `@nestjs/authentication` para las capacidades de autenticación que proporcione, una vez verificada su disponibilidad.
 - Transmitir credenciales y tokens únicamente mediante HTTPS.
 - Validar firma, expiración y claims requeridos.
 - Implementar autenticación mediante Guards de NestJS.
@@ -644,7 +654,7 @@ Caso de uso autorizado
 - No exponer contraseñas ni hashes en respuestas.
 - No incluir secretos dentro del código fuente.
 - Gestionar secretos mediante variables de entorno o servicios especializados.
-- Mantener desacoplada la implementación concreta de JWT mediante interfaces.
+- Mantener desacoplada la implementación concreta de autenticación y JWT mediante interfaces.
 
 ### 11.3 Autorización
 
@@ -657,6 +667,23 @@ El sistema contempla tres roles:
 Los permisos deberán validarse en el BAAS según el rol, la clínica y los recursos relacionados con el usuario.
 
 El MFE podrá adaptar su interfaz según los permisos, pero nunca sustituirá la autorización del backend.
+
+### 11.4 Dependencias de autenticación
+
+El BAAS deberá integrar `@nestjs/authentication` y `@nestjs/jwt` respetando las siguientes reglas:
+
+1. Verificar la disponibilidad, compatibilidad y API de `@nestjs/authentication` antes de su instalación.
+2. Utilizar `@nestjs/jwt` para la generación, firma y verificación de tokens JWT.
+3. Implementar los mecanismos de autenticación mediante las capacidades disponibles de NestJS y sus dependencias establecidas.
+4. Utilizar un algoritmo de hashing seguro para el almacenamiento de contraseñas. La generación de JWT no sustituye el hashing de contraseñas.
+5. Implementar la protección de endpoints mediante Guards de NestJS.
+6. Mantener la lógica de autenticación dentro del módulo `auth`.
+7. Mantener las implementaciones concretas dentro de Infrastructure y los mecanismos de entrada HTTP dentro de Presentation.
+8. Evitar que Domain y Application dependan directamente de las librerías de NestJS.
+9. No implementar mecanismos propios cuando las dependencias establecidas proporcionen capacidades equivalentes.
+10. No incorporar dependencias adicionales sin una necesidad técnica justificada.
+
+Si `@nestjs/authentication` no está disponible o no es compatible, deberá resolverse esa decisión técnica antes de implementarlo, sin sustituir silenciosamente el paquete.
 
 ---
 
@@ -770,3 +797,6 @@ Docker Compose deberá facilitar la configuración de los servicios para cada am
 21. La infraestructura compartida no deberá concentrar lógica funcional de todos los módulos.
 22. Todo el proyecto deberá ejecutarse mediante Docker y Docker Compose.
 23. La configuración deberá permitir una instalación reproducible en diferentes entornos.
+24. El BAAS deberá integrar `@nestjs/authentication`, previa verificación de disponibilidad y compatibilidad.
+25. El BAAS utilizará `@nestjs/jwt` para la generación y verificación de JWT.
+26. Las contraseñas deberán almacenarse mediante hashes seguros y nunca exponerse en las respuestas de la API.

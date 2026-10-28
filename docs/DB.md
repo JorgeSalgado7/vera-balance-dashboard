@@ -20,6 +20,8 @@ status: string -> 'Activo' | 'Inactivo'
 clinic: string | null
 gsi1pk: string -> 'CLINIC#' + clinic UUID
 gsi1sk: string -> 'USER#' + user UUID
+gsi2pk: string -> 'EMAIL#' + normalized email
+gsi2sk: string -> 'USER#' + user UUID
 created_at: datetime
 updated_at: datetime
 ```

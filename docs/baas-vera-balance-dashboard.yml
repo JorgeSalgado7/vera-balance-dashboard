@@ -1617,7 +1617,6 @@ components:
       - password
       - professional_license
       - role
-      - status
       - clinic
       properties:
         name:
@@ -1632,8 +1631,6 @@ components:
           type: string
         role:
           $ref: '#/components/schemas/UserRole'
-        status:
-          $ref: '#/components/schemas/Status'
         clinic:
           type:
           - string

@@ -6,3 +6,5 @@ AWS_ACCESS_KEY_ID=fakeMyKeyId
 AWS_SECRET_ACCESS_KEY=fakeSecretAccessKey
 DYNAMO_ENDPOINT=http://dynamodb-vera-balance-dashboard:8000
 DYNAMO_TABLE_NAME=vera-balance-dashboard
+
+JWT_ACCESS_SECRET=338c02bcd76e177057aec3fb24c60f7c7c45b32424528c341e0ccd9ab391321a

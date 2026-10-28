@@ -10,6 +10,7 @@ import { HttpProblem } from './http-problem.util'
 
 
 //* Modules imports
+import { UserErrorTranslator } from '../../modules/users/presentation/http/errors/user-error.translator'
 
 
 type ErrorTranslator = { translate(error: unknown, instance: string): never | void }
@@ -31,7 +32,7 @@ type HttpExceptionResponse = {
 
 //* List error translators
 const errorTranslators: ErrorTranslator[] = [
- 
+	UserErrorTranslator,
 ]
 
 @Catch()

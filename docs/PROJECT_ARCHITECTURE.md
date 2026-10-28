@@ -2,1093 +2,490 @@
 
 ## 1. Objetivo
 
-Este documento define cómo deberán aplicarse los **Lineamientos de Arquitectura** al proyecto Vera Balance.
+Este documento define la arquitectura técnica de **Vera Balance Dashboard**, compuesto por dos aplicaciones principales:
 
-Debe utilizarse junto con:
+- **BAAS (Backend as a Service):** responsable de la lógica de negocio, autenticación, autorización, exposición de API y persistencia.
+- **MFE (Microfrontend):** responsable de la interfaz de usuario, gestión de estado y comunicación con el backend.
 
-* La definición de base de datos.
-* La especificación OpenAPI.
-* Las definiciones funcionales.
-* Los Lineamientos de Arquitectura.
+Ambas aplicaciones implementarán **Clean Architecture**, manteniendo una separación clara de responsabilidades, independencia de infraestructura, modularidad y facilidad de mantenimiento.
 
-La intención es proporcionar suficiente contexto para que la implementación pueda construirse sin inventar estructuras, relaciones o reglas de negocio.
+El proyecto utilizará **Docker y Docker Compose** para facilitar su instalación, ejecución y despliegue en diferentes entornos.
 
----
-
-# 2. Fuentes de verdad
-
-Cuando exista una diferencia entre documentos, deberá utilizarse el siguiente orden de prioridad:
-
-```text
-1. Base de datos
-2. OpenAPI
-3. Definiciones funcionales
-4. Arquitectura de Vera Balance
-5. Lineamientos de Arquitectura
-6. Implementación existente
-```
-
-La implementación deberá ajustarse a las fuentes de verdad y no al contrario.
-
-No se deberán inventar:
-
-* Propiedades.
-* Entidades.
-* Estados.
-* Roles.
-* Relaciones.
-* Endpoints públicos.
-* Reglas de negocio.
-
-Las ambigüedades deberán resolverse antes de asumir comportamiento no documentado.
+Este documento se enfoca exclusivamente en las decisiones arquitectónicas y tecnológicas del sistema.
 
 ---
 
-# 3. Stack y persistencia
+## 2. Arquitectura general
 
-Vera Balance utiliza DynamoDB con **Single Table Design**.
-
-Conceptualmente:
+Vera Balance estará compuesto por dos aplicaciones independientes que se comunicarán mediante una API REST.
 
 ```text
-DynamoDB
-└── VeraBalanceTable
-    ├── CLINIC
-    ├── USER
-    ├── PATIENT
-    ├── THERAPEUTIC_PROCESS
-    ├── RECORD
-    ├── HOME_WORK
-    └── CATALOG#*
+Vera Balance Dashboard
+│
+├── MFE (React + TypeScript)
+│   │
+│   ├── Clean Architecture
+│   │   ├── UI
+│   │   ├── Application
+│   │   ├── Domain
+│   │   └── Infrastructure
+│   │
+│   ├── Redux Toolkit
+│   ├── Material UI
+│   ├── Librería propia de componentes
+│   └── Tema global SCSS
+│
+│              HTTPS / REST API
+│                     │
+│                     ▼
+│
+├── BAAS (Node.js + NestJS + TypeScript)
+│   │
+│   └── Clean Architecture
+│       ├── Presentation
+│       ├── Application
+│       ├── Domain
+│       └── Infrastructure
+│
+│                     │
+│                     ▼
+│
+└── Amazon DynamoDB
+    └── Single Table Design
 ```
 
-La existencia de una sola tabla física no modifica los límites arquitectónicos de los módulos.
+### Principios generales
 
-Cada módulo deberá encapsular su propia lógica de persistencia.
-
-La configuración técnica común del cliente DynamoDB puede vivir en:
-
-```text
-src/shared/dynamodb/
-```
-
-pero no deberá contener lógica funcional de las entidades.
-
-No deberá crearse un repositorio general que conozca y administre todas las entidades de Vera Balance.
+- El BAAS y el MFE serán aplicaciones independientes.
+- El BAAS utilizará separación por módulos.
+- El MFE utilizará separación por features.
+- Ambas aplicaciones implementarán Clean Architecture.
+- El MFE se comunicará exclusivamente con el BAAS mediante API REST.
+- El MFE no tendrá acceso directo a DynamoDB.
+- El BAAS será responsable de ejecutar las reglas de negocio y validar los permisos.
+- Las aplicaciones podrán ejecutarse mediante Docker y Docker Compose.
 
 ---
 
-# 4. Módulos backend
+## 3. Stack tecnológico
 
-Los módulos definidos actualmente son:
+### 3.1 Backend — BAAS
 
-```text
-src/modules/
-├── auth/
-├── catalogs/
-├── clinics/
-├── home-works/
-├── patients/
-├── records/
-├── therapeutic-processes/
-└── users/
-```
+| Tecnología | Definición | Versión |
+|---|---|---|
+| Runtime | Node.js | 24 LTS |
+| Lenguaje | TypeScript | |
+| Framework | NestJS | |
+| Arquitectura | Clean Architecture | |
+| API | REST | |
+| Contrato | OpenAPI | 3.1 |
+| Autenticación | JWT | |
+| Base de datos | Amazon DynamoDB | |
+| Persistencia | Single Table Design | |
+| Contenedores | Docker | |
+| Orquestación | Docker Compose | |
 
-No deberá crearse:
+### 3.2 Frontend — MFE
 
-```text
-src/modules/therapy-types
-```
+| Tecnología | Definición | Versión |
+|---|---|---|
+| Framework | React | |
+| Lenguaje | TypeScript | |
+| Build tool | Vite | |
+| Arquitectura | Clean Architecture | |
+| Gestor de estado | Redux Toolkit | |
+| Librería base de componentes | Material UI | |
+| Librería visual | Componentes propios basados en Material UI | |
+| Estilos | SCSS | |
+| Tema global | SCSS | |
+| Comunicación | REST API / HTTPS | |
+| Autenticación | JWT | |
+| Contenedores | Docker | |
+| Orquestación | Docker Compose | |
 
-Los tipos de terapia pertenecen a `Clinic`.
+Las versiones definitivas de las tecnologías del MFE se establecerán durante la configuración inicial del proyecto.
 
 ---
 
-# 5. Estructura backend
+## 4. Clean Architecture
 
-La estructura inicial esperada es:
+Tanto el BAAS como el MFE implementarán Clean Architecture.
+
+La arquitectura deberá separar las responsabilidades de negocio, aplicación, infraestructura y presentación visual o HTTP.
+
+### 4.1 Domain
+
+Contiene los modelos, entidades, reglas de dominio y contratos necesarios para representar el negocio.
+
+No deberá depender de frameworks, componentes visuales, bases de datos ni servicios externos.
+
+### 4.2 Application
+
+Contiene los casos de uso que coordinan las operaciones del sistema.
+
+Depende de Domain y utiliza abstracciones para comunicarse con servicios externos.
+
+### 4.3 Infrastructure
+
+Contiene las implementaciones concretas de los contratos utilizados por Application.
+
+En el BAAS incluye:
+
+- Repositorios DynamoDB.
+- Adaptadores de persistencia.
+- Servicios de autenticación.
+- Integraciones con servicios externos.
+
+En el MFE incluye:
+
+- Clientes HTTP.
+- Repositorios de comunicación con el BAAS.
+- Adaptadores de respuestas.
+- Implementaciones de servicios externos.
+
+### 4.4 Presentation — BAAS
+
+Representa los puntos de entrada HTTP del backend.
+
+Incluye controllers, DTOs, validaciones de entrada y mecanismos de integración con NestJS.
+
+### 4.5 UI — MFE
+
+Representa la interfaz visual y los mecanismos de interacción con el usuario.
+
+Incluye páginas, componentes React, formularios y elementos visuales.
+
+La capa UI no deberá implementar directamente reglas de negocio ni lógica de persistencia.
+
+### 4.6 Regla de dependencias
+
+```text
+BAAS
+
+Presentation ──► Application ──► Domain
+                       ▲
+                       │
+                 Infrastructure
+
+
+MFE
+
+UI ────────────► Application ──► Domain
+                       ▲
+                       │
+                 Infrastructure
+```
+
+Las implementaciones concretas deberán depender de las abstracciones internas, manteniendo independientes los casos de uso.
+
+---
+
+## 5. Arquitectura del BAAS
+
+El backend se desarrollará con NestJS y estará organizado mediante **separación por módulos funcionales**.
+
+Cada módulo implementará Clean Architecture y encapsulará sus responsabilidades.
+
+### 5.1 Estructura principal
 
 ```text
 src/
 ├── modules/
 │   ├── auth/
-│   │   ├── application/
-│   │   ├── domain/
-│   │   ├── infrastructure/
-│   │   ├── presentation/
-│   │   └── auth.module.ts
-│   ├── catalogs/
-│   │   ├── application/
-│   │   ├── domain/
-│   │   ├── infrastructure/
-│   │   ├── presentation/
-│   │   └── catalogs.module.ts
+│   ├── users/
 │   ├── clinics/
-│   │   ├── application/
-│   │   ├── domain/
-│   │   ├── infrastructure/
-│   │   ├── presentation/
-│   │   └── clinics.module.ts
-│   ├── home-works/
-│   │   ├── application/
-│   │   ├── domain/
-│   │   ├── infrastructure/
-│   │   ├── presentation/
-│   │   └── home-works.module.ts
 │   ├── patients/
-│   │   ├── application/
-│   │   ├── domain/
-│   │   ├── infrastructure/
-│   │   ├── presentation/
-│   │   └── patients.module.ts
-│   ├── records/
-│   │   ├── application/
-│   │   ├── domain/
-│   │   ├── infrastructure/
-│   │   ├── presentation/
-│   │   └── records.module.ts
+│   ├── therapy-types/
 │   ├── therapeutic-processes/
-│   │   ├── application/
-│   │   ├── domain/
-│   │   ├── infrastructure/
-│   │   ├── presentation/
-│   │   └── therapeutic-processes.module.ts
-│   └── users/
-│       ├── application/
-│       ├── domain/
-│       ├── infrastructure/
-│       ├── presentation/
-│       └── users.module.ts
+│   ├── records/
+│   └── homeworks/
+│
 ├── shared/
 │   ├── config/
 │   ├── dynamodb/
 │   ├── http-problem/
 │   └── logger/
+│
 └── main.ts
 ```
 
-Las carpetas internas deberán crearse sólo cuando exista una necesidad real.
-
----
-
-# 6. Ownership de entidades
-
-La responsabilidad funcional se distribuye de la siguiente forma:
+### 5.2 Estructura interna de un módulo
 
 ```text
-ClinicsModule
-└── Clinic
-    └── TherapyType[]
-
-UsersModule
-└── User
-
-PatientsModule
-└── Patient
-
-TherapeuticProcessesModule
-└── TherapeuticProcess
-    ├── therapist
-    ├── patients[]
-    └── records[]
-
-RecordsModule
-└── Record
-    └── home_works[]
-
-HomeWorksModule
-└── HomeWork
-
-CatalogsModule
-└── Catalog
-
-AuthModule
-├── autenticación
-├── sesión
-├── Public Operation Token
-└── recuperación de contraseña
+modules/patients/
+├── domain/
+├── application/
+├── infrastructure/
+├── presentation/
+└── patients.module.ts
 ```
 
-Un módulo puede utilizar referencias hacia entidades de otro contexto, pero no deberá apropiarse de su lógica interna.
+### 5.3 Responsabilidades
+
+**Domain:** contiene las entidades, modelos y reglas del dominio.
+
+**Application:** contiene los casos de uso y la coordinación de operaciones.
+
+**Infrastructure:** implementa repositorios, adaptadores y servicios externos.
+
+**Presentation:** contiene controllers, DTOs y puntos de entrada HTTP.
+
+### 5.4 Reglas de modularidad
+
+- Cada módulo será responsable de su propia lógica funcional.
+- Los módulos deberán mantener límites claros de responsabilidad.
+- La comunicación entre módulos utilizará interfaces o capacidades explícitas.
+- Un módulo no deberá acceder directamente a los repositorios internos de otro módulo.
+- La infraestructura compartida contendrá únicamente capacidades técnicas reutilizables.
+- No deberá crearse un repositorio genérico que concentre la persistencia de todas las entidades.
+- Las dependencias externas deberán implementarse mediante adaptadores.
 
 ---
 
-# 7. Clinic
+## 6. Arquitectura del MFE
 
-La entidad persistida está definida conceptualmente por:
+El frontend utilizará React y TypeScript, organizado mediante **separación por features**.
+
+Cada feature implementará Clean Architecture utilizando las capas:
+
+- Domain.
+- Application.
+- Infrastructure.
+- UI.
+
+### 6.1 Estructura principal
 
 ```text
-Clinic {
-    pk
-    sk
-    name
-    logo
-    address
-    phone_number
-    therapy_types
-    status
-    created_at
-    updated_at
+src/
+├── features/
+├── ui/
+│   ├── scss/
+│   ├── layouts/
+│   └── components/
+├── common/
+├── utils/
+├── routes/
+├── store/
+└── main.tsx
+```
+
+### 6.2 Responsabilidades
+
+**features:** contiene las funcionalidades del sistema. Cada feature implementa sus propias capas de Clean Architecture.
+
+**ui:** contiene la librería de componentes reutilizables, layouts y estilos globales de la aplicación.
+
+**common:** contiene interfaces, tipos, constantes y definiciones compartidas.
+
+**utils:** contiene funciones auxiliares reutilizables que no pertenecen a un feature específico.
+
+**routes:** contiene la configuración y organización de rutas del MFE.
+
+**store:** contiene la configuración central de Redux y la integración de los estados de los diferentes features.
+
+### 6.3 Estructura interna de un feature
+
+```text
+features/patients/
+├── domain/
+├── application/
+│   └── store/
+├── infrastructure/
+├── ui/
+└── scss/
+```
+
+### 6.4 Responsabilidades por capa
+
+**Domain:** contiene modelos, contratos y reglas de dominio del feature.
+
+**Application:** contiene casos de uso, coordinación de operaciones y gestión del estado mediante Redux.
+
+**Infrastructure:** implementa repositorios y clientes HTTP para consumir los endpoints del BAAS.
+
+**UI:** contiene componentes, páginas, formularios y elementos visuales propios del feature.
+
+**SCSS:** contiene estilos y ajustes visuales específicos del feature.
+
+### 6.5 Reglas de organización
+
+- Cada feature deberá mantener sus propias responsabilidades.
+- Cada feature tendrá su propia carpeta `scss`.
+- Los estilos específicos de un feature deberán mantenerse dentro de su carpeta correspondiente.
+- La lógica de negocio no deberá implementarse directamente dentro de componentes React.
+- Los componentes React no deberán realizar solicitudes HTTP directamente.
+- Toda comunicación con el BAAS deberá realizarse mediante Infrastructure.
+- Los elementos visuales reutilizables deberán obtenerse preferentemente de la librería propia de componentes.
+- Los features no deberán redefinir valores visuales que pertenezcan al tema global.
+
+---
+
+## 7. Sistema de diseño y librería de componentes
+
+El MFE contará con una **librería propia de componentes y estilos basada en Material UI**.
+
+Esta librería estará ubicada dentro de `src/ui`.
+
+Su objetivo será centralizar los componentes reutilizables, la identidad visual y las convenciones de diseño de Vera Balance.
+
+### 7.1 Estructura
+
+```text
+src/ui/
+├── components/
+│   ├── buttons/
+│   ├── inputs/
+│   ├── dialogs/
+│   ├── tables/
+│   └── ...
+│
+├── layouts/
+│
+└── scss/
+    ├── theme/
+    │   └── _theme.scss
+    ├── _globals.scss
+    └── main.scss
+```
+
+La estructura podrá ampliarse cuando exista una necesidad real, manteniendo las tres carpetas principales de `ui`.
+
+### 7.2 Tema global
+
+El MFE tendrá un **único tema global definido en SCSS**.
+
+La fuente de verdad será:
+
+```text
+src/ui/scss/theme/_theme.scss
+```
+
+Este archivo centralizará los valores de diseño utilizados por toda la aplicación.
+
+Deberá definir:
+
+- Colores principales.
+- Colores secundarios.
+- Colores semánticos.
+- Tipografías.
+- Tamaños de texto.
+- Espaciados.
+- Bordes.
+- Radios.
+- Sombras.
+- Breakpoints.
+- Otras propiedades visuales compartidas.
+
+Los componentes y estilos de los features deberán consumir los valores definidos en este tema.
+
+### 7.3 Integración con Material UI
+
+Material UI será la base técnica de los componentes visuales.
+
+La librería propia encapsulará sus componentes y aplicará los estilos definidos por el tema global.
+
+La configuración de Material UI deberá obtener sus valores visuales desde los tokens definidos en SCSS.
+
+**No deberán mantenerse dos definiciones independientes del tema, una en SCSS y otra en TypeScript.**
+
+Para integrar ambas tecnologías podrán utilizarse variables CSS generadas desde SCSS y consumidas por la configuración de Material UI.
+
+Ejemplo conceptual:
+
+```scss
+// src/ui/scss/theme/_theme.scss
+
+$primary-color: #7557a8;
+$secondary-color: #d8b8e8;
+$font-family: 'Poppins', sans-serif;
+$border-radius: 8px;
+
+:root {
+  --vb-primary: #{$primary-color};
+  --vb-secondary: #{$secondary-color};
+  --vb-font-family: #{$font-family};
+  --vb-border-radius: #{$border-radius};
 }
 ```
 
-Los estados permitidos son:
+Los valores anteriores son ilustrativos y no representan una definición definitiva de identidad visual.
+
+La configuración de Material UI deberá consumir estas variables sin duplicar los valores.
+
+### 7.4 Flujo del tema
 
 ```text
-active
-inactive
+src/ui/scss/theme/_theme.scss
+              │
+              ▼
+        Tokens globales
+              │
+       ┌──────┴──────┐
+       │             │
+       ▼             ▼
+   Material UI     Estilos SCSS
+       │             │
+       ▼             │
+ Librería propia     │
+       │             │
+       └──────┬──────┘
+              │
+              ▼
+       Features del MFE
 ```
 
-`therapy_types` pertenece directamente a Clinic.
+### 7.5 Personalización global
+
+El objetivo principal del tema es permitir modificar la identidad visual completa desde un único lugar.
+
+Por ejemplo, si en el futuro cambia el color principal de Vera Balance, la modificación deberá realizarse en:
+
+```text
+src/ui/scss/theme/_theme.scss
+```
+
+El cambio deberá reflejarse automáticamente en todos los componentes y estilos que consuman el token correspondiente.
+
+El mismo principio aplicará para:
+
+- Tipografías.
+- Tamaños.
+- Espaciados.
+- Bordes.
+- Radios.
+- Sombras.
+- Colores semánticos.
+
+No deberá ser necesario modificar individualmente cada feature para aplicar cambios globales de identidad visual.
+
+### 7.6 Reglas obligatorias
+
+1. El MFE tendrá un único tema global definido en SCSS.
+2. El tema será la fuente de verdad de la identidad visual.
+3. Material UI deberá consumir los tokens definidos por el tema.
+4. No deberán duplicarse los valores del tema en archivos TypeScript.
+5. La librería propia utilizará Material UI como base.
+6. Los componentes reutilizables vivirán en `src/ui/components`.
+7. Los layouts compartidos vivirán en `src/ui/layouts`.
+8. Los estilos y tokens globales vivirán en `src/ui/scss`.
+9. Cada feature tendrá su propia carpeta `scss`.
+10. Los features deberán consumir los valores globales del tema.
+11. Los componentes deberán utilizar tokens semánticos en lugar de valores visuales fijos.
+12. Los cambios globales de identidad visual no deberán requerir modificaciones individuales en cada feature.
 
 ---
 
-# 8. TherapyType
+## 8. Gestión de estado — Redux
 
-`TherapyType` no constituye una entidad independiente en el modelo actual.
+El MFE utilizará **Redux Toolkit** como gestor de estado.
 
-Su estructura es:
+La organización del estado deberá respetar la separación por features.
 
-```text
-TherapyType {
-    name: string
-    icon: string
-}
-```
+### 8.1 Organización
 
-No deberá recibir un `id` propio salvo que la definición de DB cambie expresamente.
+Cada feature podrá contener sus propios stores dentro de Application.
 
-Cada clínica tendrá tipos de terapia definidos por default y podrá agregar nuevos tipos.
-
-Los tipos iniciales son:
-
-```text
-Terapia individual
-Terapia de pareja
-Terapia infantil
-Terapia familiar
-```
-
-`TherapeuticProcess` guarda:
-
-```text
-therapy_type: string
-```
-
-No:
-
-```text
-therapy_type_id
-```
-
----
-
-# 9. User
-
-La entidad está definida conceptualmente por:
-
-```text
-User {
-    pk
-    sk
-    name
-    email
-    password
-    professional_license
-    clinic
-    role
-    status
-    created_at
-    updated_at
-}
-```
-
-Los roles válidos son exclusivamente:
-
-```text
-clinic
-therapist
-```
-
-No existe:
-
-```text
-admin
-```
-
-Los estados válidos son:
-
-```text
-active
-inactive
-```
-
-Todo usuario pertenece obligatoriamente a una clínica.
-
-La referencia a Clinic en persistencia deberá seguir la estructura definida por la DB.
-
-El email deberá ser único de acuerdo con las reglas funcionales y con las capacidades permitidas por el modelo de persistencia documentado.
-
-`password` representa únicamente el hash persistido de la contraseña.
-
-La contraseña en texto plano y su confirmación pertenecen exclusivamente al flujo de entrada correspondiente y no forman parte de la entidad persistida.
-
-El contrato HTTP deberá seguir el OpenAPI y no exponer automáticamente `pk`, `sk`, contraseñas, hashes o confirmaciones de contraseña.
-
----
-
-# 10. Patient
-
-`Patient` representa exclusivamente a la persona registrada.
-
-Conceptualmente:
-
-```text
-Patient {
-    pk
-    sk
-    name
-    age
-    guardian
-    phone_number
-    sex
-    education
-    occupation
-    marital_status
-    partner_data
-    religion
-    address
-    created_at
-    updated_at
-}
-```
-
-El paciente **no tiene status**.
-
-No deberán agregarse a Patient propiedades como:
-
-```text
-status
-therapy_type
-therapist
-last_session
-consultation_reason
-goals
-```
-
-Estas propiedades pertenecen a otros contextos.
-
-Si una vista necesita mostrar terapia, terapeuta, última sesión o estado, la información deberá obtenerse de `TherapeuticProcess` y `Record`.
-
----
-
-# 11. TherapeuticProcess
-
-`TherapeuticProcess` representa el tratamiento.
-
-Conceptualmente:
-
-```text
-TherapeuticProcess {
-    pk
-    sk
-    therapy_type
-    therapist
-    patients
-    is_first_time
-    consultation_reason
-    goals
-    records
-    status
-    created_at
-    updated_at
-}
-```
-
-Un paciente puede participar en diferentes procesos terapéuticos a lo largo del tiempo.
-
-Los estados permitidos son:
-
-```text
-active
-inactive
-discharged
-unfinished
-```
-
-No deberán crearse estados adicionales.
-
-El status pertenece a `TherapeuticProcess` y nunca a `Patient`.
-
----
-
-# 12. Record
-
-Cada `Record` pertenece a un `TherapeuticProcess`.
-
-Conceptualmente:
-
-```text
-Record {
-    pk
-    sk
-    session_date
-    is_attendance
-    resume
-    tools
-    home_works
-    created_at
-    updated_at
-}
-```
-
-`resume` puede ser `null`.
-
-`tools` puede ser `null`.
-
-Los nombres canónicos son:
-
-```text
-is_attendance
-resume
-home_works
-```
-
-No deberán sustituirse internamente por conceptos diferentes únicamente por conveniencia.
-
-El contrato HTTP deberá seguir exactamente el OpenAPI vigente.
-
----
-
-# 13. HomeWork
-
-`HomeWork` es una entidad independiente.
-
-```text
-HomeWork {
-    pk
-    sk
-    description
-    is_completed
-    created_at
-    updated_at
-}
-```
-
-Los registros almacenan referencias a tareas existentes.
-
-La entidad deberá permanecer dentro de `HomeWorksModule`.
-
----
-
-# 14. Catalog
-
-Los catálogos son entidades independientes.
-
-```text
-Catalog {
-    pk
-    sk
-    name
-    options
-    created_at
-    updated_at
-}
-```
-
-La `sk` sigue:
-
-```text
-CATALOG#type
-```
-
-Ejemplos definidos actualmente:
-
-```text
-CATALOG#MARITAL_STATUS
-CATALOG#SCHOOL
-CATALOG#GENDER
-```
-
-No deberán duplicarse valores configurables como listas hardcodeadas si forman parte de un catálogo administrable.
-
----
-
-# 15. Relaciones entre módulos
-
-Las principales dependencias funcionales son:
-
-```text
-TherapeuticProcessesModule
-├── ClinicsModule
-├── UsersModule
-└── PatientsModule
-
-RecordsModule
-├── TherapeuticProcessesModule
-└── HomeWorksModule
-
-AuthModule
-└── UsersModule
-```
-
-Estas relaciones no autorizan el acceso directo a infraestructura de otros módulos.
-
-Por ejemplo:
-
-```text
-TherapeuticProcessesModule
-```
-
-no deberá consumir directamente:
-
-```text
-PatientsDynamoRepository
-```
-
-Si necesita información de Patient, `PatientsModule` deberá exponer una capacidad explícita.
-
-De la misma forma, `AuthModule` no deberá consumir directamente la infraestructura interna de persistencia de `UsersModule`.
-
-Si Auth necesita consultar, validar o modificar información de un usuario, `UsersModule` deberá exponer la capacidad necesaria mediante una frontera explícita.
-
-Ejemplos conceptuales:
-
-```text
-GetPatientUseCase
-PatientQueryService
-PatientReaderPort
-```
-
-La abstracción concreta deberá elegirse según la responsabilidad real.
-
----
-
-# 16. Persistencia y referencias
-
-La DB utiliza referencias como:
-
-```text
-{
-    pk: 'uuid',
-    sk: 'USER'
-}
-```
-
-El contrato HTTP puede utilizar:
-
-```json
-{
-    "therapist_id": "uuid"
-}
-```
-
-Estas representaciones no son equivalentes arquitectónicamente.
-
-Debe conservarse la separación:
-
-```text
-HTTP DTO
-↓
-Application
-↓
-Domain
-↓
-Mapper
-↓
-DynamoDB Model
-```
-
-`pk` y `sk` son detalles de persistencia.
-
-No deberán exponerse en los DTOs HTTP salvo que el OpenAPI lo defina expresamente.
-
----
-
-# 17. Autenticación, operaciones públicas y sesión
-
-`AuthModule` es responsable de la autenticación, administración de sesión, Public Operation Tokens y flujos de recuperación de contraseña definidos por el contrato HTTP.
-
-La lógica de Application y Domain no deberá depender directamente de la implementación concreta utilizada para generar, validar o consumir tokens.
-
-Vera Balance utiliza mecanismos separados para:
-
-```text
-Public Operation Token
-        ↓
-autorizar una única operación sin sesión
-
-JWT de sesión
-        ↓
-representar una sesión autenticada
-
-Credencial de recuperación
-        ↓
-completar un flujo de recuperación de contraseña
-```
-
-Estos mecanismos tienen responsabilidades diferentes y no deberán reutilizarse indistintamente.
-
-## 17.1 Public Operation Token
-
-El Public Operation Token protege operaciones que deben poder ejecutarse antes de que exista una sesión autenticada.
-
-Actualmente se utiliza exclusivamente para:
-
-```text
-POST /v1/users
-POST /v1/auth/sign-in
-POST /v1/auth/forgot-password
-```
-
-Los scopes permitidos actualmente son:
-
-```text
-users:create
-auth:sign-in
-auth:forgot-password
-```
-
-El endpoint:
-
-```text
-POST /v1/auth/public-token
-```
-
-es responsable de generar el Public Operation Token y es el único endpoint que no requiere previamente una sesión autenticada ni otro Public Operation Token.
-
-Cada Public Operation Token deberá:
-
-* Tener un scope específico.
-* Tener una vigencia limitada.
-* Ser de un solo uso.
-* Autorizar exclusivamente la operación correspondiente a su scope.
-* No representar una sesión autenticada.
-* No permitir acceder a endpoints protegidos mediante sesión.
-* Ser validado antes de ejecutar la operación correspondiente.
-* Consumirse cuando la solicitud protegida por dicho token sea aceptada.
-* Rechazarse si ya fue utilizado.
-* Rechazarse si se encuentra expirado.
-* Rechazarse si su scope no corresponde a la operación solicitada.
-
-Un Public Operation Token no deberá convertirse en un JWT de sesión.
-
-La representación HTTP del Public Operation Token deberá seguir `docs/openapi.yaml`.
-
-La forma de persistir, consultar, consumir y expirar estos tokens deberá seguir la definición de base de datos.
-
-No deberán crearse modelos, índices, tablas o estructuras de persistencia para estos tokens que no estén definidos previamente en la documentación de base de datos.
-
-## 17.2 Inicio de sesión
-
-El inicio de sesión requiere un Public Operation Token con scope:
-
-```text
-auth:sign-in
-```
-
-Conceptualmente:
-
-```text
-Public Operation Token
-        ↓
-validación de token y scope
-        ↓
-consumo del token
-        ↓
-validación de email y contraseña
-        ↓
-validación de usuario active
-        ↓
-generación de JWT de sesión
-        ↓
-cookie HttpOnly
-```
-
-La validación de credenciales deberá utilizar una capacidad explícita para verificar el hash de la contraseña.
-
-Los casos de uso no deberán depender directamente de una implementación concreta de hashing.
-
-Si las credenciales son válidas, la infraestructura de autenticación genera un JWT para representar la sesión.
-
-El JWT deberá entregarse mediante la cookie definida en el OpenAPI:
-
-```text
-vera_balance_session
-```
-
-El JWT no deberá exponerse en el cuerpo de las respuestas HTTP.
-
-El frontend no deberá almacenar el JWT en `localStorage` o `sessionStorage` ni depender de la lectura directa de su contenido.
-
-## 17.3 Sesión autenticada
-
-El JWT representa la sesión autenticada del usuario.
-
-La cookie `HttpOnly` es enviada automáticamente por el navegador en las solicitudes correspondientes.
-
-Salvo las operaciones expresamente protegidas mediante Public Operation Token y el endpoint que genera dicho token, los endpoints del API deberán utilizar el mecanismo de sesión definido en `docs/openapi.yaml`.
-
-Conceptualmente:
-
-```text
-Request
-↓
-vera_balance_session
-↓
-validación JWT
-↓
-identidad autenticada
-↓
-autorización
-↓
-caso de uso
-```
-
-La generación y validación de la sesión deberán utilizar capacidades explícitas y no depender directamente de servicios concretos del framework dentro de los casos de uso.
-
-Conceptualmente:
-
-```text
-Auth Application
-↓
-Ports de autenticación y sesión
-↓
-Infrastructure
-├── JWT
-└── futuro proveedor de identidad
-```
-
-La infraestructura de autenticación deberá permanecer desacoplada mediante puertos o capacidades explícitas que permitan sustituir la implementación actual por otro proveedor de identidad, como Cognito, sin acoplar los casos de uso a dicho proveedor.
-
-La ausencia de una sesión válida, un JWT inválido o un JWT expirado deberá impedir el acceso a endpoints que requieran sesión.
-
-## 17.4 Verificación de sesión
-
-La verificación de sesión obtiene el JWT desde la cookie `HttpOnly`.
-
-El JWT no se recibe en el body.
-
-El JWT tampoco se devuelve en el body.
-
-La validación debe determinar si la sesión es válida de acuerdo con el contrato definido en `docs/openapi.yaml`.
-
-## 17.5 Cierre de sesión
-
-El cierre de sesión elimina la cookie `vera_balance_session`.
-
-El cliente no deberá enviar el JWT en el body.
-
-El comportamiento de invalidación o revocación adicional de sesiones no deberá inventarse mientras no esté definido expresamente por las fuentes de verdad.
-
-## 17.6 Cambio de contraseña autenticado
-
-El cambio de contraseña de un usuario autenticado deberá utilizar su sesión para determinar su identidad.
-
-Conceptualmente:
-
-```text
-vera_balance_session
-↓
-JWT válido
-↓
-sub / identidad autenticada
-↓
-nueva contraseña + confirmación
-↓
-validación
-↓
-hash
-↓
-actualización del usuario
-```
-
-El cliente no deberá determinar el usuario objetivo mediante un email o identificador enviado en el body cuando el contrato indique que la identidad proviene de la sesión.
-
-La nueva contraseña y su confirmación deberán coincidir antes de generar el hash y antes de persistir cualquier modificación.
-
-La confirmación no deberá persistirse.
-
-La contraseña en texto plano, su hash y su confirmación no deberán exponerse en respuestas del API.
-
-## 17.7 Recuperación de contraseña
-
-La solicitud inicial de recuperación de contraseña utiliza un Public Operation Token con scope:
-
-```text
-auth:forgot-password
-```
-
-Conceptualmente:
-
-```text
-Public Operation Token
-↓
-POST /v1/auth/forgot-password
-↓
-validación y consumo del Public Operation Token
-↓
-solicitud de recuperación
-```
-
-El Public Operation Token utilizado para `forgot-password` únicamente autoriza la solicitud inicial.
-
-No deberá reutilizarse como credencial para establecer una nueva contraseña.
-
-La respuesta de la solicitud de recuperación no deberá revelar si el email proporcionado corresponde a un usuario existente.
-
-El mecanismo posterior encargado de completar la recuperación deberá utilizar una credencial específica de recuperación cuando dicho flujo se encuentre definido por `docs/openapi.yaml`.
-
-El Public Operation Token, el JWT de sesión y cualquier futura credencial de recuperación deberán permanecer separados conceptualmente y técnicamente.
-
-No deberán inventarse endpoints, estructuras de persistencia o mecanismos adicionales para completar la recuperación mientras no estén definidos en las fuentes de verdad.
-
-## 17.8 Seguridad de credenciales
-
-Las credenciales, contraseñas, hashes y tokens de sesión no deberán exponerse en respuestas del API salvo que el OpenAPI lo defina expresamente.
-
-El Public Operation Token constituye una excepción únicamente porque debe entregarse al cliente que lo solicita para ejecutar la operación autorizada por su scope.
-
-La contraseña en texto plano y su confirmación son datos transitorios de entrada.
-
-La confirmación nunca deberá persistirse.
-
-Los hashes de contraseña nunca deberán exponerse mediante el contrato HTTP.
-
-El contrato HTTP completo de autenticación, operaciones públicas y sesión deberá seguir `docs/openapi.yaml`.
-
----
-
-# 18. Autorización
-
-Los permisos reales pertenecen al backend.
-
-La autenticación y la autorización son responsabilidades diferentes.
-
-Una sesión válida permite identificar al usuario, pero no implica automáticamente que tenga permiso para acceder a cualquier recurso.
-
-El backend deberá aplicar las reglas de rol, clínica y propiedad de recursos independientemente de lo que muestre el frontend.
-
-## 18.1 `clinic`
-
-El usuario con rol `clinic`:
-
-* Puede editar su clínica.
-* Puede editar su perfil.
-* Puede cambiar su contraseña.
-* Puede crear, editar y eliminar usuarios de su clínica.
-* Puede crear, editar y eliminar pacientes.
-* Puede crear, editar y eliminar procesos terapéuticos.
-* Puede crear, editar y eliminar registros.
-* Puede crear, editar y eliminar tareas.
-* Puede consultar terapeutas de su clínica.
-* Puede consultar pacientes y recursos de terapeutas de su clínica.
-* Además actúa como terapeuta.
-
-El alcance deberá limitarse a su propia clínica.
-
-## 18.2 `therapist`
-
-El usuario con rol `therapist`:
-
-* Puede editar su perfil.
-* Puede cambiar su contraseña.
-* Puede crear y editar sus pacientes.
-* Puede crear y editar sus procesos terapéuticos.
-* Puede crear y editar sus registros.
-* Puede crear y editar tareas de sus pacientes.
-
-Tiene acceso únicamente a sus propios recursos.
-
-No puede eliminar directamente un paciente.
-
-Backend deberá aplicar estas restricciones independientemente de lo que muestre el frontend.
-
----
-
-# 19. Reglas de tipos de terapia
-
-## 19.1 Individual
-
-* Exactamente un paciente.
-* Si `marital_status` es `En una relación` o `Casado`, el frontend muestra `partner_data`.
-* Si la edad es menor a 18 años, por default el tipo cambia a Terapia infantil.
-
-## 19.2 Pareja
-
-* Exactamente dos pacientes pertenecen al mismo proceso.
-* Pueden crearse pacientes o seleccionarse pacientes existentes.
-* El estado civil no activa `partner_data` por participar en terapia de pareja.
-
-## 19.3 Infantil
-
-* Exactamente un paciente.
-* Se solicitan datos de tutor.
-* Los datos de tutor se muestran por default al seleccionar Terapia infantil.
-
-## 19.4 Familiar
-
-* Dos o más pacientes.
-* Ser menor de 18 años no obliga por sí mismo a capturar tutor dentro de este tipo de terapia.
-
-Estas reglas son funcionales.
-
-La DB permite estructuras nullable cuando corresponde, pero la aplicación deberá aplicar las reglas definidas para cada flujo.
-
----
-
-# 20. Eliminación de pacientes
-
-El rol `clinic` puede eliminar pacientes.
-
-El rol `therapist` no puede eliminar directamente pacientes.
-
-Cuando se ejecuta:
-
-```text
-DELETE /v1/patients/{id}
-```
-
-el controller no deberá implementar manualmente la eliminación de relaciones.
-
-Deberá ejecutar un caso de uso.
-
-Las reglas exactas de cascada y el comportamiento ante procesos compartidos de pareja o familia deberán seguir la definición backend vigente.
-
-No deberán inventarse reglas de cascada no documentadas.
-
----
-
-# 21. OpenAPI
-
-La especificación OpenAPI representa el contrato HTTP.
-
-Los controllers, request DTOs y response DTOs deberán respetarla.
-
-Los nombres definidos por el OpenAPI no deberán cambiarse arbitrariamente para hacerlos coincidir con los nombres físicos de DynamoDB.
-
-De igual manera, la DB no deberá modificarse únicamente para hacerla coincidir con un DTO HTTP.
-
-Los mappers y capas intermedias existen para mantener esta separación.
-
-Los mecanismos de seguridad definidos por cada operación también forman parte del contrato HTTP.
-
-Actualmente el OpenAPI distingue:
-
-```text
-Sin credencial previa
-└── POST /v1/auth/public-token
-
-Public Operation Token
-├── POST /v1/users
-├── POST /v1/auth/sign-in
-└── POST /v1/auth/forgot-password
-
-Session Cookie
-└── resto de endpoints protegidos
-```
-
-La implementación no deberá convertir un endpoint protegido mediante sesión en un endpoint público por conveniencia.
-
-Tampoco deberá sustituirse `publicOperationToken` por `sessionCookie`, o viceversa, sin modificar previamente las fuentes de verdad correspondientes.
-
----
-
-# 22. Endpoints
-
-Los grupos funcionales definidos son:
-
-```text
-/v1/clinics
-/v1/users
-/v1/auth
-/v1/catalogs
-/v1/patients
-/v1/therapeutic-processes
-/v1/records
-/v1/home-works
-```
-
-Cada grupo deberá implementarse dentro de su módulo correspondiente.
-
-Dentro de `/v1/auth` existen operaciones con diferentes mecanismos de seguridad.
-
-El mecanismo aplicable a cada endpoint deberá obtenerse de `docs/openapi.yaml`.
-
-No deberán crearse endpoints públicos adicionales salvo que el contrato sea actualizado expresamente.
-
----
-
-# 23. Frontend de Vera Balance
-
-Cuando se implemente frontend, los features previstos son:
-
-```text
-src/features/
-├── auth/
-├── catalogs/
-├── clinics/
-├── home-works/
-├── patients/
-├── records/
-├── therapeutic-processes/
-└── users/
-```
-
-No deberá crearse un feature `therapy-types`.
-
-Los tipos de terapia pertenecen a `clinics`.
-
-El frontend deberá respetar la separación entre Public Operation Token y sesión autenticada.
-
-El Public Operation Token deberá utilizarse únicamente para ejecutar la operación correspondiente a su scope.
-
-El frontend no deberá tratar el Public Operation Token como una sesión de usuario.
-
-El JWT de sesión no deberá almacenarse en Redux, `localStorage` o `sessionStorage`, ni deberá requerirse su lectura directa desde JavaScript cuando se encuentre almacenado en una cookie `HttpOnly`.
-
----
-
-# 24. Dashboard
-
-`Dashboard` no representa actualmente un dominio backend independiente.
-
-Mientras sea una pantalla agregadora deberá permanecer como UI global.
-
-```text
-src/ui/pages/Dashboard.tsx
-```
-
-Puede consumir información proveniente de:
-
-```text
-Patients
-Therapeutic Processes
-Records
-Users
-```
-
-No deberá crearse:
-
-```text
-src/features/dashboard
-```
-
-ni:
-
-```text
-src/modules/dashboard
-```
-
-mientras no exista un contexto funcional o contrato de API específico para Dashboard.
-
----
-
-# 25. Redux
-
-Los stores deberán separarse por flujo cuando sus responsabilidades sean independientes.
-
-Ejemplo para Patients:
+Ejemplo:
 
 ```text
 features/patients/application/store/
@@ -1098,124 +495,278 @@ features/patients/application/store/
 └── patient-detail/
 ```
 
-Cada flujo puede contener:
+El store global será responsable de integrar los reducers necesarios.
 
 ```text
-interface/
-initial-state/
-slice/
-selector/
+src/store/
+├── store.ts
+└── hooks.ts
 ```
 
-Crear y editar paciente deberán mantenerse separados cuando tengan estado o lógica propios.
+### 8.2 Reglas
 
-No deberá concentrarse todo Patients en un único slice.
+- Redux será el mecanismo principal para gestionar el estado compartido.
+- Los estados deberán separarse por flujo cuando tengan responsabilidades independientes.
+- Los componentes UI consumirán el estado mediante hooks y selectores.
+- Las operaciones asíncronas deberán coordinarse desde Application.
+- La comunicación HTTP deberá delegarse a Infrastructure.
+- La lógica de dominio deberá permanecer independiente de Redux.
+- No deberá concentrarse todo el estado de la aplicación en un único slice.
 
 ---
 
-# 26. Estructura frontend
+## 9. Persistencia — DynamoDB
+
+El BAAS utilizará **Amazon DynamoDB mediante Single Table Design**.
+
+Todas las entidades del sistema compartirán una única tabla física.
 
 ```text
-src/
-├── common/
-│   ├── constants/
-│   ├── interfaces/
-│   ├── types/
-│   └── utils/
-├── features/
-│   ├── auth/
-│   ├── catalogs/
-│   ├── clinics/
-│   ├── home-works/
-│   ├── patients/
-│   ├── records/
-│   ├── therapeutic-processes/
-│   └── users/
-├── routes/
-│   └── PageRouter.tsx
-├── store/
-│   ├── hooks.ts
-│   └── store.ts
-├── ui/
-│   ├── components/
-│   ├── layouts/
-│   │   └── dashboard/
-│   │       ├── interfaces/
-│   │       │   └── dashboard.interface.ts
-│   │       ├── DashboardLayout.tsx
-│   │       ├── HeaderLayout.tsx
-│   │       └── SidebarMenu.tsx
-│   ├── pages/
-│   │   └── Dashboard.tsx
-│   └── scss/
-└── main.tsx
+Amazon DynamoDB
+└── VeraBalanceTable
+    ├── USER
+    ├── CLINIC
+    ├── THERAPY_TYPE
+    ├── PATIENT
+    ├── THERAPEUTIC_PROCESS
+    ├── PATIENT_THERAPEUTIC_PROCESS
+    ├── RECORD
+    └── HOME_WORK
 ```
 
-No existe `src/shared` en frontend.
+### 9.1 Principios
+
+- Utilizar claves `pk` y `sk` según el diseño de persistencia.
+- Utilizar índices secundarios de acuerdo con los patrones de acceso.
+- Priorizar `GetItem`, `Query` y `BatchGetItem`.
+- No utilizar operaciones `Scan`.
+- Mantener la lógica de DynamoDB dentro de Infrastructure.
+- Evitar dependencias directas del SDK de AWS dentro de Domain y Application.
+- Mantener separados los modelos de persistencia y los contratos HTTP.
+
+Cada módulo será responsable de implementar sus propios repositorios y adaptadores.
 
 ---
 
-# 27. Decisiones que no deben asumirse
+## 10. Comunicación entre MFE y BAAS
 
-Mientras las fuentes de verdad no las definan expresamente, no deberán inventarse decisiones sobre:
+La comunicación se realizará exclusivamente mediante **API REST sobre HTTPS**.
 
-* Comportamiento exacto de cascada al eliminar un paciente compartido por procesos de pareja o familia.
-* Nuevos roles.
-* Nuevos estados.
-* Nuevos tipos de entidades.
-* Identificadores propios para TherapyType.
-* Status de Patient.
-* Endpoints de Dashboard.
-* Campos adicionales de auditoría distintos de los definidos.
-* Relaciones adicionales entre entidades.
-* Nuevos catálogos.
-* Nuevas reglas de autorización.
-* Nuevos scopes para Public Operation Token.
-* Nuevas operaciones protegidas mediante Public Operation Token.
-* Nuevos tipos de tokens o credenciales.
-* Mecanismos de revocación de sesión no documentados.
-* Mecanismos para completar la recuperación de contraseña que todavía no estén definidos en OpenAPI.
-* Estructuras de persistencia para tokens que no estén definidas en la documentación de base de datos.
+El contrato HTTP estará definido mediante OpenAPI 3.1.
 
-Si una implementación requiere alguna de estas decisiones, deberá resolverse primero en la documentación correspondiente.
+```text
+MFE
+│
+├── UI
+│    │
+│    ▼
+├── Application
+│    │
+│    ▼
+├── Infrastructure
+│    │
+│    ▼
+│   REST API / HTTPS
+│    │
+│    ▼
+BAAS
+│
+├── Presentation
+│    │
+│    ▼
+├── Application
+│    │
+│    ▼
+├── Domain
+│    ▲
+│    │
+├── Infrastructure
+│    │
+│    ▼
+└── DynamoDB
+```
+
+### 10.1 Reglas
+
+- El MFE no podrá acceder directamente a DynamoDB.
+- Las solicitudes HTTP deberán implementarse en Infrastructure.
+- Los endpoints deberán respetar el contrato OpenAPI.
+- Los DTOs HTTP no deberán exponer directamente las estructuras internas de DynamoDB.
+- Los errores HTTP deberán seguir el formato `application/problem+json`.
+- El BAAS será responsable de validar las solicitudes y aplicar las reglas de negocio.
 
 ---
 
-# 28. Criterio para implementación autónoma
+## 11. Seguridad y autenticación
 
-Para construir Vera Balance deberán utilizarse conjuntamente:
+La autenticación utilizará **JSON Web Tokens (JWT)**.
 
-```text
-Base de datos
-      +
-OpenAPI
-      +
-Definiciones funcionales
-      +
-Arquitectura de Vera Balance
-      +
-Lineamientos de Arquitectura
-```
+El BAAS será responsable de generar, firmar y validar los tokens.
 
-Cada documento tiene una responsabilidad distinta:
+### 11.1 Flujo de autenticación
 
 ```text
-Base de datos
--> define la estructura persistida y relaciones canónicas.
-
-OpenAPI
--> define el contrato HTTP y los mecanismos de seguridad de cada operación.
-
-Definiciones funcionales
--> define comportamiento, roles y reglas del negocio.
-
-Arquitectura de Vera Balance
--> define cómo se organiza específicamente este sistema.
-
-Lineamientos de Arquitectura
--> define las reglas generales de diseño y separación de responsabilidades.
+MFE
+ │
+ ├── Envía credenciales
+ │
+ ▼
+BAAS / Auth
+ │
+ ├── Valida credenciales
+ ├── Verifica contraseña
+ ├── Genera JWT
+ │
+ ▼
+MFE
+ │
+ ├── Envía JWT en solicitudes protegidas
+ │
+ ▼
+BAAS
+ │
+ ├── Valida firma y expiración
+ ├── Identifica usuario
+ ├── Verifica permisos
+ │
+ ▼
+Caso de uso autorizado
 ```
 
-Codex o cualquier desarrollador deberá implementar el sistema utilizando estas fuentes sin completar silenciosamente información que no esté definida.
+### 11.2 Reglas de seguridad
 
-Cuando exista una ambigüedad que afecte el comportamiento funcional o el modelo de datos, deberá señalarse antes de implementar una decisión irreversible.
+- Utilizar JWT firmados y con tiempo de expiración.
+- Transmitir credenciales y tokens únicamente mediante HTTPS.
+- Validar firma, expiración y claims requeridos.
+- Implementar autenticación mediante Guards de NestJS.
+- Implementar autorización en el backend.
+- Almacenar contraseñas utilizando hashes seguros.
+- No exponer contraseñas ni hashes en respuestas.
+- No incluir secretos dentro del código fuente.
+- Gestionar secretos mediante variables de entorno o servicios especializados.
+- Mantener desacoplada la implementación concreta de JWT mediante interfaces.
+
+### 11.3 Autorización
+
+El sistema contempla tres roles:
+
+- `admin`
+- `clinic`
+- `therapist`
+
+Los permisos deberán validarse en el BAAS según el rol, la clínica y los recursos relacionados con el usuario.
+
+El MFE podrá adaptar su interfaz según los permisos, pero nunca sustituirá la autorización del backend.
+
+---
+
+## 12. Docker y Docker Compose
+
+Todo el proyecto deberá estar preparado para ejecutarse mediante **Docker y Docker Compose**.
+
+El objetivo es facilitar la instalación, configuración y despliegue de Vera Balance en diferentes equipos y entornos.
+
+### 12.1 Contenedores
+
+El proyecto contará con contenedores independientes para sus aplicaciones.
+
+```text
+Docker Compose
+│
+├── mfe
+│   └── React
+│
+├── baas
+│   └── NestJS
+│
+└── dynamodb-local
+    └── DynamoDB para desarrollo
+```
+
+En producción, el BAAS podrá conectarse a Amazon DynamoDB como servicio administrado, sin requerir un contenedor de base de datos.
+
+### 12.2 Estructura general
+
+```text
+vera-balance/
+├── baas/
+│   ├── Dockerfile
+│   └── ...
+│
+├── mfe/
+│   ├── Dockerfile
+│   └── ...
+│
+├── docker-compose.yml
+├── .env.example
+└── README.md
+```
+
+### 12.3 Reglas
+
+- Cada aplicación deberá contar con su propio Dockerfile.
+- Docker Compose coordinará los servicios necesarios.
+- La configuración deberá gestionarse mediante variables de entorno.
+- No deberán incluirse credenciales reales en imágenes Docker.
+- Se utilizarán volúmenes cuando sea necesario conservar datos locales.
+- Los servicios deberán comunicarse mediante redes Docker.
+- La instalación deberá poder realizarse sin configurar manualmente cada dependencia en el sistema anfitrión.
+- Los ambientes de desarrollo y producción podrán utilizar configuraciones Compose específicas.
+- Las imágenes deberán construirse de forma reproducible.
+
+### 12.4 Ejecución
+
+La ejecución local deberá poder iniciarse mediante:
+
+```bash
+docker compose up -d --build
+```
+
+La documentación de instalación deberá especificar únicamente los requisitos mínimos necesarios para ejecutar Docker y Docker Compose.
+
+---
+
+## 13. Configuración y ambientes
+
+Las aplicaciones deberán mantener configuraciones independientes por ambiente.
+
+Se contemplan inicialmente:
+
+- Desarrollo local.
+- Producción.
+
+El BAAS utilizará variables de entorno para configurar conexiones, credenciales, JWT y servicios externos.
+
+El MFE utilizará configuración específica para identificar la URL pública del BAAS y otras opciones no sensibles.
+
+No deberán incluirse secretos del backend en el bundle del frontend.
+
+Docker Compose deberá facilitar la configuración de los servicios para cada ambiente.
+
+---
+
+## 14. Principios arquitectónicos obligatorios
+
+1. BAAS y MFE implementarán Clean Architecture.
+2. El BAAS utilizará separación por **modules**.
+3. El MFE utilizará separación por **features**.
+4. El BAAS utilizará `presentation` como capa de entrada HTTP.
+5. El MFE utilizará `ui` como capa visual.
+6. Cada feature del MFE tendrá su propia carpeta `scss`.
+7. El MFE utilizará Redux Toolkit como gestor de estado.
+8. El MFE contará con una librería propia de componentes y estilos basada en Material UI.
+9. El tema global del MFE se definirá exclusivamente en SCSS.
+10. Material UI deberá consumir los tokens definidos en el tema global.
+11. Los cambios globales de identidad visual deberán realizarse desde un único lugar.
+12. DynamoDB utilizará Single Table Design.
+13. No se permitirán operaciones `Scan`.
+14. El MFE se comunicará con el BAAS exclusivamente mediante API REST.
+15. OpenAPI definirá el contrato HTTP.
+16. JWT será el mecanismo de autenticación.
+17. El BAAS será responsable de aplicar los permisos.
+18. Los componentes React no accederán directamente a la base de datos.
+19. Los casos de uso no dependerán directamente de NestJS, React, Redux o DynamoDB.
+20. Las dependencias externas deberán implementarse mediante adaptadores.
+21. La infraestructura compartida no deberá concentrar lógica funcional de todos los módulos.
+22. Todo el proyecto deberá ejecutarse mediante Docker y Docker Compose.
+23. La configuración deberá permitir una instalación reproducible en diferentes entornos.

@@ -10,9 +10,7 @@ import type { Request, Response } from 'express';
 import { HttpProblem } from './http-problem.util';
 
 //* Error translators
-import { ClinicErrorTranslator } from '../../modules/clinics/presentation/errors/clinic-error.translator';
-import { UserErrorTranslator } from '../../modules/users/presentation/errors/user-error.translator';
-import { AuthErrorTranslator } from '../../modules/auth/presentation/errors/auth-error.translator';
+
 
 type ErrorTranslator = { translate(error: unknown, instance: string): never | void; };
 
@@ -30,9 +28,7 @@ type HttpExceptionResponse = {
 
 //* List translators
 const errorTranslators: ErrorTranslator[] = [
-  ClinicErrorTranslator,
-  UserErrorTranslator,
-  AuthErrorTranslator,
+
 ];
 
 @Catch()
@@ -100,23 +96,14 @@ export class HttpProblemFilter implements ExceptionFilter {
     if (typeof rawResponse === 'string') {
       return this.sendProblem(
         response,
-        this.createProblemByStatus(
-          status,
-          rawResponse,
-          instance,
-        ),
+        this.createProblemByStatus(status, rawResponse,instance),
         instance,
       );
     }
 
     const normalized = rawResponse as HttpExceptionResponse;
 
-    if (
-      normalized.type &&
-      normalized.title &&
-      normalized.status &&
-      normalized.detail
-    ) {
+    if ( normalized.type && normalized.title && normalized.status && normalized.detail) {
       return response.status(status).json({ ...normalized, instance });
     }
 

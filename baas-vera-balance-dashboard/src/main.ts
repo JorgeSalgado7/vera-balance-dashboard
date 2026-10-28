@@ -45,11 +45,7 @@ async function bootstrap() {
           return messages;
         };
 
-        return HttpProblem.badRequest(
-          'Validate that the elements in the errors parameter exist and are correct.',
-          '',
-          extractErrors(errors)
-        );
+        return HttpProblem.badRequest('Validate that the elements in the errors parameter exist and are correct.',  '', extractErrors(errors));
       }
     })
   );
@@ -60,8 +56,6 @@ async function bootstrap() {
     .setTitle('Vera Balance API')
     .setDescription('Vera Balance Dashboard API documentation')
     .setVersion('1.0')
-    .addBearerAuth()
-    .addCookieAuth('vera_balance_session', {}, 'vera_balance_session')
     .build();
 
   const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);

@@ -12,7 +12,9 @@ type HttpProblemResponse = {
 }
 
 export class HttpProblem extends HttpException {
-  private constructor(response: HttpProblemResponse, status: number) { super(response, status)}
+  private constructor(response: HttpProblemResponse, status: number) {
+    super({ ...response, errors: (response.errors ?? []).map((error) => ({ ...error, field: error.field ?? '' })) }, status)
+  }
 
   static badRequest(detail: string, instance: string, errors?: HttpProblemError[]) {
     return new HttpProblem(

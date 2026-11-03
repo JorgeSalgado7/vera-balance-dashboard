@@ -43,7 +43,7 @@ describe('Application bootstrap', () => {
       { property: 'noChildren' },
     ])
     expect(problem.getStatus()).toBe(400)
-    expect(problem.getResponse()).toMatchObject({ errors: [{ message: 'parent required' }, { message: 'email invalid' }] })
-    expect(pipe.exceptionFactory([]).getResponse()).not.toHaveProperty('errors')
+    expect(problem.getResponse()).toMatchObject({ errors: [{ field: 'parent', message: 'parent required' }, { field: 'parent.email', message: 'email invalid' }] })
+    expect(pipe.exceptionFactory([]).getResponse()).toHaveProperty('errors', [])
   })
 })

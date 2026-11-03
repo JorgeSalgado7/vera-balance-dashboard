@@ -5,6 +5,29 @@ info:
   description: "API REST para la gestión de Vera Balance.\n\nRoles:\n- admin: acceso global organizado por clínicas.\n\
     - clinic: acceso completo a su clínica.\n- therapist: acceso a sus pacientes, procesos,\n  registros y tareas\
     \ relacionados.\n\nPersistencia: DynamoDB Single Table Design.\nLas consultas no deben utilizar Scan.\n"
+x-dynamodb-access-patterns:
+  table:
+    partitionKey: pk
+    sortKey: sk
+    description: Obtener entidades por ID mediante GetItem; relaciones de paciente por Query.
+  indexes:
+    gsi1:
+      partitionKey: gsi1pk
+      sortKey: gsi1sk
+      purpose: Listados globales por tipo de entidad.
+    gsi2:
+      partitionKey: gsi2pk
+      sortKey: gsi2sk
+      purpose: Consultas por clínica, proceso terapéutico o registro.
+    gsi3:
+      partitionKey: gsi3pk
+      sortKey: gsi3sk
+      purpose: Consultas por correo electrónico o terapeuta.
+  constraints:
+  - No utilizar Scan.
+  - Procesar LastEvaluatedKey en consultas paginadas.
+  - Utilizar BatchGetItem para recuperar entidades relacionadas por UUID.
+  - Los GSI tienen consistencia eventual y no garantizan unicidad.
 servers:
 - url: /
 tags:
@@ -184,7 +207,7 @@ paths:
       - Users
       operationId: getUsers
       summary: Obtener usuarios
-      description: Acceso exclusivo de admin.
+      description: Acceso exclusivo de admin. Consulta global mediante GSI1 (gsi1pk = USER).
       responses:
         '200':
           description: Usuarios encontrados
@@ -288,7 +311,7 @@ paths:
       summary: Obtener pacientes del terapeuta
       description: 'Consulta los procesos del terapeuta mediante
 
-        GSI2 y obtiene sus pacientes relacionados,
+        GSI3 y obtiene sus pacientes relacionados,
 
         sin duplicados ni Scan.
 
@@ -423,7 +446,7 @@ paths:
       - Clinics
       operationId: getClinics
       summary: Obtener clínicas
-      description: Acceso exclusivo de admin.
+      description: Acceso exclusivo de admin. Consulta global mediante GSI1 (gsi1pk = CLINIC).
       responses:
         '200':
           description: Clínicas encontradas
@@ -505,6 +528,7 @@ paths:
       - Clinics
       operationId: getClinicUsers
       summary: Obtener usuarios de una clínica
+      description: Consulta mediante GSI2 (gsi2pk = CLINIC#{clinicId}).
       parameters:
       - name: clinicId
         in: path
@@ -536,6 +560,7 @@ paths:
       - Clinics
       operationId: getClinicUser
       summary: Obtener usuario de una clínica
+      description: GetItem por pk y sk, verificando que el usuario pertenezca a la clínica.
       parameters:
       - name: clinicId
         in: path
@@ -599,7 +624,7 @@ paths:
       - Patients
       operationId: getClinicPatients
       summary: Obtener pacientes de una clínica
-      description: 'admin y clinic pueden consultar los pacientes
+      description: 'Consulta por clínica mediante GSI2. admin y clinic pueden consultar los pacientes
 
         de una clínica autorizada.
 
@@ -728,6 +753,7 @@ paths:
       - Therapy Types
       operationId: getTherapyTypes
       summary: Obtener tipos de terapia
+      description: Consulta global mediante GSI1 (gsi1pk = THERAPY_TYPE).
       responses:
         '200':
           description: Tipos de terapia encontrados
@@ -869,11 +895,11 @@ paths:
       - Therapeutic Processes
       operationId: getClinicTherapeuticProcesses
       summary: Obtener procesos de una clínica
-      description: 'Consulta mediante GSI1.
+      description: 'Consulta mediante GSI2.
 
         Para terapeutas, restringe los resultados
 
-        a los procesos relacionados mediante GSI2.
+        a los procesos relacionados mediante GSI3.
 
         '
       parameters:
@@ -1099,7 +1125,7 @@ paths:
       - Records
       operationId: getTherapeuticProcessRecords
       summary: Obtener registros de un proceso
-      description: Consulta mediante GSI1.
+      description: Consulta mediante GSI2.
       parameters:
       - name: processId
         in: path
@@ -1218,7 +1244,7 @@ paths:
       - HomeWorks
       operationId: getRecordHomeworks
       summary: Obtener tareas de un registro
-      description: Consulta mediante GSI1.
+      description: Consulta mediante GSI2.
       parameters:
       - name: recordId
         in: path

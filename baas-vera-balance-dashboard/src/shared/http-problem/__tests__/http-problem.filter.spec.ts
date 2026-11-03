@@ -7,18 +7,25 @@ import { UserAlreadyExistsError } from '../../../modules/users/domain/errors/use
 
 describe('HttpProblemFilter', () => {
   const filter = new HttpProblemFilter()
-  let response: { status: jest.Mock; json: jest.Mock; send: jest.Mock }
+  let response: { status: jest.Mock; type: jest.Mock; json: jest.Mock; send: jest.Mock }
   let host: ArgumentsHost
   let log: jest.SpyInstance
 
   beforeEach(() => {
-    response = { status: jest.fn(), json: jest.fn(), send: jest.fn() }
+    response = { status: jest.fn(), type: jest.fn(), json: jest.fn(), send: jest.fn() }
     response.status.mockReturnValue(response)
+    response.type.mockReturnValue(response)
     host = { switchToHttp: () => ({ getResponse: () => response, getRequest: () => ({ originalUrl: '/users' }) }) } as unknown as ArgumentsHost
     log = jest.spyOn(console, 'error').mockImplementation(() => {})
   })
 
-  afterEach(() => jest.restoreAllMocks())
+  afterEach(() => {
+    if (response.json.mock.calls.length) {
+      expect(response.type).toHaveBeenCalledWith('application/problem+json')
+      expect(response.json.mock.calls[0][0]).toHaveProperty('errors')
+    }
+    jest.restoreAllMocks()
+  })
 
   it('returns an empty 204 for the favicon request', () => {
     host = { switchToHttp: () => ({ getResponse: () => response, getRequest: () => ({ originalUrl: '/favicon.ico' }) }) } as unknown as ArgumentsHost
@@ -40,7 +47,7 @@ describe('HttpProblemFilter', () => {
     })
     filter.catch(new Error('original'), host)
     expect(response.status).toHaveBeenCalledWith(403)
-    expect(response.json).toHaveBeenCalledWith({ detail: 'translated detail', instance: '/users' })
+    expect(response.json).toHaveBeenCalledWith(expect.objectContaining({ detail: 'translated detail', instance: '/users', status: 403, errors: [] }))
   })
 
   it('preserves a problem while setting instance from the current request', () => {
@@ -48,9 +55,14 @@ describe('HttpProblemFilter', () => {
     expect(response.json).toHaveBeenCalledWith(expect.objectContaining({ status: 404, detail: 'missing', instance: '/users' }))
   })
 
+  it('fills the required field in custom validation errors', () => {
+    filter.catch(new HttpException({ type: 'https://example.com/invalid', title: 'Invalid', status: 400, detail: 'Invalid data', errors: [{ message: 'invalid' }, { field: 'email', message: 'invalid email' }] }, 400), host)
+    expect(response.json).toHaveBeenCalledWith(expect.objectContaining({ errors: [{ field: '', message: 'invalid' }, { field: 'email', message: 'invalid email' }] }))
+  })
+
   it('passes through a complete problem from an HTTP exception', () => {
     filter.catch(new HttpException({ type: 'https://example.com/conflict', title: 'Conflict', status: 409, detail: 'custom detail', instance: '/old' }, 409), host)
-    expect(response.json).toHaveBeenCalledWith({ type: 'https://example.com/conflict', title: 'Conflict', status: 409, detail: 'custom detail', instance: '/users' })
+    expect(response.json).toHaveBeenCalledWith({ type: 'https://example.com/conflict', title: 'Conflict', status: 409, detail: 'custom detail', instance: '/users', errors: [] })
   })
 
   it.each([400, 401, 403, 404, 409, 503, 418])('normalizes a plain HTTP message with status %s', (status) => {
@@ -61,7 +73,7 @@ describe('HttpProblemFilter', () => {
 
   it('turns a validation message array into per-error messages', () => {
     filter.catch(new HttpException({ message: ['email invalid', 'name missing'] }, 400), host)
-    expect(response.json).toHaveBeenCalledWith(expect.objectContaining({ status: 400, errors: [{ message: 'email invalid' }, { message: 'name missing' }] }))
+    expect(response.json).toHaveBeenCalledWith(expect.objectContaining({ status: 400, errors: [{ field: '', message: 'email invalid' }, { field: '', message: 'name missing' }] }))
   })
 
   it('prefers a string message to detail when normalizing an HTTP exception', () => {

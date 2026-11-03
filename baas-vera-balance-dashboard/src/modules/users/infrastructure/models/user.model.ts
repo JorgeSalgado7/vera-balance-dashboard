@@ -1,5 +1,5 @@
 import { USER_ROLE_VALUES } from '../../../../constants/user-roles.constant'
-import { Schema, model } from 'dynamoose'
+import { Schema, model, type as dynamooseType } from 'dynamoose'
 
 const UserSchema = new Schema(
   {
@@ -39,6 +39,19 @@ const UserSchema = new Schema(
       type: String,
     },
 
+    gsi3pk: {
+      type: String,
+      index: {
+        name: 'GSI3',
+        rangeKey: 'gsi3sk',
+        project: true,
+      },
+    },
+
+    gsi3sk: {
+      type: String,
+    },
+
     name: {
       type: String,
       required: true,
@@ -72,7 +85,7 @@ const UserSchema = new Schema(
     },
 
     clinic: {
-      type: String,
+      type: [String, dynamooseType.NULL],
     },
 
     created_at: {

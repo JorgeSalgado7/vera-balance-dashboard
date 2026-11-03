@@ -31,13 +31,16 @@ export class CreateUserDomainService {
     entity.status = data.status
     entity.clinic = data.clinic
 
+    entity.gsi1pk = 'USER'
+    entity.gsi1sk = `USER#${data.id}`
+
     if (data.clinic !== null) {
-      entity.gsi1pk = `CLINIC#${data.clinic}`
-      entity.gsi1sk = `USER#${data.id}`
+      entity.gsi2pk = `CLINIC#${data.clinic}`
+      entity.gsi2sk = `USER#${data.id}`
     }
 
-    entity.gsi2pk = `EMAIL#${entity.email}`
-    entity.gsi2sk = `USER#${data.id}`
+    entity.gsi3pk = `EMAIL#${entity.email}`
+    entity.gsi3sk = `USER#${data.id}`
 
     entity.created_at = data.created_at
     entity.updated_at = data.updated_at

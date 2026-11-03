@@ -22,9 +22,9 @@ describe('FindUserByEmailDynamooseAdapter', () => {
   it('looks up normalized email in GSI2 and maps the first matching user', async () => {
     chain.exec.mockResolvedValue([{ pk: 'user-1', email: 'user@example.com', role: USER_ROLES.ADMIN, clinic: null }])
     const result = await adapter.findByEmail('  USER@EXAMPLE.COM  ')
-    expect(query).toHaveBeenCalledWith('gsi2pk')
+    expect(query).toHaveBeenCalledWith('gsi3pk')
     expect(chain.eq).toHaveBeenCalledWith('EMAIL#user@example.com')
-    expect(chain.using).toHaveBeenCalledWith('GSI2')
+    expect(chain.using).toHaveBeenCalledWith('GSI3')
     expect(chain.limit).toHaveBeenCalledWith(1)
     expect(chain.exec).toHaveBeenCalledTimes(1)
     expect(result).toBeInstanceOf(UserEntity)

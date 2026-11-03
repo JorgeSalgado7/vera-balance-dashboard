@@ -22,6 +22,9 @@ export class UserMapper {
     entity.gsi2pk = item.gsi2pk
     entity.gsi2sk = item.gsi2sk
 
+    entity.gsi3pk = item.gsi3pk
+    entity.gsi3sk = item.gsi3sk
+
     entity.created_at = item.created_at
     entity.updated_at = item.updated_at
 
@@ -33,8 +36,11 @@ export class UserMapper {
       pk: entity.pk,
       sk: entity.sk,
 
-      gsi2pk: entity.gsi2pk,
-      gsi2sk: entity.gsi2sk,
+      gsi1pk: entity.gsi1pk,
+      gsi1sk: entity.gsi1sk,
+      gsi3pk: entity.gsi3pk,
+      gsi3sk: entity.gsi3sk,
+      clinic: entity.clinic,
 
       name: entity.name,
       email: entity.email,
@@ -49,9 +55,8 @@ export class UserMapper {
     }
 
     if (entity.clinic !== null) {
-      data.clinic = entity.clinic
-      data.gsi1pk = entity.gsi1pk
-      data.gsi1sk = entity.gsi1sk
+      data.gsi2pk = entity.gsi2pk
+      data.gsi2sk = entity.gsi2sk
     }
 
     return data

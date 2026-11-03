@@ -20,8 +20,8 @@ describe('HttpProblem', () => {
   it('includes validation details only when present', () => {
     const errors = [{ field: 'email', message: 'Invalid email' }]
     expect(HttpProblem.badRequest('invalid', '/users', errors).getResponse()).toMatchObject({ errors })
-    expect(HttpProblem.badRequest('invalid', '/users', []).getResponse()).not.toHaveProperty('errors')
-    expect(HttpProblem.badRequest('invalid', '/users').getResponse()).not.toHaveProperty('errors')
+    expect(HttpProblem.badRequest('invalid', '/users', []).getResponse()).toHaveProperty('errors', [])
+    expect(HttpProblem.badRequest('invalid', '/users').getResponse()).toHaveProperty('errors', [])
   })
 
   it.each([400, 404, 409, 503, 500, 418])('maps external status %s to a supported problem', (status) => {

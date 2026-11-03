@@ -2,6 +2,7 @@ import { Schema, model } from 'dynamoose'
 import { USER_ROLE_VALUES } from '../../../../../constants/user-roles.constant'
 
 jest.mock('dynamoose', () => ({
+  type: { NULL: Symbol.for('dynamoose-null') },
   Schema: jest.fn(function (definition, options) {
     return { definition, options }
   }),
@@ -32,6 +33,7 @@ describe('UserModel storage contract', () => {
     expect(configured.definition.pk).toMatchObject({ type: String, hashKey: true })
     expect(configured.definition.sk).toMatchObject({ type: String, rangeKey: true })
     expect(configured.definition.gsi1pk.index).toMatchObject({ name: 'GSI1', rangeKey: 'gsi1sk', project: true })
+    expect(configured.definition.gsi3pk.index).toMatchObject({ name: 'GSI3', rangeKey: 'gsi3sk', project: true })
     expect(configured.definition.gsi2pk.index).toMatchObject({ name: 'GSI2', rangeKey: 'gsi2sk', project: true })
   })
 

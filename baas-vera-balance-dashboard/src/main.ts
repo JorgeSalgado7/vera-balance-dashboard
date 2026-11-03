@@ -1,3 +1,4 @@
+import type { ValidationError } from 'class-validator'
 import { ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { HttpProblemFilter } from './shared/http-problem/http-problem.filter'
@@ -23,16 +24,17 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
       transform: true,
       exceptionFactory: (errors) => {
-        const extractErrors = (errorsArray: any[]): { message: string }[] => {
-          const messages: { message: string }[] = []
+        const extractErrors = (errorsArray: ValidationError[], parent = ''): { field: string; message: string }[] => {
+          const messages: { field: string; message: string }[] = []
 
           for (const err of errorsArray) {
+            const field = parent ? `${parent}.${err.property}` : err.property
             if (err.constraints) {
-              messages.push(...(Object.values(err.constraints) as string[]).map((message) => ({ message })))
+              messages.push(...Object.values(err.constraints).map((message) => ({ field, message })))
             }
 
             if (err.children?.length) {
-              messages.push(...extractErrors(err.children))
+              messages.push(...extractErrors(err.children, field))
             }
           }
 

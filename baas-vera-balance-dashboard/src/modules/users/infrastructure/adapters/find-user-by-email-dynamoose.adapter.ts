@@ -13,7 +13,7 @@ export class FindUserByEmailDynamooseAdapter implements Pick<IUserRepository, 'f
   async findByEmail(email: string): Promise<UserEntity | null> {
     const normalizedEmail = email.trim().toLowerCase()
 
-    const items = await this.model.query('gsi2pk').eq(`EMAIL#${normalizedEmail}`).using('GSI2').limit(1).exec()
+    const items = await this.model.query('gsi3pk').eq(`EMAIL#${normalizedEmail}`).using('GSI3').limit(1).exec()
 
     if (!items || items.length === 0) {
       return null

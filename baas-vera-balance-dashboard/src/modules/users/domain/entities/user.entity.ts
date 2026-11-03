@@ -13,11 +13,14 @@ export class UserEntity {
 
   clinic!: string | null
 
-  gsi1pk?: string
-  gsi1sk?: string
+  gsi1pk!: string
+  gsi1sk!: string
 
-  gsi2pk!: string
-  gsi2sk!: string
+  gsi2pk?: string
+  gsi2sk?: string
+
+  gsi3pk!: string
+  gsi3sk!: string
 
   created_at!: string
   updated_at!: string

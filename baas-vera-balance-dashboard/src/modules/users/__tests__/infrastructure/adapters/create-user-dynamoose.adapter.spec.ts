@@ -22,10 +22,12 @@ describe('CreateUserDynamooseAdapter', () => {
       role: USER_ROLES.THERAPIST,
       status: 'Activo',
       clinic: 'clinic-1',
-      gsi1pk: 'CLINIC#clinic-1',
+      gsi1pk: 'USER',
       gsi1sk: 'USER#user-1',
-      gsi2pk: 'EMAIL#user@example.com',
+      gsi2pk: 'CLINIC#clinic-1',
       gsi2sk: 'USER#user-1',
+      gsi3pk: 'EMAIL#user@example.com',
+      gsi3sk: 'USER#user-1',
       created_at: '2026-10-28T00:00:00.000Z',
       updated_at: '2026-10-28T00:00:00.000Z',
     })
@@ -43,10 +45,10 @@ describe('CreateUserDynamooseAdapter', () => {
     entity.clinic = null
     await adapter.create(entity)
     const persisted = create.mock.calls[0][0]
-    expect(persisted).not.toHaveProperty('clinic')
-    expect(persisted).not.toHaveProperty('gsi1pk')
-    expect(persisted).not.toHaveProperty('gsi1sk')
-    expect(persisted).toMatchObject({ gsi2pk: entity.gsi2pk, gsi2sk: entity.gsi2sk })
+    expect(persisted).toHaveProperty('clinic', null)
+    expect(persisted).not.toHaveProperty('gsi2pk')
+    expect(persisted).not.toHaveProperty('gsi2sk')
+    expect(persisted).toMatchObject({ gsi3pk: entity.gsi3pk, gsi3sk: entity.gsi3sk })
   })
 
   it('propagates a failed write instead of reporting a created user', async () => {

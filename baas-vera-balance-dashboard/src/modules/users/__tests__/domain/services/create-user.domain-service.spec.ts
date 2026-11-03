@@ -142,29 +142,35 @@ describe('CreateUserDomainService', () => {
   })
 
   // =========================================
-  // CLINIC INDEX - GSI1
+  // CLINIC INDEX - GSI2
   // =========================================
 
-  describe('Clinic index (GSI1)', () => {
-    it('should generate GSI1 when clinic is provided', () => {
+  it.each([USER_ROLES.ADMIN, USER_ROLES.CLINIC, USER_ROLES.THERAPIST])('creates the global GSI1 index for role %s', role => {
+    const result = service.create({ ...baseData, role, clinic: role === USER_ROLES.ADMIN ? null : clinicId })
+    expect(result.gsi1pk).toBe('USER')
+    expect(result.gsi1sk).toBe(`USER#${userId}`)
+  })
+
+  describe('Clinic index (GSI2)', () => {
+    it('should generate GSI2 when clinic is provided', () => {
       const result = service.create(baseData)
 
-      expect(result.gsi1pk).toBe(`CLINIC#${clinicId}`)
-      expect(result.gsi1sk).toBe(`USER#${userId}`)
+      expect(result.gsi2pk).toBe(`CLINIC#${clinicId}`)
+      expect(result.gsi2sk).toBe(`USER#${userId}`)
     })
 
-    it('should not generate GSI1 when clinic is null', () => {
+    it('should not generate GSI2 when clinic is null', () => {
       const result = service.create({
         ...baseData,
         role: USER_ROLES.ADMIN,
         clinic: null,
       })
 
-      expect(result.gsi1pk).toBeUndefined()
-      expect(result.gsi1sk).toBeUndefined()
+      expect(result.gsi2pk).toBeUndefined()
+      expect(result.gsi2sk).toBeUndefined()
     })
 
-    it('should generate GSI1 using the provided clinic ID', () => {
+    it('should generate GSI2 using the provided clinic ID', () => {
       const otherClinicId = '22222222-2222-4222-8222-222222222222'
 
       const result = service.create({
@@ -172,46 +178,7 @@ describe('CreateUserDomainService', () => {
         clinic: otherClinicId,
       })
 
-      expect(result.gsi1pk).toBe(`CLINIC#${otherClinicId}`)
-      expect(result.gsi1sk).toBe(`USER#${userId}`)
-    })
-
-    it('should generate GSI1 using the provided user ID', () => {
-      const otherUserId = '44444444-4444-4444-8444-444444444444'
-
-      const result = service.create({
-        ...baseData,
-        id: otherUserId,
-      })
-
-      expect(result.gsi1pk).toBe(`CLINIC#${clinicId}`)
-      expect(result.gsi1sk).toBe(`USER#${otherUserId}`)
-    })
-  })
-
-  // =========================================
-  // EMAIL INDEX - GSI2
-  // =========================================
-
-  describe('Email index (GSI2)', () => {
-    it('should generate GSI2 using normalized email', () => {
-      const result = service.create({
-        ...baseData,
-        email: '  MONICA@EXAMPLE.COM  ',
-      })
-
-      expect(result.gsi2pk).toBe('EMAIL#monica@example.com')
-      expect(result.gsi2sk).toBe(`USER#${userId}`)
-    })
-
-    it('should generate GSI2 when clinic is null', () => {
-      const result = service.create({
-        ...baseData,
-        role: USER_ROLES.ADMIN,
-        clinic: null,
-      })
-
-      expect(result.gsi2pk).toBe('EMAIL#monica@example.com')
+      expect(result.gsi2pk).toBe(`CLINIC#${otherClinicId}`)
       expect(result.gsi2sk).toBe(`USER#${userId}`)
     })
 
@@ -223,22 +190,61 @@ describe('CreateUserDomainService', () => {
         id: otherUserId,
       })
 
-      expect(result.gsi2pk).toBe('EMAIL#monica@example.com')
+      expect(result.gsi2pk).toBe(`CLINIC#${clinicId}`)
       expect(result.gsi2sk).toBe(`USER#${otherUserId}`)
     })
+  })
 
-    it('should generate GSI2 independently of GSI1', () => {
+  // =========================================
+  // EMAIL INDEX - GSI3
+  // =========================================
+
+  describe('Email index (GSI3)', () => {
+    it('should generate GSI3 using normalized email', () => {
+      const result = service.create({
+        ...baseData,
+        email: '  MONICA@EXAMPLE.COM  ',
+      })
+
+      expect(result.gsi3pk).toBe('EMAIL#monica@example.com')
+      expect(result.gsi3sk).toBe(`USER#${userId}`)
+    })
+
+    it('should generate GSI3 when clinic is null', () => {
       const result = service.create({
         ...baseData,
         role: USER_ROLES.ADMIN,
         clinic: null,
       })
 
-      expect(result.gsi1pk).toBeUndefined()
-      expect(result.gsi1sk).toBeUndefined()
+      expect(result.gsi3pk).toBe('EMAIL#monica@example.com')
+      expect(result.gsi3sk).toBe(`USER#${userId}`)
+    })
 
-      expect(result.gsi2pk).toBeDefined()
-      expect(result.gsi2sk).toBeDefined()
+    it('should generate GSI3 using the provided user ID', () => {
+      const otherUserId = '44444444-4444-4444-8444-444444444444'
+
+      const result = service.create({
+        ...baseData,
+        id: otherUserId,
+      })
+
+      expect(result.gsi3pk).toBe('EMAIL#monica@example.com')
+      expect(result.gsi3sk).toBe(`USER#${otherUserId}`)
+    })
+
+    it('should generate GSI3 independently of GSI2', () => {
+      const result = service.create({
+        ...baseData,
+        role: USER_ROLES.ADMIN,
+        clinic: null,
+      })
+
+      expect(result.gsi2pk).toBeUndefined()
+      expect(result.gsi2sk).toBeUndefined()
+
+      expect(result.gsi3pk).toBeDefined()
+      expect(result.gsi3sk).toBeDefined()
     })
   })
 
@@ -306,10 +312,12 @@ describe('CreateUserDomainService', () => {
 
       expect(validateCreate.execute).toHaveBeenCalledWith(
         expect.objectContaining({
-          gsi1pk: `CLINIC#${clinicId}`,
+          gsi1pk: 'USER',
           gsi1sk: `USER#${userId}`,
-          gsi2pk: 'EMAIL#monica@example.com',
+          gsi2pk: `CLINIC#${clinicId}`,
           gsi2sk: `USER#${userId}`,
+          gsi3pk: 'EMAIL#monica@example.com',
+          gsi3sk: `USER#${userId}`,
         }),
       )
     })

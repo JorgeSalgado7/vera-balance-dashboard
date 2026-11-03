@@ -12,10 +12,12 @@ const item = {
   role: USER_ROLES.THERAPIST,
   status: 'Activo',
   clinic: 'clinic-1',
-  gsi1pk: 'CLINIC#clinic-1',
+  gsi1pk: 'USER',
   gsi1sk: 'USER#user-1',
-  gsi2pk: 'EMAIL#user@example.com',
+  gsi2pk: 'CLINIC#clinic-1',
   gsi2sk: 'USER#user-1',
+  gsi3pk: 'EMAIL#user@example.com',
+  gsi3sk: 'USER#user-1',
   created_at: '2026-10-28T00:00:00.000Z',
   updated_at: '2026-10-28T00:00:00.000Z',
 }
@@ -49,10 +51,10 @@ describe('UserMapper', () => {
     it('omits the sparse clinic index when clinic is null and preserves the email index', () => {
       const entity = Object.assign(new UserEntity(), item, { role: USER_ROLES.ADMIN, clinic: null })
       const result = UserMapper.toPersistence(entity)
-      expect(result).not.toHaveProperty('clinic')
-      expect(result).not.toHaveProperty('gsi1pk')
-      expect(result).not.toHaveProperty('gsi1sk')
-      expect(result).toMatchObject({ pk: item.pk, sk: 'USER', gsi2pk: item.gsi2pk, gsi2sk: item.gsi2sk })
+      expect(result).toHaveProperty('clinic', null)
+      expect(result).not.toHaveProperty('gsi2pk')
+      expect(result).not.toHaveProperty('gsi2sk')
+      expect(result).toMatchObject({ pk: item.pk, sk: 'USER', gsi3pk: item.gsi3pk, gsi3sk: item.gsi3sk })
     })
 
     it('does not persist properties outside the storage contract', () => {

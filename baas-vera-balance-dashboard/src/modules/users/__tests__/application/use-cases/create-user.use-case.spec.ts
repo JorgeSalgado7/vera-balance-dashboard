@@ -60,10 +60,12 @@ describe('CreateUserUseCase', () => {
     role: USER_ROLES.THERAPIST,
     status: 'Activo' as const,
     clinic: clinicId,
-    gsi1pk: `CLINIC#${clinicId}`,
+    gsi1pk: 'USER',
     gsi1sk: `USER#${userId}`,
-    gsi2pk: 'EMAIL#monica@example.com',
+    gsi2pk: `CLINIC#${clinicId}`,
     gsi2sk: `USER#${userId}`,
+    gsi3pk: 'EMAIL#monica@example.com',
+    gsi3sk: `USER#${userId}`,
     created_at: '2026-10-27T10:00:00.000Z',
     updated_at: '2026-10-27T10:00:00.000Z',
   }
@@ -524,10 +526,10 @@ describe('CreateUserUseCase', () => {
 
       expect(result).not.toHaveProperty('pk')
       expect(result).not.toHaveProperty('sk')
-      expect(result).not.toHaveProperty('gsi1pk')
-      expect(result).not.toHaveProperty('gsi1sk')
       expect(result).not.toHaveProperty('gsi2pk')
       expect(result).not.toHaveProperty('gsi2sk')
+      expect(result).not.toHaveProperty('gsi3pk')
+      expect(result).not.toHaveProperty('gsi3sk')
     })
 
     it('should generate a valid UUID', async () => {

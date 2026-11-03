@@ -97,7 +97,7 @@ export class HttpProblemFilter implements ExceptionFilter {
     const normalized = rawResponse as HttpExceptionResponse
 
     if (normalized.type && normalized.title && normalized.status && normalized.detail) {
-      return response.status(status).json({ ...normalized, instance })
+      return this.sendProblem(response, exception, instance)
     }
 
     if (status === HttpStatus.BAD_REQUEST && Array.isArray(normalized.message)) {
@@ -138,7 +138,8 @@ export class HttpProblemFilter implements ExceptionFilter {
   private sendProblem(response: Response, problem: HttpException, instance: string) {
     const status = problem.getStatus()
     const rawResponse = problem.getResponse()
-    const normalizedResponse = typeof rawResponse === 'string' ? { detail: rawResponse } : rawResponse
-    return response.status(status).json({ ...(normalizedResponse as Record<string, unknown>), instance })
+    const normalizedResponse = (typeof rawResponse === 'string' ? this.createProblemByStatus(status, rawResponse, instance).getResponse() : rawResponse) as HttpExceptionResponse
+    const errors = (normalizedResponse.errors ?? []).map((error) => ({ ...error, field: error.field ?? '' }))
+    return response.status(status).type('application/problem+json').json({ ...normalizedResponse, errors, instance })
   }
 }

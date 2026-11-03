@@ -1,3 +1,7 @@
+import { EmptyUserUpdateError } from '../../../domain/errors/empty-user-update.error'
+import { InvalidUserUpdateFieldsError } from '../../../domain/errors/invalid-user-update-fields.error'
+import { UserUpdateNotAllowedError } from '../../../domain/errors/user-update-not-allowed.error'
+import { UserUpdateConflictError } from '../../../domain/errors/user-update-conflict.error'
 import { UserNotFoundError } from '../../../domain/errors/user-not-found.error'
 import { UserConsultationNotAllowedError } from '../../../domain/errors/user-consultation-not-allowed.error'
 import { UserListingNotAllowedError } from '../../../domain/errors/user-listing-not-allowed.error'
@@ -22,15 +26,17 @@ export class UserErrorTranslator {
       throw HttpProblem.notFound(error.message, instance)
     }
 
-    if (error instanceof UserAlreadyExistsError) {
+    if (error instanceof UserAlreadyExistsError || error instanceof UserUpdateConflictError) {
       throw HttpProblem.conflict(error.message, instance)
     }
 
-    if (error instanceof UserCreationNotAllowedError || error instanceof UserListingNotAllowedError || error instanceof UserConsultationNotAllowedError) {
+    if (error instanceof UserCreationNotAllowedError || error instanceof UserListingNotAllowedError || error instanceof UserConsultationNotAllowedError || error instanceof UserUpdateNotAllowedError) {
       throw HttpProblem.forbidden(error.message, instance)
     }
 
     if (
+      error instanceof EmptyUserUpdateError ||
+      error instanceof InvalidUserUpdateFieldsError ||
       error instanceof MissingUserNameError ||
       error instanceof MissingUserEmailError ||
       error instanceof InvalidUserEmailError ||

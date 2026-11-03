@@ -6,28 +6,43 @@ import { JwtAuthProvider } from '../auth/infrastructure/providers/jwt-auth.provi
 import { CreateUserController } from './presentation/http/controllers/create-user.controller'
 import { GetUsersController } from './presentation/http/controllers/get-users.controller'
 import { GetUserByIdController } from './presentation/http/controllers/get-user-by-id.controller'
+import { UpdateUserController } from './presentation/http/controllers/update-user.controller'
 import { CreateUserUseCase } from './application/use-cases/create-user.use-case'
 import { GetUsersUseCase } from './application/use-cases/get-users.use-case'
 import { GetUserByIdUseCase } from './application/use-cases/get-user-by-id.use-case'
+import { UpdateUserUseCase } from './application/use-cases/update-user.use-case'
 
 import { CreateUserDomainService } from './domain/services/create-user.domain-service'
 import { ValidateCreateUserDomainService } from './domain/services/validate-create-user.domain-service'
 import { ValidateGetUsersDomainService } from './domain/services/validate-get-users.domain-service'
 import { ValidateGetUserByIdDomainService } from './domain/services/validate-get-user-by-id.domain-service'
+import { ValidateUpdateUserAccessDomainService } from './domain/services/validate-update-user-access.domain-service'
+import { UpdateUserDomainService } from './domain/services/update-user.domain-service'
 import type { IUserRepository } from './domain/repositories/user.repository'
 import type { IFindAllUsersRepository } from './domain/repositories/find-all-users.repository'
+import type { IUpdateUserRepository } from './domain/repositories/update-user.repository'
 
 import { CreateUserDynamooseAdapter } from './infrastructure/adapters/create-user-dynamoose.adapter'
 import { FindAllUsersDynamooseAdapter } from './infrastructure/adapters/find-all-users-dynamoose.adapter'
 import { FindUserByEmailDynamooseAdapter } from './infrastructure/adapters/find-user-by-email-dynamoose.adapter'
 import { FindUserByIdDynamooseAdapter } from './infrastructure/adapters/find-user-by-id-dynamoose.adapter'
+import { UpdateUserDynamooseAdapter } from './infrastructure/adapters/update-user-dynamoose.adapter'
 
 @Module({
   imports: [AuthModule],
 
-  controllers: [CreateUserController, GetUsersController, GetUserByIdController],
+  controllers: [CreateUserController, GetUsersController, GetUserByIdController, UpdateUserController],
 
   providers: [
+    UpdateUserDomainService,
+    ValidateUpdateUserAccessDomainService,
+    UpdateUserDynamooseAdapter,
+    { provide: 'IUpdateUserRepository', useExisting: UpdateUserDynamooseAdapter },
+    {
+      provide: UpdateUserUseCase,
+      useFactory: (access: ValidateUpdateUserAccessDomainService, domain: UpdateUserDomainService, users: IUserRepository, updater: IUpdateUserRepository) => new UpdateUserUseCase(access, domain, users, updater),
+      inject: [ValidateUpdateUserAccessDomainService, UpdateUserDomainService, 'IUserRepository', 'IUpdateUserRepository'],
+    },
     ValidateGetUserByIdDomainService,
     {
       provide: GetUserByIdUseCase,

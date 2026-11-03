@@ -1,3 +1,5 @@
+import { UpdateUserUseCase } from '../application/use-cases/update-user.use-case'
+import { UpdateUserDynamooseAdapter } from '../infrastructure/adapters/update-user-dynamoose.adapter'
 import { GetUserByIdUseCase } from '../application/use-cases/get-user-by-id.use-case'
 import { GetUsersUseCase } from '../application/use-cases/get-users.use-case'
 import { FindAllUsersDynamooseAdapter } from '../infrastructure/adapters/find-all-users-dynamoose.adapter'
@@ -45,6 +47,8 @@ describe('UsersModule', () => {
       .overrideProvider(FindUserByIdDynamooseAdapter)
       .useValue({ findById })
       .compile()
+    expect(module.get(UpdateUserUseCase)).toBeInstanceOf(UpdateUserUseCase)
+    expect(module.get('IUpdateUserRepository')).toBe(module.get(UpdateUserDynamooseAdapter))
     expect(module.get('IFindAllUsersRepository')).toBe(module.get(FindAllUsersDynamooseAdapter))
     expect(module.get(GetUsersUseCase)).toBeInstanceOf(GetUsersUseCase)
     expect(module.get(GetUserByIdUseCase)).toBeInstanceOf(GetUserByIdUseCase)

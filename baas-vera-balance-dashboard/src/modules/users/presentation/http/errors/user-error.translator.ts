@@ -1,3 +1,5 @@
+import { UserNotFoundError } from '../../../domain/errors/user-not-found.error'
+import { UserConsultationNotAllowedError } from '../../../domain/errors/user-consultation-not-allowed.error'
 import { UserListingNotAllowedError } from '../../../domain/errors/user-listing-not-allowed.error'
 import {
   UserAlreadyExistsError,
@@ -16,11 +18,15 @@ import { HttpProblem } from '../../../../../shared/http-problem/http-problem.uti
 
 export class UserErrorTranslator {
   static translate(error: unknown, instance: string): never | void {
+    if (error instanceof UserNotFoundError) {
+      throw HttpProblem.notFound(error.message, instance)
+    }
+
     if (error instanceof UserAlreadyExistsError) {
       throw HttpProblem.conflict(error.message, instance)
     }
 
-    if (error instanceof UserCreationNotAllowedError || error instanceof UserListingNotAllowedError) {
+    if (error instanceof UserCreationNotAllowedError || error instanceof UserListingNotAllowedError || error instanceof UserConsultationNotAllowedError) {
       throw HttpProblem.forbidden(error.message, instance)
     }
 

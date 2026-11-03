@@ -5,12 +5,15 @@ import { JwtAuthProvider } from '../auth/infrastructure/providers/jwt-auth.provi
 
 import { CreateUserController } from './presentation/http/controllers/create-user.controller'
 import { GetUsersController } from './presentation/http/controllers/get-users.controller'
+import { GetUserByIdController } from './presentation/http/controllers/get-user-by-id.controller'
 import { CreateUserUseCase } from './application/use-cases/create-user.use-case'
 import { GetUsersUseCase } from './application/use-cases/get-users.use-case'
+import { GetUserByIdUseCase } from './application/use-cases/get-user-by-id.use-case'
 
 import { CreateUserDomainService } from './domain/services/create-user.domain-service'
 import { ValidateCreateUserDomainService } from './domain/services/validate-create-user.domain-service'
 import { ValidateGetUsersDomainService } from './domain/services/validate-get-users.domain-service'
+import { ValidateGetUserByIdDomainService } from './domain/services/validate-get-user-by-id.domain-service'
 import type { IUserRepository } from './domain/repositories/user.repository'
 import type { IFindAllUsersRepository } from './domain/repositories/find-all-users.repository'
 
@@ -22,9 +25,15 @@ import { FindUserByIdDynamooseAdapter } from './infrastructure/adapters/find-use
 @Module({
   imports: [AuthModule],
 
-  controllers: [CreateUserController, GetUsersController],
+  controllers: [CreateUserController, GetUsersController, GetUserByIdController],
 
   providers: [
+    ValidateGetUserByIdDomainService,
+    {
+      provide: GetUserByIdUseCase,
+      useFactory: (domain: ValidateGetUserByIdDomainService, repository: IUserRepository) => new GetUserByIdUseCase(domain, repository),
+      inject: [ValidateGetUserByIdDomainService, 'IUserRepository'],
+    },
     ValidateGetUsersDomainService,
     FindAllUsersDynamooseAdapter,
     { provide: 'IFindAllUsersRepository', useExisting: FindAllUsersDynamooseAdapter },

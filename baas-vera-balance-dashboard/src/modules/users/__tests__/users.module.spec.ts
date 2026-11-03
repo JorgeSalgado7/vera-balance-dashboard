@@ -1,3 +1,4 @@
+import { GetUserByIdUseCase } from '../application/use-cases/get-user-by-id.use-case'
 import { GetUsersUseCase } from '../application/use-cases/get-users.use-case'
 import { FindAllUsersDynamooseAdapter } from '../infrastructure/adapters/find-all-users-dynamoose.adapter'
 import { Module } from '@nestjs/common'
@@ -46,6 +47,7 @@ describe('UsersModule', () => {
       .compile()
     expect(module.get('IFindAllUsersRepository')).toBe(module.get(FindAllUsersDynamooseAdapter))
     expect(module.get(GetUsersUseCase)).toBeInstanceOf(GetUsersUseCase)
+    expect(module.get(GetUserByIdUseCase)).toBeInstanceOf(GetUserByIdUseCase)
     repository = module.get('IUserRepository')
     useCase = module.get(CreateUserUseCase)
     expect(module.get(CreateUserDomainService)).toBeInstanceOf(CreateUserDomainService)

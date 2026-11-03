@@ -1,3 +1,4 @@
+import { UserListingNotAllowedError } from '../../../domain/errors/user-listing-not-allowed.error'
 import {
   UserAlreadyExistsError,
   UserCreationNotAllowedError,
@@ -19,7 +20,7 @@ export class UserErrorTranslator {
       throw HttpProblem.conflict(error.message, instance)
     }
 
-    if (error instanceof UserCreationNotAllowedError) {
+    if (error instanceof UserCreationNotAllowedError || error instanceof UserListingNotAllowedError) {
       throw HttpProblem.forbidden(error.message, instance)
     }
 

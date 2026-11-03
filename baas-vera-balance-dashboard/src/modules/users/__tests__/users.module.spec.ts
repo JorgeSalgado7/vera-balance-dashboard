@@ -1,3 +1,5 @@
+import { GetUsersUseCase } from '../application/use-cases/get-users.use-case'
+import { FindAllUsersDynamooseAdapter } from '../infrastructure/adapters/find-all-users-dynamoose.adapter'
 import { Module } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
 import { UsersModule } from '../users.module'
@@ -19,6 +21,7 @@ const hash = jest.fn()
 class TestAuthModule {}
 
 describe('UsersModule', () => {
+  const findAll = jest.fn()
   const create = jest.fn()
   const findByEmail = jest.fn()
   const findById = jest.fn()
@@ -30,6 +33,8 @@ describe('UsersModule', () => {
     const module = await Test.createTestingModule({ imports: [UsersModule] })
       .overrideModule(AuthModule)
       .useModule(TestAuthModule)
+      .overrideProvider(FindAllUsersDynamooseAdapter)
+      .useValue({ findAll })
       .overrideProvider(JwtAuthProvider)
       .useValue({})
       .overrideProvider(CreateUserDynamooseAdapter)
@@ -39,6 +44,8 @@ describe('UsersModule', () => {
       .overrideProvider(FindUserByIdDynamooseAdapter)
       .useValue({ findById })
       .compile()
+    expect(module.get('IFindAllUsersRepository')).toBe(module.get(FindAllUsersDynamooseAdapter))
+    expect(module.get(GetUsersUseCase)).toBeInstanceOf(GetUsersUseCase)
     repository = module.get('IUserRepository')
     useCase = module.get(CreateUserUseCase)
     expect(module.get(CreateUserDomainService)).toBeInstanceOf(CreateUserDomainService)

@@ -20,7 +20,13 @@ import { USER_ROLES } from '../../../constants/user-roles.constant'
 
 jest.mock('../infrastructure/models/user.model', () => ({ UserModel: {} }))
 const hash = jest.fn()
-@Module({ providers: [{ provide: 'IHashPasswordService', useValue: { hash } }], exports: ['IHashPasswordService'] })
+@Module({
+  providers: [
+    { provide: 'IHashPasswordService', useValue: { hash } },
+    { provide: 'IVerifyPasswordService', useValue: { verify: jest.fn() } },
+  ],
+  exports: ['IHashPasswordService', 'IVerifyPasswordService'],
+})
 class TestAuthModule {}
 
 describe('UsersModule', () => {

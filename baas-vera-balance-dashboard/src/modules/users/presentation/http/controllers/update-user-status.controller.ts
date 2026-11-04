@@ -1,4 +1,4 @@
-import { Body, Controller, Inject, Param, ParseUUIDPipe, Patch } from '@nestjs/common'
+import { Body, Controller, Inject, Param, Patch } from '@nestjs/common'
 import { CurrentUser } from '@nestjs/authentication'
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { UpdateUserStatusUseCase } from '../../../application/use-cases/update-user-status.use-case'
@@ -15,7 +15,7 @@ export class UpdateUserStatusController {
 
   @Patch(':userId/status')
   @ApiOperation({ operationId: 'updateUserStatus', summary: 'Actualizar estatus del usuario' })
-  @ApiParam({ name: 'userId', required: true, description: 'ID del usuario', type: String, format: 'uuid' })
+  @ApiParam({ name: 'userId', required: true, description: 'ID del usuario', type: String })
   @ApiResponse({ status: 200, description: 'Estatus actualizado', type: UpdateUserStatusResponseDto })
   @ApiResponse({ status: 400 })
   @ApiResponse({ status: 401 })
@@ -23,7 +23,7 @@ export class UpdateUserStatusController {
   @ApiResponse({ status: 404 })
   @ApiResponse({ status: 500 })
   async execute(
-    @Param('userId', new ParseUUIDPipe({ version: 'all' })) userId: string,
+    @Param('userId') userId: string,
     @Body() dto: UpdateUserStatusDto,
     @CurrentUser() actor: { id: string; role: UserRole; clinic: string | null },
   ): Promise<UpdateUserStatusResponseDto> {

@@ -1,3 +1,8 @@
+import { UserPasswordChangeNotAllowedError } from '../../../domain/errors/user-password-change-not-allowed.error'
+import { IncorrectCurrentUserPasswordError } from '../../../domain/errors/incorrect-current-user-password.error'
+import { ReusedUserPasswordError } from '../../../domain/errors/reused-user-password.error'
+import { InvalidNewUserPasswordError } from '../../../domain/errors/invalid-new-user-password.error'
+import { UserPasswordConfirmationMismatchError } from '../../../domain/errors/user-password-confirmation-mismatch.error'
 import { UserStatusUpdateNotAllowedError } from '../../../domain/errors/user-status-update-not-allowed.error'
 import { UserDeletionNotAllowedError } from '../../../domain/errors/user-deletion-not-allowed.error'
 import { UserDeletionConflictError } from '../../../domain/errors/user-deletion-conflict.error'
@@ -35,6 +40,7 @@ export class UserErrorTranslator {
     }
 
     if (
+      error instanceof UserPasswordChangeNotAllowedError ||
       error instanceof UserStatusUpdateNotAllowedError ||
       error instanceof UserDeletionNotAllowedError ||
       error instanceof UserCreationNotAllowedError ||
@@ -46,6 +52,10 @@ export class UserErrorTranslator {
     }
 
     if (
+      error instanceof IncorrectCurrentUserPasswordError ||
+      error instanceof ReusedUserPasswordError ||
+      error instanceof InvalidNewUserPasswordError ||
+      error instanceof UserPasswordConfirmationMismatchError ||
       error instanceof EmptyUserUpdateError ||
       error instanceof InvalidUserUpdateFieldsError ||
       error instanceof MissingUserNameError ||

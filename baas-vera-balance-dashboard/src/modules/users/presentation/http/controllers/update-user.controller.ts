@@ -1,4 +1,4 @@
-import { Body, Controller, Inject, Param, ParseUUIDPipe, Patch } from '@nestjs/common'
+import { Body, Controller, Inject, Param, Patch } from '@nestjs/common'
 import { CurrentUser } from '@nestjs/authentication'
 import { ApiBearerAuth, ApiBody, ApiExtraModels, ApiOperation, ApiParam, ApiResponse, ApiTags, getSchemaPath } from '@nestjs/swagger'
 import { UpdateUserUseCase } from '../../../application/use-cases/update-user.use-case'
@@ -17,7 +17,7 @@ export class UpdateUserController {
 
   @Patch(':userId')
   @ApiOperation({ operationId: 'updateUser', summary: 'Actualizar usuario' })
-  @ApiParam({ name: 'userId', required: true, description: 'ID del usuario', type: String, format: 'uuid' })
+  @ApiParam({ name: 'userId', required: true, description: 'ID del usuario', type: String })
   @ApiBody({ schema: { allOf: [{ $ref: getSchemaPath(UpdateUserDto) }], minProperties: 1 } })
   @ApiResponse({ status: 200, description: 'Usuario actualizado', type: UpdateUserResponseDto })
   @ApiResponse({ status: 400 })
@@ -27,7 +27,7 @@ export class UpdateUserController {
   @ApiResponse({ status: 409 })
   @ApiResponse({ status: 500 })
   async execute(
-    @Param('userId', new ParseUUIDPipe({ version: 'all' })) userId: string,
+    @Param('userId') userId: string,
     @Body(new UpdateUserBodyPipe()) dto: UpdateUserDto,
     @CurrentUser() actor: UpdateUserActor,
   ): Promise<UpdateUserResponseDto> {

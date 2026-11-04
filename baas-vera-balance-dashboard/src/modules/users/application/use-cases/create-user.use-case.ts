@@ -1,3 +1,4 @@
+import { authorizeRole } from '../../../../shared/authorization/authorize-role'
 import { USER_ROLES } from '../../../../constants/user-roles.constant'
 import type { UserRole } from '../../../../constants/user-roles.constant'
 import { Inject, Injectable } from '@nestjs/common'
@@ -32,9 +33,14 @@ export class CreateUserUseCase {
   ) {}
 
   async execute(dto: CreateUserDto, actor: CreateUserActor): Promise<CreateUserResponseDto> {
-    if (actor.role !== USER_ROLES.ADMIN && !(actor.role === USER_ROLES.CLINIC && dto.role === USER_ROLES.THERAPIST && actor.clinic !== null && dto.clinic === actor.clinic)) {
-      throw new UserCreationNotAllowedError()
-    }
+    authorizeRole(
+      actor.role,
+      {
+        [USER_ROLES.ADMIN]: true,
+        [USER_ROLES.CLINIC]: dto.role === USER_ROLES.THERAPIST && actor.clinic !== null && dto.clinic === actor.clinic,
+      },
+      new UserCreationNotAllowedError(),
+    )
 
     const email = dto.email.trim().toLowerCase()
 

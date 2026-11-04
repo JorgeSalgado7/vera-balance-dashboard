@@ -1,4 +1,4 @@
-import { Controller, Get, Inject, Param, ParseUUIDPipe } from '@nestjs/common'
+import { Controller, Get, Inject, Param } from '@nestjs/common'
 import { CurrentUser } from '@nestjs/authentication'
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger'
 
@@ -15,14 +15,14 @@ export class GetUserByIdController {
 
   @Get(':userId')
   @ApiOperation({ operationId: 'getUser', summary: 'Obtener usuario por ID' })
-  @ApiParam({ name: 'userId', required: true, description: 'ID del usuario', type: String, format: 'uuid' })
+  @ApiParam({ name: 'userId', required: true, description: 'ID del usuario', type: String })
   @ApiResponse({ status: 200, description: 'Usuario encontrado', type: GetUserByIdResponseDto })
   @ApiResponse({ status: 400 })
   @ApiResponse({ status: 401 })
   @ApiResponse({ status: 403 })
   @ApiResponse({ status: 404 })
   @ApiResponse({ status: 500 })
-  async execute(@Param('userId', new ParseUUIDPipe({ version: 'all' })) userId: string, @CurrentUser() actor: GetUserByIdActor): Promise<GetUserByIdResponseDto> {
+  async execute(@Param('userId') userId: string, @CurrentUser() actor: GetUserByIdActor): Promise<GetUserByIdResponseDto> {
     try {
       return await this.useCase.execute(userId, actor)
     } catch (error) {

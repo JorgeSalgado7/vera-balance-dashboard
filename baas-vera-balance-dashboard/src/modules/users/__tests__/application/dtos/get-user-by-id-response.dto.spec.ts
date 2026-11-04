@@ -15,10 +15,10 @@ describe('GET /users/{userId} OpenAPI contract', () => {
     await app.close()
   })
 
-  it('documents the route, UUID parameter, security and exact response codes', () => {
+  it('documents the route, string parameter, security and exact response codes', () => {
     const operation = document.paths['/users/{userId}'].get!
     expect(operation.operationId).toBe('getUser')
-    expect(operation.parameters).toEqual([expect.objectContaining({ name: 'userId', in: 'path', required: true, schema: expect.objectContaining({ type: 'string', format: 'uuid' }) })])
+    expect(operation.parameters).toEqual([expect.objectContaining({ name: 'userId', in: 'path', required: true, schema: { type: 'string' } })])
     expect(operation.requestBody).toBeUndefined()
     expect(operation.security).toEqual([{ bearerAuth: [] }])
     expect(Object.keys(operation.responses).sort()).toEqual(['200', '400', '401', '403', '404', '500'])

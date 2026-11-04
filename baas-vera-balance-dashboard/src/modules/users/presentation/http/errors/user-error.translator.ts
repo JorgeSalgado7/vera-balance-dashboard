@@ -1,3 +1,6 @@
+import { UserDeletionNotAllowedError } from '../../../domain/errors/user-deletion-not-allowed.error'
+import { UserDeletionConflictError } from '../../../domain/errors/user-deletion-conflict.error'
+import { UserHasTherapeuticProcessesError } from '../../../domain/errors/user-has-therapeutic-processes.error'
 import { EmptyUserUpdateError } from '../../../domain/errors/empty-user-update.error'
 import { InvalidUserUpdateFieldsError } from '../../../domain/errors/invalid-user-update-fields.error'
 import { UserUpdateNotAllowedError } from '../../../domain/errors/user-update-not-allowed.error'
@@ -26,11 +29,17 @@ export class UserErrorTranslator {
       throw HttpProblem.notFound(error.message, instance)
     }
 
-    if (error instanceof UserAlreadyExistsError || error instanceof UserUpdateConflictError) {
+    if (error instanceof UserAlreadyExistsError || error instanceof UserUpdateConflictError || error instanceof UserDeletionConflictError || error instanceof UserHasTherapeuticProcessesError) {
       throw HttpProblem.conflict(error.message, instance)
     }
 
-    if (error instanceof UserCreationNotAllowedError || error instanceof UserListingNotAllowedError || error instanceof UserConsultationNotAllowedError || error instanceof UserUpdateNotAllowedError) {
+    if (
+      error instanceof UserDeletionNotAllowedError ||
+      error instanceof UserCreationNotAllowedError ||
+      error instanceof UserListingNotAllowedError ||
+      error instanceof UserConsultationNotAllowedError ||
+      error instanceof UserUpdateNotAllowedError
+    ) {
       throw HttpProblem.forbidden(error.message, instance)
     }
 

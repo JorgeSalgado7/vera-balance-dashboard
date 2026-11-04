@@ -1,6 +1,5 @@
 import { Test } from '@nestjs/testing'
 import { GetUsersUseCase } from '../../../application/use-cases/get-users.use-case'
-import { ValidateGetUsersDomainService } from '../../../domain/services/validate-get-users.domain-service'
 import { UserListingNotAllowedError } from '../../../domain/errors/user-listing-not-allowed.error'
 import type { IFindAllUsersRepository } from '../../../domain/repositories/find-all-users.repository'
 import { UserEntity } from '../../../domain/entities/user.entity'
@@ -33,12 +32,11 @@ describe('GetUsersUseCase', () => {
     jest.resetAllMocks()
     const module = await Test.createTestingModule({
       providers: [
-        ValidateGetUsersDomainService,
         { provide: 'IFindAllUsersRepository', useValue: { findAll } },
         {
           provide: GetUsersUseCase,
-          inject: [ValidateGetUsersDomainService, 'IFindAllUsersRepository'],
-          useFactory: (domain: ValidateGetUsersDomainService, repository: IFindAllUsersRepository) => new GetUsersUseCase(domain, repository),
+          inject: ['IFindAllUsersRepository'],
+          useFactory: (repository: IFindAllUsersRepository) => new GetUsersUseCase(repository),
         },
       ],
     }).compile()

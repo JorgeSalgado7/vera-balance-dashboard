@@ -1,3 +1,4 @@
+import { authorizeRole } from '../../../../shared/authorization/authorize-role'
 import { USER_ROLES } from '../../../../constants/user-roles.constant'
 import type { UserRole } from '../../../../constants/user-roles.constant'
 import type { UserEntity } from '../entities/user.entity'
@@ -11,18 +12,14 @@ export interface GetUserByIdActor {
 
 export class ValidateGetUserByIdDomainService {
   execute(actor: GetUserByIdActor, user: UserEntity): void {
-    if (actor.role === USER_ROLES.ADMIN) {
-      return
-    }
-
-    if (actor.role === USER_ROLES.CLINIC && actor.clinic !== null && actor.clinic === user.clinic) {
-      return
-    }
-
-    if (actor.role === USER_ROLES.THERAPIST && actor.id === user.pk) {
-      return
-    }
-
-    throw new UserConsultationNotAllowedError()
+    authorizeRole(
+      actor.role,
+      {
+        [USER_ROLES.ADMIN]: true,
+        [USER_ROLES.CLINIC]: actor.clinic !== null && actor.clinic === user.clinic,
+        [USER_ROLES.THERAPIST]: actor.id === user.pk,
+      },
+      new UserConsultationNotAllowedError(),
+    )
   }
 }

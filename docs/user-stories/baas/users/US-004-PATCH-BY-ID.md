@@ -102,8 +102,8 @@ Los contratos de entrada y salida deberán respetar OpenAPI y la persistencia de
 
 ## Definition of Done (DoD)
 
-- [ ] La funcionalidad cumple todos los criterios de aceptación.
-- [ ] La implementación respeta los cinco documentos de referencia.
+- [X] La funcionalidad cumple todos los criterios de aceptación.
+- [X] La implementación respeta los cinco documentos de referencia.
 - [x] La búsqueda utiliza correctamente `GetItem` con `pk` y `sk`.
 - [x] La actualización utiliza `UpdateItem` y modifica únicamente los campos permitidos.
 - [x] No se utilizan operaciones `Scan`.

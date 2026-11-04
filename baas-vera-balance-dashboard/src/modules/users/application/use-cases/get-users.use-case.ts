@@ -1,6 +1,8 @@
+import { USER_ROLES } from '../../../../constants/user-roles.constant'
 import type { UserRole } from '../../../../constants/user-roles.constant'
 import type { IFindAllUsersRepository } from '../../domain/repositories/find-all-users.repository'
-import { ValidateGetUsersDomainService } from '../../domain/services/validate-get-users.domain-service'
+import { authorizeRole } from '../../../../shared/authorization/authorize-role'
+import { UserListingNotAllowedError } from '../../domain/errors/user-listing-not-allowed.error'
 import type { GetUsersResponseDto } from '../dtos/get-users-response.dto'
 
 export interface GetUsersActor {
@@ -8,13 +10,10 @@ export interface GetUsersActor {
 }
 
 export class GetUsersUseCase {
-  constructor(
-    private readonly domain: ValidateGetUsersDomainService,
-    private readonly repository: IFindAllUsersRepository,
-  ) {}
+  constructor(private readonly repository: IFindAllUsersRepository) {}
 
   async execute(actor: GetUsersActor): Promise<GetUsersResponseDto[]> {
-    this.domain.execute(actor.role)
+    authorizeRole(actor.role, { [USER_ROLES.ADMIN]: true }, new UserListingNotAllowedError())
 
     const users = await this.repository.findAll()
 

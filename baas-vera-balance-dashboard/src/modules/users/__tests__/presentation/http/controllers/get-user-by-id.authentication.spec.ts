@@ -10,7 +10,7 @@ import type { GetUserByIdActor } from '../../../../domain/services/validate-get-
 
 jest.mock('../../../../infrastructure/models/user.model', () => ({ UserModel: { get: jest.fn(), query: jest.fn(), scan: jest.fn() } }))
 
-// Exercise the real guard, signed JWT, route pipe and trusted @CurrentUser without a network listener.
+// Exercise the real guard, signed JWT, route parameter and trusted @CurrentUser without a network listener.
 describe('GET /users/{userId} authentication integration', () => {
   let app: INestApplication
   let guard: AuthenticationGuard
@@ -45,10 +45,8 @@ describe('GET /users/{userId} authentication integration', () => {
       pipes?: { transform: (value: string, metadata: object) => Promise<string> }[]
       factory?: (data: unknown, context: ExecutionContextHost) => GetUserByIdActor
     }[]
-    const idParameter = metadata.find((parameter) => parameter.data === 'userId')!
     const currentUser = metadata.find((parameter) => parameter.factory)!
-    const id = await idParameter.pipes![0].transform(userId, { type: 'param', data: 'userId', metatype: String })
-    return controller.execute(id, currentUser.factory!(undefined, execution))
+    return controller.execute(request.params.userId, currentUser.factory!(undefined, execution))
   }
 
   beforeAll(async () => {
@@ -92,10 +90,10 @@ describe('GET /users/{userId} authentication integration', () => {
     expect(get).not.toHaveBeenCalled()
   })
 
-  it('rejects an invalid UUID with 400 before looking up the requested user', async () => {
-    await expect(invoke('invalid', signer.sign({ sub: actorId }))).rejects.toMatchObject({ status: 400 })
-    expect(get).toHaveBeenCalledTimes(1)
-    expect(get).toHaveBeenCalledWith({ pk: actorId, sk: 'USER' })
+  it('looks up a string identifier without requiring UUID format', async () => {
+    rows.set('user-123', { ...rows.get(targetId), pk: 'user-123' })
+    await expect(invoke('user-123', signer.sign({ sub: actorId }))).resolves.toMatchObject({ id: 'user-123' })
+    expect(get).toHaveBeenNthCalledWith(2, { pk: 'user-123', sk: 'USER' })
   })
 
   it.each(['Activo', 'Inactivo'])('returns the public user with status %s through GetItem', async (status) => {

@@ -1,3 +1,4 @@
+import { UserStatusUpdateNotAllowedError } from '../../../domain/errors/user-status-update-not-allowed.error'
 import { UserDeletionNotAllowedError } from '../../../domain/errors/user-deletion-not-allowed.error'
 import { UserDeletionConflictError } from '../../../domain/errors/user-deletion-conflict.error'
 import { UserHasTherapeuticProcessesError } from '../../../domain/errors/user-has-therapeutic-processes.error'
@@ -34,6 +35,7 @@ export class UserErrorTranslator {
     }
 
     if (
+      error instanceof UserStatusUpdateNotAllowedError ||
       error instanceof UserDeletionNotAllowedError ||
       error instanceof UserCreationNotAllowedError ||
       error instanceof UserListingNotAllowedError ||

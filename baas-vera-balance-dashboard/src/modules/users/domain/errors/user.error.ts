@@ -4,12 +4,6 @@ export class UserAlreadyExistsError extends Error {
   }
 }
 
-export class UserCreationNotAllowedError extends Error {
-  constructor() {
-    super('No tienes permisos para crear este usuario.')
-  }
-}
-
 export class MissingUserNameError extends Error {
   constructor() {
     super('El nombre del usuario es obligatorio.')

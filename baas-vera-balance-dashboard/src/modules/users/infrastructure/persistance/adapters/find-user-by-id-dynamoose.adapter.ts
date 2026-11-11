@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common'
 
 import { UserModel } from '../models/user.model'
-import { UserMapper } from '../mappers/user.mapper'
+import { UserMapper } from '../../mappers/user.mapper'
 
-import type { IUserRepository } from '../../domain/repositories/user.repository'
-import type { UserEntity } from '../../domain/entities/user.entity'
+import type { IUserRepository } from '../../../domain/repositories/user.repository'
+import type { UserEntity } from '../../../domain/entities/user.entity'
 
 @Injectable()
 export class FindUserByIdDynamooseAdapter implements Pick<IUserRepository, 'findById'> {

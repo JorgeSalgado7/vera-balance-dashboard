@@ -1,5 +1,5 @@
 import * as dynamoose from 'dynamoose'
-import { UpdateUserDynamooseAdapter } from '../../../infrastructure/adapters/update-user-dynamoose.adapter'
+import { UpdateUserDynamooseAdapter } from '../../../infrastructure/persistance/adapters/update-user-dynamoose.adapter'
 import { UserEntity } from '../../../domain/entities/user.entity'
 import { USER_ROLES } from '../../../../../constants/user-roles.constant'
 

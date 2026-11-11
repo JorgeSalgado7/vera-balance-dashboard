@@ -1,12 +1,10 @@
 import { Test } from '@nestjs/testing'
 import { UpdateUserUseCase } from '../../../application/use-cases/update-user.use-case'
 import { UpdateUserDomainService } from '../../../domain/services/update-user.domain-service'
-import { ValidateUpdateUserAccessDomainService } from '../../../domain/services/validate-update-user-access.domain-service'
 import type { IUserRepository } from '../../../domain/repositories/user.repository'
 import type { IUpdateUserRepository } from '../../../domain/repositories/update-user.repository'
 import { UserNotFoundError } from '../../../domain/errors/user-not-found.error'
-import { UserUpdateNotAllowedError } from '../../../domain/errors/user-update-not-allowed.error'
-import { UserAlreadyExistsError } from '../../../domain/errors/user.error'
+import { InvalidUserUpdateFieldsError } from '../../../domain/errors/invalid-user-update-fields.error'
 import { UserEntity } from '../../../domain/entities/user.entity'
 import { USER_ROLES } from '../../../../../constants/user-roles.constant'
 
@@ -41,14 +39,13 @@ describe('UpdateUserUseCase', () => {
     const module = await Test.createTestingModule({
       providers: [
         UpdateUserDomainService,
-        ValidateUpdateUserAccessDomainService,
         { provide: 'IUserRepository', useValue: { findById, findByEmail } },
         { provide: 'IUpdateUserRepository', useValue: { update } },
         {
           provide: UpdateUserUseCase,
-          inject: [ValidateUpdateUserAccessDomainService, UpdateUserDomainService, 'IUserRepository', 'IUpdateUserRepository'],
-          useFactory: (access: ValidateUpdateUserAccessDomainService, domain: UpdateUserDomainService, users: IUserRepository, updater: IUpdateUserRepository) =>
-            new UpdateUserUseCase(access, domain, users, updater),
+          inject: [UpdateUserDomainService, 'IUserRepository', 'IUpdateUserRepository'],
+          useFactory: (domain: UpdateUserDomainService, users: IUserRepository, updater: IUpdateUserRepository) =>
+            new UpdateUserUseCase(domain, users, updater),
         },
       ],
     }).compile()
@@ -57,7 +54,7 @@ describe('UpdateUserUseCase', () => {
   })
 
   it('reads by ID, updates only the supplied fields, preserves other values and returns public data', async () => {
-    const result = await useCase.execute(user.pk, { name: ' New ' }, admin)
+    const result = await useCase.execute(user.pk, { name: ' New ' })
     expect(findById).toHaveBeenCalledWith(user.pk)
     expect(update).toHaveBeenCalledWith(user, { name: 'New' }, expect.any(String))
     expect(result).toMatchObject({ id: user.pk, name: 'New', email: user.email, status: 'Inactivo', created_at: user.created_at })
@@ -71,58 +68,33 @@ describe('UpdateUserUseCase', () => {
   it('uses a strictly increasing timestamp even when the stored timestamp is ahead of the clock', async () => {
     const current = { ...user, updated_at: '2099-01-01T00:00:00.000Z' }
     findById.mockResolvedValue(current)
-    const result = await useCase.execute(user.pk, { name: 'New' }, admin)
+    const result = await useCase.execute(user.pk, { name: 'New' })
     expect(result.updated_at).toBe('2099-01-01T00:00:00.001Z')
   })
 
-  it('normalizes a changed email and checks for duplicates before any write', async () => {
-    const result = await useCase.execute(user.pk, { email: ' NEW@EXAMPLE.COM ' }, admin)
-    expect(findByEmail).toHaveBeenCalledWith('new@example.com')
-    expect(update).toHaveBeenCalledWith(user, { email: 'new@example.com' }, expect.any(String))
-    expect(result.email).toBe('new@example.com')
-    expect(findByEmail.mock.invocationCallOrder[0]).toBeLessThan(update.mock.invocationCallOrder[0])
-  })
-
-  it('rejects duplicate email without applying any field from the patch', async () => {
-    findByEmail.mockResolvedValue({ ...user, pk: 'other-user' })
-    await expect(useCase.execute(user.pk, { email: 'other@example.com', name: 'New' }, admin)).rejects.toBeInstanceOf(UserAlreadyExistsError)
-    expect(update).not.toHaveBeenCalled()
-  })
-
-  it('does not reject the same user returned by email lookup', async () => {
-    findByEmail.mockResolvedValue(user)
-    await expect(useCase.execute(user.pk, { email: 'new@example.com' }, admin)).resolves.toMatchObject({ email: 'new@example.com' })
-  })
-
-  it.each([USER_ROLES.CLINIC, USER_ROLES.THERAPIST])('allows authorized profile updates by %s but rejects email and privilege changes atomically', async (role) => {
-    const actor = { id: user.pk, role, clinic: user.clinic }
-    await expect(useCase.execute(user.pk, { name: 'New' }, actor)).resolves.toMatchObject({ name: 'New' })
-    update.mockClear()
-    await expect(useCase.execute(user.pk, { name: 'New', email: 'new@example.com' }, actor)).rejects.toBeInstanceOf(UserUpdateNotAllowedError)
-    await expect(useCase.execute(user.pk, { role: USER_ROLES.ADMIN }, actor)).rejects.toBeInstanceOf(UserUpdateNotAllowedError)
-    await expect(useCase.execute(user.pk, { clinic: null }, actor)).rejects.toBeInstanceOf(UserUpdateNotAllowedError)
+  it.each(['other@example.com', user.email, null, undefined])('rejects any supplied email (%s) without a write or lookup', async email => {
+    await expect(useCase.execute(user.pk, { name: 'New', ...{ email } })).rejects.toBeInstanceOf(InvalidUserUpdateFieldsError)
     expect(findByEmail).not.toHaveBeenCalled()
     expect(update).not.toHaveBeenCalled()
   })
 
-  it.each([USER_ROLES.CLINIC, USER_ROLES.THERAPIST])('allows an unchanged normalized email from %s without querying email availability', async (role) => {
-    await useCase.execute(user.pk, { email: ' USER@EXAMPLE.COM ' }, { id: user.pk, role, clinic: user.clinic })
+  it('updates other allowed fields while preserving email', async () => {
+    await expect(useCase.execute(user.pk, { role: USER_ROLES.ADMIN, clinic: null })).resolves.toMatchObject({ email: user.email, role: USER_ROLES.ADMIN, clinic: null })
     expect(findByEmail).not.toHaveBeenCalled()
-    expect(update).toHaveBeenCalledWith(user, { email: 'user@example.com' }, expect.any(String))
+    expect(update).toHaveBeenCalledWith(user, { role: USER_ROLES.ADMIN, clinic: null }, expect.any(String))
   })
 
   it('returns not found before performing authorization or a write', async () => {
     findById.mockResolvedValue(null)
-    await expect(useCase.execute(user.pk, { name: 'New' }, admin)).rejects.toBeInstanceOf(UserNotFoundError)
+    await expect(useCase.execute(user.pk, { name: 'New' })).rejects.toBeInstanceOf(UserNotFoundError)
     expect(update).not.toHaveBeenCalled()
   })
 
-  it.each(['read', 'email', 'write'])('propagates %s failures without reporting success', async (operation) => {
+  it.each(['read', 'write'])('propagates %s failures without reporting success', async (operation) => {
     const error = new Error('Storage unavailable')
     if (operation === 'read') findById.mockRejectedValue(error)
-    if (operation === 'email') findByEmail.mockRejectedValue(error)
     if (operation === 'write') update.mockRejectedValue(error)
-    await expect(useCase.execute(user.pk, { email: 'new@example.com' }, admin)).rejects.toBe(error)
+    await expect(useCase.execute(user.pk, { name: 'New' })).rejects.toBe(error)
     if (operation !== 'write') expect(update).not.toHaveBeenCalled()
   })
 })

@@ -6,6 +6,7 @@ import { HttpProblem } from './shared/http-problem/http-problem.util'
 import { SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module'
 import { openApiHeader } from './docs/openapi.header';
+import { usersOperationsSorter } from './docs/users-operations-sorter'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
@@ -49,7 +50,9 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpProblemFilter())
 	
 	const documentation = SwaggerModule.createDocument(app, openApiHeader)
-	SwaggerModule.setup('docs', app, documentation)
+	SwaggerModule.setup('docs', app, documentation, {
+    swaggerOptions: { operationsSorter: usersOperationsSorter },
+  })
 
   await app.listen(process.env.PORT ?? 3000)
 }

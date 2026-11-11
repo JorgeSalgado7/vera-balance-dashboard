@@ -5,7 +5,6 @@ import * as errors from '../../../../domain/errors/user.error'
 describe('UserErrorTranslator', () => {
   it.each([
     [errors.UserAlreadyExistsError, 409],
-    [errors.UserCreationNotAllowedError, 403],
     [errors.MissingUserNameError, 400],
     [errors.MissingUserEmailError, 400],
     [errors.InvalidUserEmailError, 400],

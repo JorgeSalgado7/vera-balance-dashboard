@@ -18,10 +18,10 @@ describe('GET /users OpenAPI contract', () => {
   it('documents the approved GET route, array response and errors with no additional parameters', () => {
     const operation = document.paths['/users'].get!
     expect(operation.operationId).toBe('getUsers')
-    expect(operation.security).toEqual([{ bearerAuth: [] }])
+    expect(operation.security ?? []).toEqual([])
     expect(operation.parameters ?? []).toEqual([])
     expect(operation.requestBody).toBeUndefined()
-    expect(Object.keys(operation.responses).sort()).toEqual(['200', '401', '403', '500'])
+    expect(Object.keys(operation.responses).sort()).toEqual(['200', '500'])
     expect(operation.responses['200']).toMatchObject({ content: { 'application/json': { schema: { type: 'array', items: { $ref: '#/components/schemas/GetUsersResponseDto' } } } } })
   })
 

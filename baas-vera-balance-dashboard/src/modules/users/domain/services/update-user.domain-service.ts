@@ -4,7 +4,7 @@ import type { UserEntity } from '../entities/user.entity'
 import type { UpdateUserChanges } from '../interfaces/update-user-changes'
 import { EmptyUserUpdateError } from '../errors/empty-user-update.error'
 import { InvalidUserUpdateFieldsError } from '../errors/invalid-user-update-fields.error'
-import { MissingUserNameError, MissingUserEmailError, InvalidUserEmailError, MissingUserProfessionalLicenseError, InvalidUserRoleError, InvalidUserClinicError } from '../errors/user.error'
+import { MissingUserNameError, MissingUserProfessionalLicenseError, InvalidUserRoleError, InvalidUserClinicError } from '../errors/user.error'
 
 export class UpdateUserDomainService {
   execute(user: UserEntity, changes: UpdateUserChanges): UpdateUserChanges {
@@ -15,12 +15,6 @@ export class UpdateUserDomainService {
     if (changes.name !== undefined) {
       if (typeof changes.name !== 'string' || !changes.name.trim()) throw new MissingUserNameError()
       result.name = changes.name.trim()
-    }
-    if (changes.email !== undefined) {
-      if (typeof changes.email !== 'string' || !changes.email.trim()) throw new MissingUserEmailError()
-      const email = changes.email.trim().toLowerCase()
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new InvalidUserEmailError()
-      result.email = email
     }
     if (changes.professional_license !== undefined) {
       if (typeof changes.professional_license !== 'string' || !changes.professional_license.trim()) throw new MissingUserProfessionalLicenseError()

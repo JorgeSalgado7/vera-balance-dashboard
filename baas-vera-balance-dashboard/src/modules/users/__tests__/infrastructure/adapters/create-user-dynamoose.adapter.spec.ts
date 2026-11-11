@@ -1,9 +1,9 @@
-import { CreateUserDynamooseAdapter } from '../../../infrastructure/adapters/create-user-dynamoose.adapter'
-import { UserModel } from '../../../infrastructure/models/user.model'
+import { CreateUserDynamooseAdapter } from '../../../infrastructure/persistance/adapters/create-user-dynamoose.adapter'
+import { UserModel } from '../../../infrastructure/persistance/models/user.model'
 import { UserEntity } from '../../../domain/entities/user.entity'
 import { USER_ROLES } from '../../../../../constants/user-roles.constant'
 
-jest.mock('../../../infrastructure/models/user.model', () => ({ UserModel: { create: jest.fn() } }))
+jest.mock('../../../infrastructure/persistance/models/user.model', () => ({ UserModel: { create: jest.fn() } }))
 
 describe('CreateUserDynamooseAdapter', () => {
   const create = jest.mocked(UserModel.create)

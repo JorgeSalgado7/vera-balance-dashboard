@@ -1,22 +1,18 @@
 import type { IUserRepository } from '../../domain/repositories/user.repository'
-import { ValidateGetUserByIdDomainService, type GetUserByIdActor } from '../../domain/services/validate-get-user-by-id.domain-service'
 import { UserNotFoundError } from '../../domain/errors/user-not-found.error'
 import type { GetUserByIdResponseDto } from '../dtos/get-user-by-id-response.dto'
 
 export class GetUserByIdUseCase {
   constructor(
-    private readonly domain: ValidateGetUserByIdDomainService,
     private readonly repository: Pick<IUserRepository, 'findById'>,
   ) {}
 
-  async execute(userId: string, actor: GetUserByIdActor): Promise<GetUserByIdResponseDto> {
+  async execute(userId: string): Promise<GetUserByIdResponseDto> {
     const user = await this.repository.findById(userId)
 
     if (!user) {
       throw new UserNotFoundError()
     }
-
-    this.domain.execute(actor, user)
 
     return {
       id: user.pk,

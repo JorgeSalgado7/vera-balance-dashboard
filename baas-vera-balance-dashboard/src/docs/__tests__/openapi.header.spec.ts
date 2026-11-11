@@ -7,10 +7,10 @@ describe('OpenAPI header', () => {
     expect(openApiHeader.info.description).toContain('API REST para la gestión de Vera Balance.')
   })
 
-  it('declares the relative server, module tags and global bearer authentication', () => {
+  it('declares the relative server, module tags without global authentication', () => {
     expect(openApiHeader.servers).toEqual([expect.objectContaining({ url: '/' })])
     expect(openApiHeader.tags?.map((tag) => tag.name)).toEqual(['Auth', 'Users', 'Clinics', 'Patients', 'Therapy Types', 'Therapeutic Processes', 'Records', 'HomeWorks'])
-    expect(openApiHeader.components?.securitySchemes).toMatchObject({ bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' } })
-    expect(openApiHeader.security).toEqual([{ bearerAuth: [] }])
+    expect(openApiHeader.components?.securitySchemes?.bearerAuth).toBeUndefined()
+    expect(openApiHeader.security ?? []).toEqual([])
   })
 })

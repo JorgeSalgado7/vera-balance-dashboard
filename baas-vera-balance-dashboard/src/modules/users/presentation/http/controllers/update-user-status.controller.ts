@@ -1,15 +1,12 @@
 import { Body, Controller, Inject, Param, Patch } from '@nestjs/common'
-import { CurrentUser } from '@nestjs/authentication'
-import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { UpdateUserStatusUseCase } from '../../../application/use-cases/update-user-status.use-case'
 import { UpdateUserStatusDto } from '../../../application/dtos/update-user-status.dto'
 import { UpdateUserStatusResponseDto } from '../../../application/dtos/update-user-status-response.dto'
-import type { UserRole } from '../../../../../constants/user-roles.constant'
 import { UserErrorTranslator } from '../errors/user-error.translator'
 
 @Controller('users')
 @ApiTags('Users')
-@ApiBearerAuth('bearerAuth')
 export class UpdateUserStatusController {
   constructor(@Inject(UpdateUserStatusUseCase) private readonly useCase: UpdateUserStatusUseCase) {}
 
@@ -18,17 +15,14 @@ export class UpdateUserStatusController {
   @ApiParam({ name: 'userId', required: true, description: 'ID del usuario', type: String })
   @ApiResponse({ status: 200, description: 'Estatus actualizado', type: UpdateUserStatusResponseDto })
   @ApiResponse({ status: 400 })
-  @ApiResponse({ status: 401 })
-  @ApiResponse({ status: 403 })
   @ApiResponse({ status: 404 })
   @ApiResponse({ status: 500 })
   async execute(
     @Param('userId') userId: string,
     @Body() dto: UpdateUserStatusDto,
-    @CurrentUser() actor: { id: string; role: UserRole; clinic: string | null },
   ): Promise<UpdateUserStatusResponseDto> {
     try {
-      return await this.useCase.execute(userId, dto, actor)
+      return await this.useCase.execute(userId, dto)
     } catch (error) {
       UserErrorTranslator.translate(error, `/users/${userId}/status`)
       throw error

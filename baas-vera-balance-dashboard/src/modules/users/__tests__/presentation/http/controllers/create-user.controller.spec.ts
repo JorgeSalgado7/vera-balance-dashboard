@@ -2,12 +2,11 @@ import { Test } from '@nestjs/testing'
 import { HttpException } from '@nestjs/common'
 import { CreateUserController } from '../../../../presentation/http/controllers/create-user.controller'
 import { CreateUserUseCase } from '../../../../application/use-cases/create-user.use-case'
-import type { CreateUserActor } from '../../../../application/use-cases/create-user.use-case'
 import { UserAlreadyExistsError, UserCreationNotAllowedError, MissingUserNameError } from '../../../../domain/errors/user.error'
 import { USER_ROLES } from '../../../../../../constants/user-roles.constant'
 
 const dto = { name: 'User', email: 'user@example.com', password: 'Password123!', professional_license: '123', role: USER_ROLES.THERAPIST, clinic: '11111111-1111-4111-8111-111111111111' }
-const actor: CreateUserActor = { id: 'admin-1', role: USER_ROLES.ADMIN, clinic: null }
+const actor = { id: 'admin-1', role: USER_ROLES.ADMIN, clinic: null }
 
 describe('CreateUserController', () => {
   const execute = jest.fn()
@@ -32,19 +31,18 @@ describe('CreateUserController', () => {
       updated_at: '2026-10-28T00:00:00.000Z',
     }
     execute.mockResolvedValue(response)
-    await expect(controller.execute(dto, actor)).resolves.toBe(response)
-    expect(execute).toHaveBeenCalledWith(dto, actor)
+    await expect(controller.execute(dto)).resolves.toBe(response)
+    expect(execute).toHaveBeenCalledWith(dto)
     expect(execute).toHaveBeenCalledTimes(1)
   })
 
   it.each([
     [new UserAlreadyExistsError(), 409],
-    [new UserCreationNotAllowedError(), 403],
     [new MissingUserNameError(), 400],
   ])('translates a use case error to HTTP %s', async (error, status) => {
     execute.mockRejectedValue(error)
     try {
-      await controller.execute(dto, actor)
+      await controller.execute(dto)
       throw new Error('Expected controller failure')
     } catch (translated) {
       expect(translated).toBeInstanceOf(HttpException)
@@ -56,6 +54,6 @@ describe('CreateUserController', () => {
   it('rethrows unknown failures without replacing their cause', async () => {
     const error = new Error('Database unavailable')
     execute.mockRejectedValue(error)
-    await expect(controller.execute(dto, actor)).rejects.toBe(error)
+    await expect(controller.execute(dto)).rejects.toBe(error)
   })
 })

@@ -1,8 +1,6 @@
 import { Test } from '@nestjs/testing'
 import { GetUserByIdUseCase } from '../../../application/use-cases/get-user-by-id.use-case'
-import { ValidateGetUserByIdDomainService } from '../../../domain/services/validate-get-user-by-id.domain-service'
 import { UserNotFoundError } from '../../../domain/errors/user-not-found.error'
-import { UserConsultationNotAllowedError } from '../../../domain/errors/user-consultation-not-allowed.error'
 import type { IUserRepository } from '../../../domain/repositories/user.repository'
 import { UserEntity } from '../../../domain/entities/user.entity'
 import { USER_ROLES } from '../../../../../constants/user-roles.constant'
@@ -37,12 +35,11 @@ describe('GetUserByIdUseCase', () => {
     findById.mockResolvedValue(user)
     const module = await Test.createTestingModule({
       providers: [
-        ValidateGetUserByIdDomainService,
         { provide: 'IUserRepository', useValue: { findById } },
         {
           provide: GetUserByIdUseCase,
-          inject: [ValidateGetUserByIdDomainService, 'IUserRepository'],
-          useFactory: (domain: ValidateGetUserByIdDomainService, repository: IUserRepository) => new GetUserByIdUseCase(domain, repository),
+          inject: ['IUserRepository'],
+          useFactory: (repository: IUserRepository) => new GetUserByIdUseCase(repository),
         },
       ],
     }).compile()
@@ -52,32 +49,27 @@ describe('GetUserByIdUseCase', () => {
 
   it.each(['Activo', 'Inactivo'] as const)('returns user with status %s to the administrator', async (status) => {
     findById.mockResolvedValue({ ...user, status, clinic: null })
-    await expect(useCase.execute(userId, admin)).resolves.toMatchObject({ id: userId, status, clinic: null })
+    await expect(useCase.execute(userId)).resolves.toMatchObject({ id: userId, status, clinic: null })
     expect(findById).toHaveBeenCalledWith(userId)
     expect(findById).toHaveBeenCalledTimes(1)
   })
 
   it.each([
     { id: 'clinic-user', role: USER_ROLES.CLINIC, clinic: 'clinic-1' },
-    { id: userId, role: USER_ROLES.THERAPIST, clinic: 'clinic-1' },
+    { id: 'therapist-2', role: USER_ROLES.THERAPIST, clinic: 'clinic-1' },
   ])('allows the authorized actor %j', async (actor) => {
-    await expect(useCase.execute(userId, actor)).resolves.toMatchObject({ id: userId })
+    await expect(useCase.execute(userId)).resolves.toMatchObject({ id: userId })
   })
 
-  it.each([
-    { id: 'clinic-user', role: USER_ROLES.CLINIC, clinic: 'other-clinic' },
-    { id: 'therapist-2', role: USER_ROLES.THERAPIST, clinic: 'clinic-1' },
-  ])('rejects the unauthorized actor %j', async (actor) => {
-    await expect(useCase.execute(userId, actor)).rejects.toBeInstanceOf(UserConsultationNotAllowedError)
-  })
+
 
   it('returns a not-found error when the requested user does not exist', async () => {
     findById.mockResolvedValue(null)
-    await expect(useCase.execute(userId, admin)).rejects.toBeInstanceOf(UserNotFoundError)
+    await expect(useCase.execute(userId)).rejects.toBeInstanceOf(UserNotFoundError)
   })
 
   it('returns exactly the public User fields without mutating the stored entity', async () => {
-    const result = await useCase.execute(userId, admin)
+    const result = await useCase.execute(userId)
     expect(result).toEqual({
       id: userId,
       name: user.name,
@@ -97,6 +89,6 @@ describe('GetUserByIdUseCase', () => {
   it('propagates database failures rather than returning not found', async () => {
     const error = new Error('GetItem unavailable')
     findById.mockRejectedValue(error)
-    await expect(useCase.execute(userId, admin)).rejects.toBe(error)
+    await expect(useCase.execute(userId)).rejects.toBe(error)
   })
 })

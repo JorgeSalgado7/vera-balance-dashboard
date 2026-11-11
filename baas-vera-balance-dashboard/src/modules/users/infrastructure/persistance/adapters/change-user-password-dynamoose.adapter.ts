@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common'
 import { Condition } from 'dynamoose'
 import { UserModel } from '../models/user.model'
-import type { UserEntity } from '../../domain/entities/user.entity'
-import type { IChangeUserPasswordRepository } from '../../domain/repositories/change-user-password.repository'
-import { UserNotFoundError } from '../../domain/errors/user-not-found.error'
+import type { UserEntity } from '../../../domain/entities/user.entity'
+import type { IChangeUserPasswordRepository } from '../../../domain/repositories/change-user-password.repository'
+import { UserNotFoundError } from '../../../domain/errors/user-not-found.error'
 
 @Injectable()
 export class ChangeUserPasswordDynamooseAdapter implements IChangeUserPasswordRepository {

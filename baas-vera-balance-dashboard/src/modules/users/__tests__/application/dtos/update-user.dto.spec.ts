@@ -7,17 +7,17 @@ import { USER_ROLES } from '../../../../../constants/user-roles.constant'
 const options = { whitelist: true, forbidNonWhitelisted: true }
 
 describe('UpdateUserDto', () => {
-  it.each([{ name: 'User' }, { email: 'new@example.com' }, { professional_license: '123' }, { role: USER_ROLES.ADMIN }, { clinic: null }, { clinic: '11111111-1111-4111-8111-111111111111' }])(
+  it.each([{ name: 'User' }, { professional_license: '123' }, { role: USER_ROLES.ADMIN }, { clinic: null }, { clinic: '11111111-1111-4111-8111-111111111111' }])(
     'accepts a partial patch %j',
     async (body) => {
       expect(await validate(plainToInstance(UpdateUserDto, body), options)).toEqual([])
     },
   )
 
-  it('normalizes email before validation', async () => {
-    const body = plainToInstance(UpdateUserDto, { email: ' NEW@EXAMPLE.COM ' })
-    expect(await validate(body, options)).toEqual([])
-    expect(body.email).toBe('new@example.com')
+  it.each(['new@example.com', ' USER@EXAMPLE.COM ', null])('rejects email in a patch (%s)', async email => {
+    const body = plainToInstance(UpdateUserDto, { name: 'New', email })
+    const errors = await validate(body, options)
+    expect(errors.some(error => error.property === 'email')).toBe(true)
   })
 
   it.each([

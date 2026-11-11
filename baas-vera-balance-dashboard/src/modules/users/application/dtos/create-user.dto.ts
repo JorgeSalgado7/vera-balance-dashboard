@@ -1,7 +1,7 @@
 import { USER_ROLE_VALUES } from '../../../../constants/user-roles.constant'
 import type { UserRole } from '../../../../constants/user-roles.constant'
 import { IsEmail, IsIn, IsNotEmpty, IsString, IsUUID, ValidateIf } from 'class-validator'
-import { ApiProperty } from '@nestjs/swagger'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 
 export class CreateUserDto {
   @IsString()
@@ -27,11 +27,11 @@ export class CreateUserDto {
   @ApiProperty({ enum: USER_ROLE_VALUES })
   role!: UserRole
 
-  @ValidateIf((_, value) => value !== null)
+  @ValidateIf((_, value) => value !== null && value !== undefined)
   @IsUUID()
-  @ApiProperty({
+  @ApiPropertyOptional({
     type: String,
     nullable: true,
   })
-  clinic!: string | null
+  clinic?: string | null
 }

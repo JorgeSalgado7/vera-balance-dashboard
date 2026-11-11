@@ -3,7 +3,6 @@ import { HttpException } from '@nestjs/common'
 import { UpdateUserController } from '../../../../presentation/http/controllers/update-user.controller'
 import { UpdateUserUseCase } from '../../../../application/use-cases/update-user.use-case'
 import { UserNotFoundError } from '../../../../domain/errors/user-not-found.error'
-import { UserUpdateNotAllowedError } from '../../../../domain/errors/user-update-not-allowed.error'
 import { UserUpdateConflictError } from '../../../../domain/errors/user-update-conflict.error'
 import { EmptyUserUpdateError } from '../../../../domain/errors/empty-user-update.error'
 import { InvalidUserUpdateFieldsError } from '../../../../domain/errors/invalid-user-update-fields.error'
@@ -23,16 +22,15 @@ describe('UpdateUserController', () => {
     await module.close()
   })
 
-  it('passes the ID, partial DTO and trusted actor to the use case', async () => {
+  it('passes the ID, partial DTO to the use case', async () => {
     const result = { id, name: 'New' }
     execute.mockResolvedValue(result)
-    await expect(controller.execute(id, { name: 'New' }, actor)).resolves.toBe(result)
-    expect(execute).toHaveBeenCalledWith(id, { name: 'New' }, actor)
+    await expect(controller.execute(id, { name: 'New' })).resolves.toBe(result)
+    expect(execute).toHaveBeenCalledWith(id, { name: 'New' })
   })
 
   it.each([
     [new UserNotFoundError(), 404],
-    [new UserUpdateNotAllowedError(), 403],
     [new UserAlreadyExistsError(), 409],
     [new UserUpdateConflictError(), 409],
     [new EmptyUserUpdateError(), 400],
@@ -41,7 +39,7 @@ describe('UpdateUserController', () => {
     execute.mockRejectedValue(error)
     let translated: unknown
     try {
-      await controller.execute(id, { name: 'New' }, actor)
+      await controller.execute(id, { name: 'New' })
     } catch (result) {
       translated = result
     }
@@ -53,6 +51,6 @@ describe('UpdateUserController', () => {
   it('preserves unexpected failures for the global filter', async () => {
     const error = new Error('Storage unavailable')
     execute.mockRejectedValue(error)
-    await expect(controller.execute(id, { name: 'New' }, actor)).rejects.toBe(error)
+    await expect(controller.execute(id, { name: 'New' })).rejects.toBe(error)
   })
 })

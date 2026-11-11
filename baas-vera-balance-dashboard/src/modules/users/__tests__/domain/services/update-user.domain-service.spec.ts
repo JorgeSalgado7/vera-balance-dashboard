@@ -4,8 +4,6 @@ import { EmptyUserUpdateError } from '../../../domain/errors/empty-user-update.e
 import { InvalidUserUpdateFieldsError } from '../../../domain/errors/invalid-user-update-fields.error'
 import {
   MissingUserNameError,
-  MissingUserEmailError,
-  InvalidUserEmailError,
   MissingUserProfessionalLicenseError,
   InvalidUserRoleError,
   InvalidUserClinicError,
@@ -20,8 +18,8 @@ describe('UpdateUserDomainService', () => {
   const domain = new UpdateUserDomainService()
 
   it('normalizes only supplied fields without mutating inputs or requiring unrelated fields', () => {
-    const input = { name: ' User ', email: ' NEW@EXAMPLE.COM ', professional_license: ' 456 ' }
-    expect(domain.execute(user, input)).toEqual({ name: 'User', email: 'new@example.com', professional_license: '456' })
+    const input = { name: ' User ', professional_license: ' 456 ' }
+    expect(domain.execute(user, input)).toEqual({ name: 'User', professional_license: '456' })
     expect(input.name).toBe(' User ')
     expect(user.name).toBeUndefined()
   })
@@ -32,7 +30,7 @@ describe('UpdateUserDomainService', () => {
   })
 
   it('preserves missing fields and skips explicit undefined values', () => {
-    expect(domain.execute(user, { name: 'New', email: undefined })).toEqual({ name: 'New' })
+    expect(domain.execute(user, { name: 'New' })).toEqual({ name: 'New' })
     expect(domain.execute(user, { clinic })).toEqual({ clinic })
     expect(domain.execute(user, { role: USER_ROLES.THERAPIST })).toEqual({ role: USER_ROLES.THERAPIST })
   })
@@ -41,16 +39,16 @@ describe('UpdateUserDomainService', () => {
     expect(() => domain.execute(user, input)).toThrow(EmptyUserUpdateError)
   })
 
-  it.each(['password', 'status', 'pk', 'sk', 'created_at', 'updated_at', 'gsi1pk', 'gsi2pk', 'gsi3pk'])('rejects protected field %s', (field) => {
+  it.each(['email', 'password', 'status', 'pk', 'sk', 'created_at', 'updated_at', 'gsi1pk', 'gsi2pk', 'gsi3pk'])('rejects protected field %s', (field) => {
     expect(() => domain.execute(user, { name: 'New', [field]: 'forged' })).toThrow(InvalidUserUpdateFieldsError)
   })
 
   it.each([
     [{ name: ' ' }, MissingUserNameError],
     [{ name: null }, MissingUserNameError],
-    [{ email: '' }, MissingUserEmailError],
-    [{ email: null }, MissingUserEmailError],
-    [{ email: 'invalid' }, InvalidUserEmailError],
+    [{ email: '' }, InvalidUserUpdateFieldsError],
+    [{ email: null }, InvalidUserUpdateFieldsError],
+    [{ email: 'invalid' }, InvalidUserUpdateFieldsError],
     [{ professional_license: '' }, MissingUserProfessionalLicenseError],
     [{ professional_license: null }, MissingUserProfessionalLicenseError],
     [{ role: 'owner' }, InvalidUserRoleError],

@@ -1,4 +1,4 @@
-import { USER_ROLE_VALUES } from '../../../../constants/user-roles.constant'
+import { USER_ROLE_VALUES } from '../../../../../constants/user-roles.constant'
 import { Schema, model, type as dynamooseType } from 'dynamoose'
 
 const UserSchema = new Schema(
@@ -100,11 +100,7 @@ const UserSchema = new Schema(
   },
   {
     timestamps: false,
-    saveUnknown: false,
   },
 )
 
-export const UserModel = model(process.env.DYNAMO_TABLE_NAME!, UserSchema, {
-  create: false,
-  update: false,
-})
+export const UserModel = model(process.env.DYNAMO_TABLE_NAME!, UserSchema)

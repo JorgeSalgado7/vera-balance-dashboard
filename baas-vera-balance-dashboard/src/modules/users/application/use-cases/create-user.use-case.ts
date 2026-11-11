@@ -1,6 +1,3 @@
-import { authorizeRole } from '../../../../shared/authorization/authorize-role'
-import { USER_ROLES } from '../../../../constants/user-roles.constant'
-import type { UserRole } from '../../../../constants/user-roles.constant'
 import { Inject, Injectable } from '@nestjs/common'
 import { randomUUID } from 'crypto'
 
@@ -10,15 +7,9 @@ import { CreateUserResponseDto } from '../dtos/create-user-response.dto'
 import { CreateUserDomainService } from '../../domain/services/create-user.domain-service'
 import type { IUserRepository } from '../../domain/repositories/user.repository'
 
-import { UserAlreadyExistsError, UserCreationNotAllowedError } from '../../domain/errors/user.error'
+import { UserAlreadyExistsError } from '../../domain/errors/user.error'
 
 import type { IHashPasswordService } from '../../../auth/domain/services/hash-password.service'
-
-export interface CreateUserActor {
-  id: string
-  role: UserRole
-  clinic: string | null
-}
 
 @Injectable()
 export class CreateUserUseCase {
@@ -32,16 +23,7 @@ export class CreateUserUseCase {
     private readonly hashPasswordService: IHashPasswordService,
   ) {}
 
-  async execute(dto: CreateUserDto, actor: CreateUserActor): Promise<CreateUserResponseDto> {
-    authorizeRole(
-      actor.role,
-      {
-        [USER_ROLES.ADMIN]: true,
-        [USER_ROLES.CLINIC]: dto.role === USER_ROLES.THERAPIST && actor.clinic !== null && dto.clinic === actor.clinic,
-      },
-      new UserCreationNotAllowedError(),
-    )
-
+  async execute(dto: CreateUserDto): Promise<CreateUserResponseDto> {
     const email = dto.email.trim().toLowerCase()
 
     const existingUser = await this.repository.findByEmail(email)
@@ -63,7 +45,7 @@ export class CreateUserUseCase {
       professional_license: dto.professional_license.trim(),
       role: dto.role,
       status: 'Activo',
-      clinic: dto.clinic,
+      clinic: dto.clinic ?? null,
       created_at: now,
       updated_at: now,
     })

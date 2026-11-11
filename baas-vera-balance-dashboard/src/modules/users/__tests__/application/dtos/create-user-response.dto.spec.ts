@@ -31,10 +31,11 @@ describe('CreateUserResponseDto OpenAPI contract', () => {
 
   it('documents POST /users with the DTO, creation response and documented error codes', () => {
     const operation = document.paths['/users'].post!
-    expect(Object.keys(operation.responses).sort()).toEqual(['201', '400', '401', '403', '409', '500'])
+    expect(Object.keys(operation.responses).sort()).toEqual(['201', '400', '409', '500'])
     expect(operation.responses['201']).toMatchObject({ content: { 'application/json': { schema: { $ref: '#/components/schemas/CreateUserResponseDto' } } } })
     expect(operation.requestBody).toMatchObject({ content: { 'application/json': { schema: { $ref: '#/components/schemas/CreateUserDto' } } } })
     const schema = document.components?.schemas?.CreateUserDto as { properties: Record<string, unknown> }
+    expect((document.components?.schemas?.CreateUserDto as { required?: string[] }).required).not.toContain('clinic')
     expect(schema.properties.password).toMatchObject({ format: 'password', writeOnly: true })
   })
 })

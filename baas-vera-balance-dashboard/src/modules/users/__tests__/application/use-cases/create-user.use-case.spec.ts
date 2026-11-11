@@ -1,6 +1,6 @@
 import { USER_ROLES } from '../../../../../constants/user-roles.constant'
 
-import { CreateUserUseCase, type CreateUserActor } from '../../../application/use-cases/create-user.use-case'
+import { CreateUserUseCase } from '../../../application/use-cases/create-user.use-case'
 
 import { CreateUserDomainService } from '../../../domain/services/create-user.domain-service'
 
@@ -32,23 +32,8 @@ describe('CreateUserUseCase', () => {
     clinic: clinicId,
   }
 
-  const adminActor: CreateUserActor = {
-    id: 'admin-123',
-    role: USER_ROLES.ADMIN,
-    clinic: null,
-  }
 
-  const clinicActor: CreateUserActor = {
-    id: 'clinic-123',
-    role: USER_ROLES.CLINIC,
-    clinic: clinicId,
-  }
 
-  const therapistActor: CreateUserActor = {
-    id: 'therapist-123',
-    role: USER_ROLES.THERAPIST,
-    clinic: clinicId,
-  }
 
   const savedUser = {
     pk: userId,
@@ -116,134 +101,17 @@ describe('CreateUserUseCase', () => {
   // AUTHORIZATION
   // =========================================
 
-  describe('Authorization', () => {
-    it('should reject therapist creating a user', async () => {
-      await expect(useCase.execute(baseDto, therapistActor)).rejects.toThrow(UserCreationNotAllowedError)
+  it('normalizes an omitted clinic to null before creating the entity', async () => {
+    mockSuccessfulCreation()
+    const { clinic, ...input } = baseDto
+    await useCase.execute(input)
+    expect(domain.create).toHaveBeenCalledWith(expect.objectContaining({ clinic: null }))
+  })
 
-      expect(repository.findByEmail).not.toHaveBeenCalled()
-      expect(hashPasswordService.hash).not.toHaveBeenCalled()
-      expect(domain.create).not.toHaveBeenCalled()
-      expect(repository.create).not.toHaveBeenCalled()
-    })
-
-    it('should reject clinic creating an admin', async () => {
-      await expect(
-        useCase.execute(
-          {
-            ...baseDto,
-            role: USER_ROLES.ADMIN,
-            clinic: null,
-          },
-          clinicActor,
-        ),
-      ).rejects.toThrow(UserCreationNotAllowedError)
-
-      expect(repository.findByEmail).not.toHaveBeenCalled()
-      expect(repository.create).not.toHaveBeenCalled()
-    })
-
-    it('should reject clinic creating another clinic user', async () => {
-      await expect(
-        useCase.execute(
-          {
-            ...baseDto,
-            role: USER_ROLES.CLINIC,
-          },
-          clinicActor,
-        ),
-      ).rejects.toThrow(UserCreationNotAllowedError)
-
-      expect(repository.findByEmail).not.toHaveBeenCalled()
-      expect(repository.create).not.toHaveBeenCalled()
-    })
-
-    it('should reject clinic creating therapist in another clinic', async () => {
-      await expect(
-        useCase.execute(
-          {
-            ...baseDto,
-            clinic: otherClinicId,
-          },
-          clinicActor,
-        ),
-      ).rejects.toThrow(UserCreationNotAllowedError)
-
-      expect(repository.findByEmail).not.toHaveBeenCalled()
-      expect(repository.create).not.toHaveBeenCalled()
-    })
-
-    it('should reject clinic without assigned clinic', async () => {
-      await expect(
-        useCase.execute(baseDto, {
-          ...clinicActor,
-          clinic: null,
-        }),
-      ).rejects.toThrow(UserCreationNotAllowedError)
-
-      expect(repository.findByEmail).not.toHaveBeenCalled()
-      expect(repository.create).not.toHaveBeenCalled()
-    })
-
-    it('should allow admin creating a therapist', async () => {
-      mockSuccessfulCreation()
-
-      const result = await useCase.execute(baseDto, adminActor)
-
-      expect(result.role).toBe(USER_ROLES.THERAPIST)
-      expect(repository.create).toHaveBeenCalledTimes(1)
-    })
-
-    it('should allow admin creating another admin', async () => {
-      mockSuccessfulCreation()
-
-      const dto: CreateUserDto = {
-        ...baseDto,
-        role: USER_ROLES.ADMIN,
-        clinic: null,
-      }
-
-      const result = await useCase.execute(dto, adminActor)
-
-      expect(result.id).toBe(savedUser.pk)
-
-      expect(domain.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          role: USER_ROLES.ADMIN,
-          clinic: null,
-        }),
-      )
-    })
-
-    it('should allow admin creating a clinic user', async () => {
-      mockSuccessfulCreation()
-
-      const dto: CreateUserDto = {
-        ...baseDto,
-        role: USER_ROLES.CLINIC,
-      }
-
-      await useCase.execute(dto, adminActor)
-
-      expect(domain.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          role: USER_ROLES.CLINIC,
-          clinic: clinicId,
-        }),
-      )
-
-      expect(repository.create).toHaveBeenCalledTimes(1)
-    })
-
-    it('should allow clinic creating therapist in its own clinic', async () => {
-      mockSuccessfulCreation()
-
-      const result = await useCase.execute(baseDto, clinicActor)
-
-      expect(result.clinic).toBe(clinicId)
-      expect(result.role).toBe(USER_ROLES.THERAPIST)
-
-      expect(repository.create).toHaveBeenCalledTimes(1)
-    })
+  it('creates a user without an authenticated actor', async () => {
+    mockSuccessfulCreation()
+    await expect(useCase.execute(baseDto)).resolves.toMatchObject({ id: savedUser.pk })
+    expect(repository.create).toHaveBeenCalled()
   })
 
   // =========================================
@@ -254,7 +122,7 @@ describe('CreateUserUseCase', () => {
     it('should throw UserAlreadyExistsError when email exists', async () => {
       repository.findByEmail.mockResolvedValue(savedUser)
 
-      await expect(useCase.execute(baseDto, adminActor)).rejects.toThrow(UserAlreadyExistsError)
+      await expect(useCase.execute(baseDto)).rejects.toThrow(UserAlreadyExistsError)
 
       expect(hashPasswordService.hash).not.toHaveBeenCalled()
       expect(domain.create).not.toHaveBeenCalled()
@@ -269,9 +137,7 @@ describe('CreateUserUseCase', () => {
           {
             ...baseDto,
             email: '  MONICA@EXAMPLE.COM  ',
-          },
-          adminActor,
-        ),
+          }),
       ).rejects.toThrow(UserAlreadyExistsError)
 
       expect(repository.findByEmail).toHaveBeenCalledWith('monica@example.com')
@@ -282,7 +148,7 @@ describe('CreateUserUseCase', () => {
     it('should check email before hashing password', async () => {
       mockSuccessfulCreation()
 
-      await useCase.execute(baseDto, adminActor)
+      await useCase.execute(baseDto)
 
       const findOrder = repository.findByEmail.mock.invocationCallOrder[0]
 
@@ -300,7 +166,7 @@ describe('CreateUserUseCase', () => {
     it('should hash the original password', async () => {
       mockSuccessfulCreation()
 
-      await useCase.execute(baseDto, adminActor)
+      await useCase.execute(baseDto)
 
       expect(hashPasswordService.hash).toHaveBeenCalledWith('Password123!')
 
@@ -310,7 +176,7 @@ describe('CreateUserUseCase', () => {
     it('should pass hashed password to domain', async () => {
       mockSuccessfulCreation()
 
-      await useCase.execute(baseDto, adminActor)
+      await useCase.execute(baseDto)
 
       expect(domain.create).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -322,7 +188,7 @@ describe('CreateUserUseCase', () => {
     it('should never pass plain password to domain', async () => {
       mockSuccessfulCreation()
 
-      await useCase.execute(baseDto, adminActor)
+      await useCase.execute(baseDto)
 
       expect(domain.create).not.toHaveBeenCalledWith(
         expect.objectContaining({
@@ -336,7 +202,7 @@ describe('CreateUserUseCase', () => {
 
       hashPasswordService.hash.mockRejectedValue(new Error('Hashing failed'))
 
-      await expect(useCase.execute(baseDto, adminActor)).rejects.toThrow('Hashing failed')
+      await expect(useCase.execute(baseDto)).rejects.toThrow('Hashing failed')
 
       expect(domain.create).not.toHaveBeenCalled()
       expect(repository.create).not.toHaveBeenCalled()
@@ -355,9 +221,7 @@ describe('CreateUserUseCase', () => {
         {
           ...baseDto,
           name: '  Mónica Vera  ',
-        },
-        adminActor,
-      )
+        })
 
       expect(domain.create).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -373,9 +237,7 @@ describe('CreateUserUseCase', () => {
         {
           ...baseDto,
           professional_license: '  12345678  ',
-        },
-        adminActor,
-      )
+        })
 
       expect(domain.create).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -391,9 +253,7 @@ describe('CreateUserUseCase', () => {
         {
           ...baseDto,
           email: '  MONICA@EXAMPLE.COM  ',
-        },
-        adminActor,
-      )
+        })
 
       expect(domain.create).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -405,7 +265,7 @@ describe('CreateUserUseCase', () => {
     it('should preserve clinic association', async () => {
       mockSuccessfulCreation()
 
-      await useCase.execute(baseDto, adminActor)
+      await useCase.execute(baseDto)
 
       expect(domain.create).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -423,7 +283,7 @@ describe('CreateUserUseCase', () => {
     it('should pass required data to domain service', async () => {
       mockSuccessfulCreation()
 
-      await useCase.execute(baseDto, adminActor)
+      await useCase.execute(baseDto)
 
       expect(domain.create).toHaveBeenCalledWith({
         id: expect.any(String),
@@ -447,7 +307,7 @@ describe('CreateUserUseCase', () => {
         throw new Error('Domain validation failed')
       })
 
-      await expect(useCase.execute(baseDto, adminActor)).rejects.toThrow('Domain validation failed')
+      await expect(useCase.execute(baseDto)).rejects.toThrow('Domain validation failed')
 
       expect(repository.create).not.toHaveBeenCalled()
     })
@@ -455,7 +315,7 @@ describe('CreateUserUseCase', () => {
     it('should persist the entity returned by domain', async () => {
       mockSuccessfulCreation()
 
-      await useCase.execute(baseDto, adminActor)
+      await useCase.execute(baseDto)
 
       expect(repository.create).toHaveBeenCalledWith(savedUser)
     })
@@ -463,7 +323,7 @@ describe('CreateUserUseCase', () => {
     it('should create domain entity only once', async () => {
       mockSuccessfulCreation()
 
-      await useCase.execute(baseDto, adminActor)
+      await useCase.execute(baseDto)
 
       expect(domain.create).toHaveBeenCalledTimes(1)
     })
@@ -477,7 +337,7 @@ describe('CreateUserUseCase', () => {
     it('should propagate error when finding email fails', async () => {
       repository.findByEmail.mockRejectedValue(new Error('DynamoDB query failed'))
 
-      await expect(useCase.execute(baseDto, adminActor)).rejects.toThrow('DynamoDB query failed')
+      await expect(useCase.execute(baseDto)).rejects.toThrow('DynamoDB query failed')
 
       expect(hashPasswordService.hash).not.toHaveBeenCalled()
       expect(domain.create).not.toHaveBeenCalled()
@@ -492,7 +352,7 @@ describe('CreateUserUseCase', () => {
 
       repository.create.mockRejectedValue(new Error('DynamoDB write failed'))
 
-      await expect(useCase.execute(baseDto, adminActor)).rejects.toThrow('DynamoDB write failed')
+      await expect(useCase.execute(baseDto)).rejects.toThrow('DynamoDB write failed')
 
       expect(repository.create).toHaveBeenCalledTimes(1)
     })
@@ -506,7 +366,7 @@ describe('CreateUserUseCase', () => {
     it('should return expected response DTO', async () => {
       mockSuccessfulCreation()
 
-      const result = await useCase.execute(baseDto, adminActor)
+      const result = await useCase.execute(baseDto)
 
       expect(result).toEqual(expectedResponse)
     })
@@ -514,7 +374,7 @@ describe('CreateUserUseCase', () => {
     it('should not expose password in response', async () => {
       mockSuccessfulCreation()
 
-      const result = await useCase.execute(baseDto, adminActor)
+      const result = await useCase.execute(baseDto)
 
       expect(result).not.toHaveProperty('password')
     })
@@ -522,7 +382,7 @@ describe('CreateUserUseCase', () => {
     it('should not expose DynamoDB keys or indexes', async () => {
       mockSuccessfulCreation()
 
-      const result = await useCase.execute(baseDto, adminActor)
+      const result = await useCase.execute(baseDto)
 
       expect(result).not.toHaveProperty('pk')
       expect(result).not.toHaveProperty('sk')
@@ -535,7 +395,7 @@ describe('CreateUserUseCase', () => {
     it('should generate a valid UUID', async () => {
       mockSuccessfulCreation()
 
-      await useCase.execute(baseDto, adminActor)
+      await useCase.execute(baseDto)
 
       expect(domain.create).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -547,7 +407,7 @@ describe('CreateUserUseCase', () => {
     it('should generate matching creation and update timestamps', async () => {
       mockSuccessfulCreation()
 
-      await useCase.execute(baseDto, adminActor)
+      await useCase.execute(baseDto)
 
       const data = domain.create.mock.calls[0][0]
 
@@ -559,7 +419,7 @@ describe('CreateUserUseCase', () => {
     it('should set initial status to Activo', async () => {
       mockSuccessfulCreation()
 
-      await useCase.execute(baseDto, adminActor)
+      await useCase.execute(baseDto)
 
       expect(domain.create).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -568,13 +428,12 @@ describe('CreateUserUseCase', () => {
       )
     })
 
-    it('should return saved user ID instead of actor ID', async () => {
+    it('should return the saved user ID', async () => {
       mockSuccessfulCreation()
 
-      const result = await useCase.execute(baseDto, adminActor)
+      const result = await useCase.execute(baseDto)
 
       expect(result.id).toBe(savedUser.pk)
-      expect(result.id).not.toBe(adminActor.id)
     })
 
     it('should return data from persisted entity', async () => {
@@ -587,7 +446,7 @@ describe('CreateUserUseCase', () => {
 
       repository.create.mockResolvedValue(persistedUser)
 
-      const result = await useCase.execute(baseDto, adminActor)
+      const result = await useCase.execute(baseDto)
 
       expect(result.name).toBe('Nombre actualizado en persistencia')
     })

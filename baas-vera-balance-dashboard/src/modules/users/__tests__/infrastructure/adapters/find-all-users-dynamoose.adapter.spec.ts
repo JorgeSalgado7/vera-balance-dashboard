@@ -1,8 +1,8 @@
-import { FindAllUsersDynamooseAdapter } from '../../../infrastructure/adapters/find-all-users-dynamoose.adapter'
-import { UserModel } from '../../../infrastructure/models/user.model'
+import { FindAllUsersDynamooseAdapter } from '../../../infrastructure/persistance/adapters/find-all-users-dynamoose.adapter'
+import { UserModel } from '../../../infrastructure/persistance/models/user.model'
 import { UserEntity } from '../../../domain/entities/user.entity'
 
-jest.mock('../../../infrastructure/models/user.model', () => ({ UserModel: { query: jest.fn(), scan: jest.fn() } }))
+jest.mock('../../../infrastructure/persistance/models/user.model', () => ({ UserModel: { query: jest.fn(), scan: jest.fn() } }))
 
 describe('FindAllUsersDynamooseAdapter', () => {
   const query = jest.mocked(UserModel.query)

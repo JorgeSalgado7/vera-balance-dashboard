@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common'
 import { Condition } from 'dynamoose'
 import { UserModel } from '../models/user.model'
-import type { UserEntity } from '../../domain/entities/user.entity'
-import type { IDeleteUserRepository } from '../../domain/repositories/delete-user.repository'
-import { UserNotFoundError } from '../../domain/errors/user-not-found.error'
-import { UserDeletionConflictError } from '../../domain/errors/user-deletion-conflict.error'
+import type { UserEntity } from '../../../domain/entities/user.entity'
+import type { IDeleteUserRepository } from '../../../domain/repositories/delete-user.repository'
+import { UserNotFoundError } from '../../../domain/errors/user-not-found.error'
+import { UserDeletionConflictError } from '../../../domain/errors/user-deletion-conflict.error'
 
 @Injectable()
 export class DeleteUserDynamooseAdapter implements IDeleteUserRepository {

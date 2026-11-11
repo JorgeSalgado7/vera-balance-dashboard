@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common'
 import { Condition } from 'dynamoose'
 import { UserModel } from '../models/user.model'
-import { UserMapper } from '../mappers/user.mapper'
-import type { UserEntity } from '../../domain/entities/user.entity'
-import type { IUpdateUserStatusRepository } from '../../domain/repositories/update-user-status.repository'
-import { UserNotFoundError } from '../../domain/errors/user-not-found.error'
+import { UserMapper } from '../../mappers/user.mapper'
+import type { UserEntity } from '../../../domain/entities/user.entity'
+import type { IUpdateUserStatusRepository } from '../../../domain/repositories/update-user-status.repository'
+import { UserNotFoundError } from '../../../domain/errors/user-not-found.error'
 
 @Injectable()
 export class UpdateUserStatusDynamooseAdapter implements IUpdateUserStatusRepository {

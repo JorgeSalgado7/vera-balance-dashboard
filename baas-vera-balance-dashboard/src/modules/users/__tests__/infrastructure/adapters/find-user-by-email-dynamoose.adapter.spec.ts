@@ -1,9 +1,9 @@
-import { FindUserByEmailDynamooseAdapter } from '../../../infrastructure/adapters/find-user-by-email-dynamoose.adapter'
-import { UserModel } from '../../../infrastructure/models/user.model'
+import { FindUserByEmailDynamooseAdapter } from '../../../infrastructure/persistance/adapters/find-user-by-email-dynamoose.adapter'
+import { UserModel } from '../../../infrastructure/persistance/models/user.model'
 import { UserEntity } from '../../../domain/entities/user.entity'
 import { USER_ROLES } from '../../../../../constants/user-roles.constant'
 
-jest.mock('../../../infrastructure/models/user.model', () => ({ UserModel: { query: jest.fn() } }))
+jest.mock('../../../infrastructure/persistance/models/user.model', () => ({ UserModel: { query: jest.fn() } }))
 
 describe('FindUserByEmailDynamooseAdapter', () => {
   const query = jest.mocked(UserModel.query)

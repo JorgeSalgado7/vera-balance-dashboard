@@ -4,7 +4,6 @@ import { ROUTE_ARGS_METADATA } from '@nestjs/common/constants'
 import { GetUserByIdController } from '../../../../presentation/http/controllers/get-user-by-id.controller'
 import { GetUserByIdUseCase } from '../../../../application/use-cases/get-user-by-id.use-case'
 import { UserNotFoundError } from '../../../../domain/errors/user-not-found.error'
-import { UserConsultationNotAllowedError } from '../../../../domain/errors/user-consultation-not-allowed.error'
 import { USER_ROLES } from '../../../../../../constants/user-roles.constant'
 
 const userId = '11111111-1111-4111-8111-111111111111'
@@ -21,21 +20,20 @@ describe('GetUserByIdController', () => {
     await module.close()
   })
 
-  it('passes userId and the trusted actor to the use case and returns the response unchanged', async () => {
+  it('passes userId to the use case and returns the response unchanged', async () => {
     const result = { id: userId }
     execute.mockResolvedValue(result)
-    await expect(controller.execute(userId, actor)).resolves.toBe(result)
-    expect(execute).toHaveBeenCalledWith(userId, actor)
+    await expect(controller.execute(userId)).resolves.toBe(result)
+    expect(execute).toHaveBeenCalledWith(userId)
   })
 
   it.each([
     [new UserNotFoundError(), 404],
-    [new UserConsultationNotAllowedError(), 403],
   ] as const)('translates %s to HTTP %s with the requested instance', async (error, status) => {
     execute.mockRejectedValue(error)
     let translated: unknown
     try {
-      await controller.execute(userId, actor)
+      await controller.execute(userId)
     } catch (result) {
       translated = result
     }
@@ -47,7 +45,7 @@ describe('GetUserByIdController', () => {
   it('preserves unexpected failures for the global filter', async () => {
     const error = new Error('Database unavailable')
     execute.mockRejectedValue(error)
-    await expect(controller.execute(userId, actor)).rejects.toBe(error)
+    await expect(controller.execute(userId)).rejects.toBe(error)
   })
 
   it('passes a string identifier without requiring UUID format', async () => {
@@ -55,7 +53,7 @@ describe('GetUserByIdController', () => {
     const parameter = Object.values(metadata).find((entry: any) => entry.data === 'userId') as { pipes: unknown[] }
     expect(parameter.pipes).toEqual([])
     execute.mockResolvedValue({ id: 'user-123' })
-    await expect(controller.execute('user-123', actor)).resolves.toEqual({ id: 'user-123' })
-    expect(execute).toHaveBeenCalledWith('user-123', actor)
+    await expect(controller.execute('user-123')).resolves.toEqual({ id: 'user-123' })
+    expect(execute).toHaveBeenCalledWith('user-123')
   })
 })

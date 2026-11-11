@@ -20,8 +20,8 @@ describe('GET /users/{userId} OpenAPI contract', () => {
     expect(operation.operationId).toBe('getUser')
     expect(operation.parameters).toEqual([expect.objectContaining({ name: 'userId', in: 'path', required: true, schema: { type: 'string' } })])
     expect(operation.requestBody).toBeUndefined()
-    expect(operation.security).toEqual([{ bearerAuth: [] }])
-    expect(Object.keys(operation.responses).sort()).toEqual(['200', '400', '401', '403', '404', '500'])
+    expect(operation.security ?? []).toEqual([])
+    expect(Object.keys(operation.responses).sort()).toEqual(['200', '400', '404', '500'])
     expect(operation.responses['200']).toMatchObject({ content: { 'application/json': { schema: { $ref: '#/components/schemas/GetUserByIdResponseDto' } } } })
   })
 

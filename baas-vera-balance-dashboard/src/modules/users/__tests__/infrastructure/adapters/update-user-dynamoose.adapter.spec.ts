@@ -1,12 +1,12 @@
 import { Condition } from 'dynamoose'
-import { UpdateUserDynamooseAdapter } from '../../../infrastructure/adapters/update-user-dynamoose.adapter'
-import { UserModel } from '../../../infrastructure/models/user.model'
+import { UpdateUserDynamooseAdapter } from '../../../infrastructure/persistance/adapters/update-user-dynamoose.adapter'
+import { UserModel } from '../../../infrastructure/persistance/models/user.model'
 import { UserEntity } from '../../../domain/entities/user.entity'
 import { UserNotFoundError } from '../../../domain/errors/user-not-found.error'
 import { UserUpdateConflictError } from '../../../domain/errors/user-update-conflict.error'
 import { USER_ROLES } from '../../../../../constants/user-roles.constant'
 
-jest.mock('../../../infrastructure/models/user.model', () => ({ UserModel: { update: jest.fn(), get: jest.fn(), query: jest.fn(), scan: jest.fn() } }))
+jest.mock('../../../infrastructure/persistance/models/user.model', () => ({ UserModel: { update: jest.fn(), get: jest.fn(), query: jest.fn(), scan: jest.fn() } }))
 const user = Object.assign(new UserEntity(), { pk: 'user-1', role: USER_ROLES.THERAPIST, email: 'user@example.com', clinic: 'clinic-1', updated_at: '2026-01-01T00:00:00.000Z' })
 const updatedAt = '2026-11-02T00:00:00.000Z'
 
@@ -31,9 +31,9 @@ describe('UpdateUserDynamooseAdapter', () => {
     expect(get).not.toHaveBeenCalled()
   })
 
-  it('updates only the email field and its GSI3 partition key', async () => {
-    await adapter.update(user, { email: 'new@example.com' }, updatedAt)
-    expect(update.mock.calls[0][1]).toEqual({ $SET: { email: 'new@example.com', gsi3pk: 'EMAIL#new@example.com', updated_at: updatedAt } })
+  it('does not update email or its GSI3 key even if supplied outside the typed contract', async () => {
+    await adapter.update(user, { name: 'New', ...{ email: 'new@example.com' } }, updatedAt)
+    expect(update.mock.calls[0][1]).toEqual({ $SET: { name: 'New', updated_at: updatedAt } })
   })
 
   it('updates both clinic index keys when clinic changes', async () => {

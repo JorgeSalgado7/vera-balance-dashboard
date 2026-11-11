@@ -1,10 +1,8 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common'
 
-import { CurrentUser } from '@nestjs/authentication'
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
-
-import { CreateUserUseCase, type CreateUserActor } from '../../../application/use-cases/create-user.use-case'
+import { CreateUserUseCase } from '../../../application/use-cases/create-user.use-case'
 
 import { CreateUserDto } from '../../../application/dtos/create-user.dto'
 import { CreateUserResponseDto } from '../../../application/dtos/create-user-response.dto'
@@ -13,7 +11,6 @@ import { UserErrorTranslator } from '../errors/user-error.translator'
 
 @Controller('users')
 @ApiTags('Users')
-@ApiBearerAuth()
 export class CreateUserController {
   constructor(private readonly useCase: CreateUserUseCase) {}
 
@@ -21,7 +18,7 @@ export class CreateUserController {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Crear un usuario',
-    description: 'Crea un usuario según los permisos del usuario autenticado.',
+    description: 'Crea un usuario.',
   })
   @ApiBody({ type: CreateUserDto })
   @ApiResponse({
@@ -29,13 +26,11 @@ export class CreateUserController {
     type: CreateUserResponseDto,
   })
   @ApiResponse({ status: 400 })
-  @ApiResponse({ status: 401 })
-  @ApiResponse({ status: 403 })
   @ApiResponse({ status: 409 })
   @ApiResponse({ status: 500 })
-  async execute(@Body() dto: CreateUserDto, @CurrentUser() actor: CreateUserActor): Promise<CreateUserResponseDto> {
+  async execute(@Body() dto: CreateUserDto): Promise<CreateUserResponseDto> {
     try {
-      return await this.useCase.execute(dto, actor)
+      return await this.useCase.execute(dto)
     } catch (error) {
       UserErrorTranslator.translate(error, '/users')
       throw error

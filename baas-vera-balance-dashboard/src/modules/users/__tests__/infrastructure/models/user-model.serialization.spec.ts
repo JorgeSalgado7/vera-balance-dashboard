@@ -10,12 +10,12 @@ jest.mock('dynamoose', () => {
 })
 
 describe('UserModel DynamoDB serialization', () => {
-  let UserModel: typeof import('../../../infrastructure/models/user.model').UserModel
+  let UserModel: typeof import('../../../infrastructure/persistance/models/user.model').UserModel
   const previousTable = process.env.DYNAMO_TABLE_NAME
 
   beforeAll(() => {
     process.env.DYNAMO_TABLE_NAME = 'users-serialization-test'
-    UserModel = require('../../../infrastructure/models/user.model').UserModel
+    UserModel = require('../../../infrastructure/persistance/models/user.model').UserModel
   })
 
   afterAll(() => {

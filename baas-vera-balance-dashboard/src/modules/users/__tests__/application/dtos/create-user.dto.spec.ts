@@ -17,11 +17,16 @@ describe('CreateUserDto', () => {
     expect(await validate(plainToInstance(CreateUserDto, { ...body, role }))).toEqual([])
   })
 
+  it.each(USER_ROLE_VALUES)('accepts an omitted clinic for role %s', async role => {
+    const { clinic, ...input } = body
+    expect(await validate(plainToInstance(CreateUserDto, { ...input, role }))).toEqual([])
+  })
+
   it('accepts an explicit null clinic', async () => {
     expect(await validate(plainToInstance(CreateUserDto, { ...body, role: USER_ROLES.ADMIN, clinic: null }))).toEqual([])
   })
 
-  it.each(Object.keys(body))('requires field %s', async (field) => {
+  it.each(Object.keys(body).filter(field => field !== 'clinic'))('requires field %s', async (field) => {
     const payload: Record<string, unknown> = { ...body }
     delete payload[field]
     const errors = await validate(plainToInstance(CreateUserDto, payload))

@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import { UserModel } from '../models/user.model'
-import { UserMapper } from '../mappers/user.mapper'
-import type { UserEntity } from '../../domain/entities/user.entity'
-import type { IFindAllUsersRepository } from '../../domain/repositories/find-all-users.repository'
+import { UserMapper } from '../../mappers/user.mapper'
+import type { UserEntity } from '../../../domain/entities/user.entity'
+import type { IFindAllUsersRepository } from '../../../domain/repositories/find-all-users.repository'
 
 @Injectable()
 export class FindAllUsersDynamooseAdapter implements IFindAllUsersRepository {

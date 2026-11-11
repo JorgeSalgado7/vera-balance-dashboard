@@ -15,7 +15,7 @@ describe('UserModel storage contract', () => {
 
   beforeAll(() => {
     process.env.DYNAMO_TABLE_NAME = 'users-model-test'
-    const { UserModel } = require('../../../infrastructure/models/user.model')
+    const { UserModel } = require('../../../infrastructure/persistance/models/user.model')
     expect(UserModel).toBe((model as jest.Mock).mock.results[0].value)
     configured = (Schema as unknown as jest.Mock).mock.results[0].value
   })

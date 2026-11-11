@@ -152,6 +152,14 @@ describe('CreateUserDomainService', () => {
   })
 
   describe('Clinic index (GSI2)', () => {
+    it.each([USER_ROLES.ADMIN, USER_ROLES.CLINIC, USER_ROLES.THERAPIST])('creates role %s without a clinic or GSI2 keys', role => {
+      const { clinic, ...input } = baseData
+      const result = service.create({ ...input, role })
+      expect(result.clinic).toBeNull()
+      expect(result.gsi2pk).toBeUndefined()
+      expect(result.gsi2sk).toBeUndefined()
+    })
+
     it('should generate GSI2 when clinic is provided', () => {
       const result = service.create(baseData)
 

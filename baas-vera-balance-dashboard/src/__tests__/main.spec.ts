@@ -33,7 +33,9 @@ describe('Application bootstrap', () => {
     })
     expect(app.useGlobalFilters).toHaveBeenCalledTimes(1)
     expect(SwaggerModule.createDocument).toHaveBeenCalledWith(app, openApiHeader)
-    expect(SwaggerModule.setup).toHaveBeenCalledWith('docs', app, { documentation: true })
+    expect(SwaggerModule.setup).toHaveBeenCalledWith('docs', app, { documentation: true }, {
+      swaggerOptions: { operationsSorter: expect.any(Function) },
+    })
     expect(app.listen).toHaveBeenCalledWith(port ?? 3000)
     const pipe = app.useGlobalPipes.mock.calls[0][0]
     expect(pipe).toMatchObject({ isTransformEnabled: true, validatorOptions: expect.objectContaining({ whitelist: true, forbidNonWhitelisted: true }) })

@@ -50,9 +50,5 @@ export class ValidateCreateUserDomainService {
     if (entity.role === USER_ROLES.ADMIN && entity.clinic !== null) {
       throw new InvalidUserClinicError()
     }
-
-    if (entity.role !== USER_ROLES.ADMIN && entity.clinic === null) {
-      throw new InvalidUserClinicError()
-    }
   }
 }

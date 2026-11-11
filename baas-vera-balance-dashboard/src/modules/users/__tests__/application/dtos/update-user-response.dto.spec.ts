@@ -16,11 +16,11 @@ describe('PATCH /users/{userId} OpenAPI contract', () => {
   it('documents the approved partial request and status codes', () => {
     const operation = document.paths['/users/{userId}'].patch!
     expect(operation.operationId).toBe('updateUser')
-    expect(operation.security).toEqual([{ bearerAuth: [] }])
-    expect(Object.keys(operation.responses).sort()).toEqual(['200', '400', '401', '403', '404', '409', '500'])
+    expect(operation.security ?? []).toEqual([])
+    expect(Object.keys(operation.responses).sort()).toEqual(['200', '400', '404', '409', '500'])
     expect(operation.requestBody).toMatchObject({ content: { 'application/json': { schema: { minProperties: 1, allOf: [{ $ref: '#/components/schemas/UpdateUserDto' }] } } } })
     const schema = document.components?.schemas?.UpdateUserDto as { properties: Record<string, unknown>; required?: string[] }
-    expect(Object.keys(schema.properties).sort()).toEqual(['name', 'email', 'professional_license', 'role', 'clinic'].sort())
+    expect(Object.keys(schema.properties).sort()).toEqual(['name', 'professional_license', 'role', 'clinic'].sort())
     expect(schema.required ?? []).toEqual([])
   })
 

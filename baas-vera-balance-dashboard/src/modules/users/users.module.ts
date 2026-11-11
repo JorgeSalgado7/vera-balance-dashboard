@@ -3,7 +3,6 @@ import { Module } from '@nestjs/common'
 import { AuthModule } from '../auth/auth.module'
 import type { IHashPasswordService } from '../auth/domain/services/hash-password.service'
 import type { IVerifyPasswordService } from '../auth/domain/services/verify-password.service'
-import { JwtAuthProvider } from '../auth/infrastructure/providers/jwt-auth.provider'
 
 import { CreateUserController } from './presentation/http/controllers/create-user.controller'
 import { GetUsersController } from './presentation/http/controllers/get-users.controller'
@@ -22,8 +21,6 @@ import { DeleteUserUseCase } from './application/use-cases/delete-user.use-case'
 
 import { CreateUserDomainService } from './domain/services/create-user.domain-service'
 import { ValidateCreateUserDomainService } from './domain/services/validate-create-user.domain-service'
-import { ValidateGetUserByIdDomainService } from './domain/services/validate-get-user-by-id.domain-service'
-import { ValidateUpdateUserAccessDomainService } from './domain/services/validate-update-user-access.domain-service'
 import { UpdateUserDomainService } from './domain/services/update-user.domain-service'
 import { ValidateChangeUserPasswordDomainService } from './domain/services/validate-change-user-password.domain-service'
 import type { IUserRepository } from './domain/repositories/user.repository'
@@ -34,15 +31,15 @@ import type { IChangeUserPasswordRepository } from './domain/repositories/change
 import type { IDeleteUserRepository } from './domain/repositories/delete-user.repository'
 import type { IUserTherapeuticProcessesRepository } from './domain/repositories/user-therapeutic-processes.repository'
 
-import { CreateUserDynamooseAdapter } from './infrastructure/adapters/create-user-dynamoose.adapter'
-import { FindAllUsersDynamooseAdapter } from './infrastructure/adapters/find-all-users-dynamoose.adapter'
-import { FindUserByEmailDynamooseAdapter } from './infrastructure/adapters/find-user-by-email-dynamoose.adapter'
-import { FindUserByIdDynamooseAdapter } from './infrastructure/adapters/find-user-by-id-dynamoose.adapter'
-import { UpdateUserDynamooseAdapter } from './infrastructure/adapters/update-user-dynamoose.adapter'
-import { UpdateUserStatusDynamooseAdapter } from './infrastructure/adapters/update-user-status-dynamoose.adapter'
-import { ChangeUserPasswordDynamooseAdapter } from './infrastructure/adapters/change-user-password-dynamoose.adapter'
-import { DeleteUserDynamooseAdapter } from './infrastructure/adapters/delete-user-dynamoose.adapter'
-import { UserTherapeuticProcessesDynamooseAdapter } from './infrastructure/adapters/user-therapeutic-processes-dynamoose.adapter'
+import { CreateUserDynamooseAdapter } from './infrastructure/persistance/adapters/create-user-dynamoose.adapter'
+import { FindAllUsersDynamooseAdapter } from './infrastructure/persistance/adapters/find-all-users-dynamoose.adapter'
+import { FindUserByEmailDynamooseAdapter } from './infrastructure/persistance/adapters/find-user-by-email-dynamoose.adapter'
+import { FindUserByIdDynamooseAdapter } from './infrastructure/persistance/adapters/find-user-by-id-dynamoose.adapter'
+import { UpdateUserDynamooseAdapter } from './infrastructure/persistance/adapters/update-user-dynamoose.adapter'
+import { UpdateUserStatusDynamooseAdapter } from './infrastructure/persistance/adapters/update-user-status-dynamoose.adapter'
+import { ChangeUserPasswordDynamooseAdapter } from './infrastructure/persistance/adapters/change-user-password-dynamoose.adapter'
+import { DeleteUserDynamooseAdapter } from './infrastructure/persistance/adapters/delete-user-dynamoose.adapter'
+import { UserTherapeuticProcessesDynamooseAdapter } from './infrastructure/persistance/adapters/user-therapeutic-processes-dynamoose.adapter'
 
 @Module({
   imports: [AuthModule],
@@ -76,20 +73,18 @@ import { UserTherapeuticProcessesDynamooseAdapter } from './infrastructure/adapt
       inject: ['IUserRepository', 'IUserTherapeuticProcessesRepository', 'IDeleteUserRepository'],
     },
     UpdateUserDomainService,
-    ValidateUpdateUserAccessDomainService,
     UpdateUserDynamooseAdapter,
     { provide: 'IUpdateUserRepository', useExisting: UpdateUserDynamooseAdapter },
     {
       provide: UpdateUserUseCase,
-      useFactory: (access: ValidateUpdateUserAccessDomainService, domain: UpdateUserDomainService, users: IUserRepository, updater: IUpdateUserRepository) =>
-        new UpdateUserUseCase(access, domain, users, updater),
-      inject: [ValidateUpdateUserAccessDomainService, UpdateUserDomainService, 'IUserRepository', 'IUpdateUserRepository'],
+      useFactory: (domain: UpdateUserDomainService, users: IUserRepository, updater: IUpdateUserRepository) =>
+        new UpdateUserUseCase(domain, users, updater),
+      inject: [UpdateUserDomainService, 'IUserRepository', 'IUpdateUserRepository'],
     },
-    ValidateGetUserByIdDomainService,
     {
       provide: GetUserByIdUseCase,
-      useFactory: (domain: ValidateGetUserByIdDomainService, repository: IUserRepository) => new GetUserByIdUseCase(domain, repository),
-      inject: [ValidateGetUserByIdDomainService, 'IUserRepository'],
+      useFactory: (repository: IUserRepository) => new GetUserByIdUseCase(repository),
+      inject: ['IUserRepository'],
     },
     FindAllUsersDynamooseAdapter,
     { provide: 'IFindAllUsersRepository', useExisting: FindAllUsersDynamooseAdapter },
@@ -119,7 +114,6 @@ import { UserTherapeuticProcessesDynamooseAdapter } from './infrastructure/adapt
       inject: [CreateUserDynamooseAdapter, FindUserByEmailDynamooseAdapter, FindUserByIdDynamooseAdapter],
     },
 
-    JwtAuthProvider,
     CreateUserUseCase,
   ],
 

@@ -1,7 +1,4 @@
 import { USER_ROLES } from '../../../../constants/user-roles.constant'
-import type { UserRole } from '../../../../constants/user-roles.constant'
-import { authorizeRole } from '../../../../shared/authorization/authorize-role'
-import { UserDeletionNotAllowedError } from '../../domain/errors/user-deletion-not-allowed.error'
 import type { IUserRepository } from '../../domain/repositories/user.repository'
 import type { IDeleteUserRepository } from '../../domain/repositories/delete-user.repository'
 import type { IUserTherapeuticProcessesRepository } from '../../domain/repositories/user-therapeutic-processes.repository'
@@ -15,8 +12,7 @@ export class DeleteUserUseCase {
     private readonly deleter: IDeleteUserRepository,
   ) {}
 
-  async execute(userId: string, actor: { role: UserRole }): Promise<void> {
-    authorizeRole(actor.role, { [USER_ROLES.ADMIN]: true }, new UserDeletionNotAllowedError())
+  async execute(userId: string): Promise<void> {
     const user = await this.users.findById(userId)
     if (!user) throw new UserNotFoundError()
 

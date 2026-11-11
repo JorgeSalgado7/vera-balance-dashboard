@@ -1,24 +1,23 @@
 import { UpdateUserUseCase } from '../application/use-cases/update-user.use-case'
-import { UpdateUserDynamooseAdapter } from '../infrastructure/adapters/update-user-dynamoose.adapter'
+import { UpdateUserDynamooseAdapter } from '../infrastructure/persistance/adapters/update-user-dynamoose.adapter'
 import { GetUserByIdUseCase } from '../application/use-cases/get-user-by-id.use-case'
 import { GetUsersUseCase } from '../application/use-cases/get-users.use-case'
-import { FindAllUsersDynamooseAdapter } from '../infrastructure/adapters/find-all-users-dynamoose.adapter'
+import { FindAllUsersDynamooseAdapter } from '../infrastructure/persistance/adapters/find-all-users-dynamoose.adapter'
 import { Module } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
 import { UsersModule } from '../users.module'
 import { AuthModule } from '../../auth/auth.module'
-import { JwtAuthProvider } from '../../auth/infrastructure/providers/jwt-auth.provider'
 import { CreateUserUseCase } from '../application/use-cases/create-user.use-case'
 import { CreateUserDomainService } from '../domain/services/create-user.domain-service'
 import { ValidateCreateUserDomainService } from '../domain/services/validate-create-user.domain-service'
-import { CreateUserDynamooseAdapter } from '../infrastructure/adapters/create-user-dynamoose.adapter'
-import { FindUserByEmailDynamooseAdapter } from '../infrastructure/adapters/find-user-by-email-dynamoose.adapter'
-import { FindUserByIdDynamooseAdapter } from '../infrastructure/adapters/find-user-by-id-dynamoose.adapter'
+import { CreateUserDynamooseAdapter } from '../infrastructure/persistance/adapters/create-user-dynamoose.adapter'
+import { FindUserByEmailDynamooseAdapter } from '../infrastructure/persistance/adapters/find-user-by-email-dynamoose.adapter'
+import { FindUserByIdDynamooseAdapter } from '../infrastructure/persistance/adapters/find-user-by-id-dynamoose.adapter'
 import type { IUserRepository } from '../domain/repositories/user.repository'
 import { UserEntity } from '../domain/entities/user.entity'
 import { USER_ROLES } from '../../../constants/user-roles.constant'
 
-jest.mock('../infrastructure/models/user.model', () => ({ UserModel: {} }))
+jest.mock('../infrastructure/persistance/models/user.model', () => ({ UserModel: {} }))
 const hash = jest.fn()
 @Module({
   providers: [
@@ -44,8 +43,6 @@ describe('UsersModule', () => {
       .useModule(TestAuthModule)
       .overrideProvider(FindAllUsersDynamooseAdapter)
       .useValue({ findAll })
-      .overrideProvider(JwtAuthProvider)
-      .useValue({})
       .overrideProvider(CreateUserDynamooseAdapter)
       .useValue({ create })
       .overrideProvider(FindUserByEmailDynamooseAdapter)
@@ -90,9 +87,7 @@ describe('UsersModule', () => {
     hash.mockResolvedValue('hashed-password')
     create.mockImplementation(async (entity) => entity)
     const response = await useCase.execute(
-      { name: ' User ', email: ' USER@EXAMPLE.COM ', password: 'Password123!', professional_license: ' 123 ', role: USER_ROLES.THERAPIST, clinic: '11111111-1111-4111-8111-111111111111' },
-      { id: 'admin-1', role: USER_ROLES.ADMIN, clinic: null },
-    )
+      { name: ' User ', email: ' USER@EXAMPLE.COM ', password: 'Password123!', professional_license: ' 123 ', role: USER_ROLES.THERAPIST, clinic: '11111111-1111-4111-8111-111111111111' })
     expect(response).toMatchObject({ name: 'User', email: 'user@example.com', professional_license: '123', role: USER_ROLES.THERAPIST, status: 'Activo' })
     expect(response).not.toHaveProperty('password')
     expect(response).not.toHaveProperty('pk')

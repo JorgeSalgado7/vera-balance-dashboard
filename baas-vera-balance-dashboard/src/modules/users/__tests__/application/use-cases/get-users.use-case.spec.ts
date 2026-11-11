@@ -1,6 +1,5 @@
 import { Test } from '@nestjs/testing'
 import { GetUsersUseCase } from '../../../application/use-cases/get-users.use-case'
-import { UserListingNotAllowedError } from '../../../domain/errors/user-listing-not-allowed.error'
 import type { IFindAllUsersRepository } from '../../../domain/repositories/find-all-users.repository'
 import { UserEntity } from '../../../domain/entities/user.entity'
 import { USER_ROLES } from '../../../../../constants/user-roles.constant'
@@ -50,7 +49,7 @@ describe('GetUsersUseCase', () => {
       Object.assign(new UserEntity(), user, { pk: 'user-2', clinic: 'clinic-2', status: 'Inactivo' }),
       Object.assign(new UserEntity(), user, { pk: 'admin-1', role: USER_ROLES.ADMIN, clinic: null }),
     ])
-    const result = await useCase.execute({ role: USER_ROLES.ADMIN })
+    const result = await useCase.execute()
     expect(findAll).toHaveBeenCalledWith()
     expect(result).toHaveLength(3)
     expect(result[0]).toMatchObject({ id: user.pk, clinic: 'clinic-1', status: 'Activo' })
@@ -58,19 +57,20 @@ describe('GetUsersUseCase', () => {
     expect(result[2]).toMatchObject({ id: 'admin-1', clinic: null, role: USER_ROLES.ADMIN })
   })
 
-  it.each([USER_ROLES.CLINIC, USER_ROLES.THERAPIST])('rejects %s before accessing persistence', async (role) => {
-    await expect(useCase.execute({ role })).rejects.toBeInstanceOf(UserListingNotAllowedError)
-    expect(findAll).not.toHaveBeenCalled()
+  it.each([USER_ROLES.CLINIC, USER_ROLES.THERAPIST])('allows %s to list users', async (role) => {
+    findAll.mockResolvedValue([user])
+    await expect(useCase.execute()).resolves.toHaveLength(1)
+    expect(findAll).toHaveBeenCalledWith()
   })
 
   it('returns an empty array when there are no users', async () => {
     findAll.mockResolvedValue([])
-    await expect(useCase.execute({ role: USER_ROLES.ADMIN })).resolves.toEqual([])
+    await expect(useCase.execute()).resolves.toEqual([])
   })
 
   it('includes exactly the public fields and never leaks passwords or internal indexes', async () => {
     findAll.mockResolvedValue([user])
-    const [result] = await useCase.execute({ role: USER_ROLES.ADMIN })
+    const [result] = await useCase.execute()
     expect(result).toEqual({
       id: user.pk,
       name: user.name,
@@ -89,6 +89,6 @@ describe('GetUsersUseCase', () => {
   it('propagates a query failure instead of returning a successful empty response', async () => {
     const error = new Error('Storage unavailable')
     findAll.mockRejectedValue(error)
-    await expect(useCase.execute({ role: USER_ROLES.ADMIN })).rejects.toBe(error)
+    await expect(useCase.execute()).rejects.toBe(error)
   })
 })

@@ -13,7 +13,7 @@ export class CreateUserDomainService {
     professional_license: string
     role: UserRole
     status: 'Activo' | 'Inactivo'
-    clinic: string | null
+    clinic?: string | null
     created_at: string
     updated_at: string
   }): UserEntity {
@@ -29,13 +29,13 @@ export class CreateUserDomainService {
 
     entity.role = data.role
     entity.status = data.status
-    entity.clinic = data.clinic
+    entity.clinic = data.clinic ?? null
 
     entity.gsi1pk = 'USER'
     entity.gsi1sk = `USER#${data.id}`
 
-    if (data.clinic !== null) {
-      entity.gsi2pk = `CLINIC#${data.clinic}`
+    if (entity.clinic !== null) {
+      entity.gsi2pk = `CLINIC#${entity.clinic}`
       entity.gsi2sk = `USER#${data.id}`
     }
 

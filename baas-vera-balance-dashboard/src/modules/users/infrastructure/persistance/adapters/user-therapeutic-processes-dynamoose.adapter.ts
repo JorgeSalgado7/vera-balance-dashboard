@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { UserModel } from '../models/user.model'
-import type { IUserTherapeuticProcessesRepository } from '../../domain/repositories/user-therapeutic-processes.repository'
+import type { IUserTherapeuticProcessesRepository } from '../../../domain/repositories/user-therapeutic-processes.repository'
 
 @Injectable()
 export class UserTherapeuticProcessesDynamooseAdapter implements IUserTherapeuticProcessesRepository {

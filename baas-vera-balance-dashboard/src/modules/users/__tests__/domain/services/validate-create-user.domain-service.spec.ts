@@ -443,22 +443,22 @@ describe('ValidateCreateUserDomainService', () => {
       expect(() => service.execute(entity)).toThrow(InvalidUserClinicError)
     })
 
-    it('should reject therapist without clinic', () => {
+    it('should accept therapist without clinic', () => {
       const entity = createValidEntity({
         role: USER_ROLES.THERAPIST,
         clinic: null,
       })
 
-      expect(() => service.execute(entity)).toThrow(InvalidUserClinicError)
+      expect(() => service.execute(entity)).not.toThrow()
     })
 
-    it('should reject clinic user without clinic', () => {
+    it('should accept clinic user without clinic', () => {
       const entity = createValidEntity({
         role: USER_ROLES.CLINIC,
         clinic: null,
       })
 
-      expect(() => service.execute(entity)).toThrow(InvalidUserClinicError)
+      expect(() => service.execute(entity)).not.toThrow()
     })
 
     it('should accept admin with null clinic', () => {

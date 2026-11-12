@@ -4,8 +4,7 @@ import { Condition } from 'dynamoose'
 import type { ITherapyTypeRepository } from '../../../domain/repositories/therapy-type.repository'
 import type { TherapyTypeEntity } from '../../../domain/entities/therapy-type.entity'
 import type { UpdateTherapyTypeDto } from '../../../application/dtos/update-therapy-type.dto'
-import { TherapyTypeNotFoundError } from '../../../domain/errors/therapy-type-not-found.error'
-import { TherapyTypeConflictError } from '../../../domain/errors/therapy-type-conflict.error'
+import { TherapyTypeNotFoundError, TherapyTypeConflictError } from '../../../domain/errors/therapy-type.error'
 import { TherapyTypeMapper } from '../../mappers/therapy-type.mapper'
 
 @Injectable()

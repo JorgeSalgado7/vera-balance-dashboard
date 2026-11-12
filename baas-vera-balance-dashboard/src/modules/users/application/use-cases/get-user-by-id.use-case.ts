@@ -1,5 +1,5 @@
 import type { IUserRepository } from '../../domain/repositories/user.repository'
-import { UserNotFoundError } from '../../domain/errors/user-not-found.error'
+import { UserNotFoundError } from '../../domain/errors/user.error'
 import type { GetUserByIdResponseDto } from '../dtos/get-user-by-id-response.dto'
 
 export class GetUserByIdUseCase {

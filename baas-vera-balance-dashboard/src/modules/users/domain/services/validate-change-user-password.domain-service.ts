@@ -1,5 +1,4 @@
-import { InvalidNewUserPasswordError } from '../errors/invalid-new-user-password.error'
-import { UserPasswordConfirmationMismatchError } from '../errors/user-password-confirmation-mismatch.error'
+import { InvalidNewUserPasswordError, UserPasswordConfirmationMismatchError } from '../errors/user.error'
 
 export class ValidateChangeUserPasswordDomainService {
   execute(password: string, confirmation: string): void {

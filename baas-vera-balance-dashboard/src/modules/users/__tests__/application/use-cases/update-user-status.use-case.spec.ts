@@ -15,7 +15,7 @@ describe('UpdateUserStatusUseCase role-independent access', () => {
     const module = await Test.createTestingModule({ providers: [
       { provide: 'Users', useValue: users }, { provide: 'Updater', useValue: updater },
       { provide: UpdateUserStatusUseCase, inject: ['Users', 'Updater'],
-        useFactory: (u, updater) => new UpdateUserStatusUseCase(u, updater) }
+        useFactory: (u, updater) => new UpdateUserStatusUseCase({ ...u, ...updater }) }
     ] }).compile()
     useCase = module.get(UpdateUserStatusUseCase)
     await module.close()

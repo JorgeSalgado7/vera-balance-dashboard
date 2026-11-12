@@ -1,7 +1,9 @@
+import { LoggerModule } from '../../shared/logger/logger.module'
+import { AppLogger } from '../../shared/logger/app-logger.service'
 import { EmailLayoutTemplate } from './infrastructure/templates/email-layout.template'
 import { WelcomeEmailTemplate } from './infrastructure/templates/welcome-email.template'
 import { SendWelcomeEmailUseCase } from './application/use-cases/send-welcome-email.use-case'
-import { Logger, Module } from '@nestjs/common'
+import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { SendRecoveryCodeEmailUseCase } from './application/use-cases/send-recovery-code-email.use-case'
 import { SendPasswordUpdatedEmailUseCase } from './application/use-cases/send-password-updated-email.use-case'
@@ -11,7 +13,7 @@ import type { ISendEmailService } from './domain/services/send-email.service'
 import { SendEmailResendService } from './infrastructure/services/send-email-resend.service'
 
 @Module({
-  imports: [ConfigModule],
+  imports: [LoggerModule, ConfigModule],
   providers: [
     EmailLayoutTemplate,
     {
@@ -33,12 +35,11 @@ import { SendEmailResendService } from './infrastructure/services/send-email-res
     { provide: 'ISendEmailService', useExisting: SendEmailResendService },
     {
       provide: SendWelcomeEmailUseCase,
-      useFactory: (template: WelcomeEmailTemplate, sender: ISendEmailService) => {
-        const logger = new Logger(SendWelcomeEmailUseCase.name)
+      useFactory: (template: WelcomeEmailTemplate, sender: ISendEmailService, logger: AppLogger) => {
         return new SendWelcomeEmailUseCase(template, sender,
-          () => { logger.error('No se pudo enviar el correo de bienvenida.') })
+          () => { logger.warn(SendWelcomeEmailUseCase.name, 'email.welcome.not_delivered') })
       },
-      inject: [WelcomeEmailTemplate, 'ISendEmailService'],
+      inject: [WelcomeEmailTemplate, 'ISendEmailService', AppLogger],
     },
     {
       provide: SendRecoveryCodeEmailUseCase,
@@ -48,12 +49,11 @@ import { SendEmailResendService } from './infrastructure/services/send-email-res
     },
     {
       provide: SendPasswordUpdatedEmailUseCase,
-      useFactory: (template: PasswordUpdatedEmailTemplate, sender: ISendEmailService) => {
-        const logger = new Logger(SendPasswordUpdatedEmailUseCase.name)
+      useFactory: (template: PasswordUpdatedEmailTemplate, sender: ISendEmailService, logger: AppLogger) => {
         return new SendPasswordUpdatedEmailUseCase(template, sender,
-          () => { logger.error('No se pudo enviar la notificación de contraseña actualizada.') })
+          () => { logger.warn(SendPasswordUpdatedEmailUseCase.name, 'email.password_updated.not_delivered') })
       },
-      inject: [PasswordUpdatedEmailTemplate, 'ISendEmailService'],
+      inject: [PasswordUpdatedEmailTemplate, 'ISendEmailService', AppLogger],
     },
   ],
   exports: [SendRecoveryCodeEmailUseCase, SendPasswordUpdatedEmailUseCase, SendWelcomeEmailUseCase],

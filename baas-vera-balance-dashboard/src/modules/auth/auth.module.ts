@@ -1,7 +1,9 @@
+import { LoggerModule } from '../../shared/logger/logger.module'
+import { AppLogger } from '../../shared/logger/app-logger.service'
 import { EmailsModule } from '../emails/emails.module'
 import { SendRecoveryCodeEmailUseCase } from '../emails/application/use-cases/send-recovery-code-email.use-case'
 import { SendPasswordUpdatedEmailUseCase } from '../emails/application/use-cases/send-password-updated-email.use-case'
-import { Logger, Module } from '@nestjs/common'
+import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { JwtModule } from '@nestjs/jwt'
 import { UsersModule } from '../users/users.module'
@@ -39,7 +41,7 @@ import { ValidatePasswordRecoveryDomainService } from './domain/services/validat
 import { ResetPasswordController } from './presentation/http/controllers/reset-password.controller'
 
 @Module({
-  imports: [ConfigModule, JwtModule.register({}), PasswordModule, UsersModule, EmailsModule],
+  imports: [LoggerModule, ConfigModule, JwtModule.register({}), PasswordModule, UsersModule, EmailsModule],
   controllers: [LoginController, RefreshController, LogoutController, ForgotPasswordController, ResetPasswordController],
   providers: [
     ValidatePasswordRecoveryDomainService,
@@ -58,13 +60,12 @@ import { ResetPasswordController } from './presentation/http/controllers/reset-p
       provide: ForgotPasswordUseCase,
       useFactory: (users: FindUserByEmailUseCase, store: SetUserPasswordRecoveryUseCase,
         generator: IGenerateRecoveryCodeService, domain: CreatePasswordRecoveryDomainService,
-        hasher: IHashPasswordService, sender: SendRecoveryCodeEmailUseCase) => {
-        const logger = new Logger(ForgotPasswordUseCase.name)
+        hasher: IHashPasswordService, sender: SendRecoveryCodeEmailUseCase, logger: AppLogger) => {
         return new ForgotPasswordUseCase(users, store, generator, domain, hasher, sender,
-          () => { logger.error('No se pudo procesar una solicitud de recuperación de contraseña.') })
+          () => { logger.warn(ForgotPasswordUseCase.name, 'password.recovery.background.failed') })
       },
       inject: [FindUserByEmailUseCase, SetUserPasswordRecoveryUseCase, 'IGenerateRecoveryCodeService',
-        CreatePasswordRecoveryDomainService, 'IHashPasswordService', SendRecoveryCodeEmailUseCase],
+        CreatePasswordRecoveryDomainService, 'IHashPasswordService', SendRecoveryCodeEmailUseCase, AppLogger],
     },
     VerifyAccessTokenJwtService,
     { provide: 'IVerifyAccessTokenService', useExisting: VerifyAccessTokenJwtService },

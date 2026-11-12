@@ -1,7 +1,7 @@
 import { Test } from '@nestjs/testing'
 import { DeleteUserUseCase } from '../../../application/use-cases/delete-user.use-case'
 import { USER_ROLES } from '../../../../../constants/user-roles.constant'
-import { UserHasTherapeuticProcessesError } from '../../../domain/errors/user-has-therapeutic-processes.error'
+import { UserHasTherapeuticProcessesError } from '../../../domain/errors/user.error'
 
 describe('DeleteUserUseCase role-independent access', () => {
   const users = { findById: jest.fn() }
@@ -17,7 +17,7 @@ describe('DeleteUserUseCase role-independent access', () => {
     const module = await Test.createTestingModule({ providers: [
       { provide: 'Users', useValue: users }, { provide: 'Relations', useValue: relations }, { provide: 'Deleter', useValue: deleter },
       { provide: DeleteUserUseCase, inject: ['Users', 'Relations', 'Deleter'],
-        useFactory: (u, r, d) => new DeleteUserUseCase(u, r, d) }
+        useFactory: (u, r, d) => new DeleteUserUseCase({ ...u, ...r, ...d }) }
     ] }).compile()
     useCase = module.get(DeleteUserUseCase)
     await module.close()

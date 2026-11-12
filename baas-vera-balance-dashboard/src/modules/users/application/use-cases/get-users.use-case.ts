@@ -1,8 +1,8 @@
-import type { IFindAllUsersRepository } from '../../domain/repositories/find-all-users.repository'
+import type { IUserRepository } from '../../domain/repositories/user.repository'
 import type { GetUsersResponseDto } from '../dtos/get-users-response.dto'
 
 export class GetUsersUseCase {
-  constructor(private readonly repository: IFindAllUsersRepository) {}
+  constructor(private readonly repository: Pick<IUserRepository, 'findAll'>) {}
 
   async execute(): Promise<GetUsersResponseDto[]> {
     const users = await this.repository.findAll()

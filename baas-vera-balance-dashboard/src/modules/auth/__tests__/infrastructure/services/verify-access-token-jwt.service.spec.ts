@@ -2,7 +2,7 @@ import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import type { JwtSignOptions } from '@nestjs/jwt'
 import { VerifyAccessTokenJwtService } from '../../../infrastructure/services/verify-access-token-jwt.service'
-import { InvalidAccessTokenError } from '../../../domain/errors/invalid-access-token.error'
+import { InvalidAccessTokenError } from '../../../domain/errors/auth.error'
 
 describe('VerifyAccessTokenJwtService', () => {
   const jwt = new JwtService()

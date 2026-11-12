@@ -4,12 +4,11 @@ import { PasswordUpdatedEmailTemplate } from '../../../../emails/infrastructure/
 import { Test } from '@nestjs/testing'
 import { ResetPasswordUseCase } from '../../../application/use-cases/reset-password.use-case'
 import { ValidatePasswordRecoveryDomainService } from '../../../domain/services/validate-password-recovery.domain-service'
-import { InvalidPasswordRecoveryCodeError } from '../../../domain/errors/invalid-password-recovery-code.error'
+import { InvalidPasswordRecoveryCodeError } from '../../../domain/errors/auth.error'
 import { FindUserByEmailUseCase } from '../../../../users/application/use-cases/find-user-by-email.use-case'
 import { ResetUserPasswordUseCase } from '../../../../users/application/use-cases/reset-user-password.use-case'
 import { ValidateChangeUserPasswordDomainService } from '../../../../users/domain/services/validate-change-user-password.domain-service'
-import { UserPasswordConfirmationMismatchError } from '../../../../users/domain/errors/user-password-confirmation-mismatch.error'
-import { InvalidNewUserPasswordError } from '../../../../users/domain/errors/invalid-new-user-password.error'
+import { UserPasswordConfirmationMismatchError, InvalidNewUserPasswordError } from '../../../../users/domain/errors/user.error'
 
 const now = Date.parse('2026-11-11T00:00:00.000Z')
 const user = {

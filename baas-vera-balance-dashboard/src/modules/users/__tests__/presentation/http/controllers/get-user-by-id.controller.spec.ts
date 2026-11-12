@@ -3,7 +3,7 @@ import { HttpException } from '@nestjs/common'
 import { ROUTE_ARGS_METADATA } from '@nestjs/common/constants'
 import { GetUserByIdController } from '../../../../presentation/http/controllers/get-user-by-id.controller'
 import { GetUserByIdUseCase } from '../../../../application/use-cases/get-user-by-id.use-case'
-import { UserNotFoundError } from '../../../../domain/errors/user-not-found.error'
+import { UserNotFoundError } from '../../../../domain/errors/user.error'
 import { USER_ROLES } from '../../../../../../constants/user-roles.constant'
 
 const userId = '11111111-1111-4111-8111-111111111111'

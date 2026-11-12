@@ -1,13 +1,14 @@
+import type { SetUserPasswordRecoveryDto } from '../../../application/dtos/set-user-password-recovery.dto'
 import { Injectable } from '@nestjs/common'
 import { Condition } from 'dynamoose'
 import { UserModel } from '../models/user.model'
-import type { ISetUserPasswordRecoveryRepository, SetUserPasswordRecoveryInput } from '../../../domain/repositories/set-user-password-recovery.repository'
+import type { IUserRepository } from '../../../domain/repositories/user.repository'
 
 @Injectable()
-export class SetUserPasswordRecoveryDynamooseAdapter implements ISetUserPasswordRecoveryRepository {
+export class SetUserPasswordRecoveryDynamooseAdapter implements Pick<IUserRepository, 'set'> {
   private readonly model = UserModel
 
-  async set(input: SetUserPasswordRecoveryInput, updatedAt: string): Promise<boolean> {
+  async set(input: SetUserPasswordRecoveryDto, updatedAt: string): Promise<boolean> {
     const condition = new Condition().where('pk').exists().and().where('password').eq(input.currentPasswordHash)
     try {
       await this.model.update({ pk: input.userId, sk: 'USER' }, {

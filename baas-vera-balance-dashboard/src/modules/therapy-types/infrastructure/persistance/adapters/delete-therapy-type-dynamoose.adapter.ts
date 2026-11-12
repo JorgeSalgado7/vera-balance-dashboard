@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { TherapyTypeModel } from '../models/therapy-type.model'
 import { Condition } from 'dynamoose'
 import type { ITherapyTypeRepository } from '../../../domain/repositories/therapy-type.repository'
-import { TherapyTypeNotFoundError } from '../../../domain/errors/therapy-type-not-found.error'
+import { TherapyTypeNotFoundError } from '../../../domain/errors/therapy-type.error'
 
 @Injectable()
 export class DeleteTherapyTypeDynamooseAdapter implements Pick<ITherapyTypeRepository, 'delete'> {

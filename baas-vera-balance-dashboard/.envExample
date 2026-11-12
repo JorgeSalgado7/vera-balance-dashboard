@@ -12,3 +12,6 @@ JWT_REFRESH_SECRET=338c02bcd76e177057aec3fb24c60f7c7c45b32424528c341e0ccd9ab3913
 
 RESEND_API_KEY=
 RESEND_FROM_EMAIL=
+
+# debug | info | warn | error | silent
+LOG_LEVEL=info

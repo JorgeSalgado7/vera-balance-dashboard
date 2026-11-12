@@ -1,4 +1,4 @@
-import { EmptyTherapyTypeUpdateError } from '../errors/empty-therapy-type-update.error'
+import { EmptyTherapyTypeUpdateError } from '../errors/therapy-type.error'
 import type { TherapyTypeEntity } from '../entities/therapy-type.entity'
 
 export class UpdateTherapyTypeDomainService {

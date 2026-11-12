@@ -2,11 +2,13 @@ import { Test } from '@nestjs/testing'
 import { HttpException } from '@nestjs/common'
 import { UpdateUserController } from '../../../../presentation/http/controllers/update-user.controller'
 import { UpdateUserUseCase } from '../../../../application/use-cases/update-user.use-case'
-import { UserNotFoundError } from '../../../../domain/errors/user-not-found.error'
-import { UserUpdateConflictError } from '../../../../domain/errors/user-update-conflict.error'
-import { EmptyUserUpdateError } from '../../../../domain/errors/empty-user-update.error'
-import { InvalidUserUpdateFieldsError } from '../../../../domain/errors/invalid-user-update-fields.error'
-import { UserAlreadyExistsError } from '../../../../domain/errors/user.error'
+import {
+  UserNotFoundError,
+  UserUpdateConflictError,
+  EmptyUserUpdateError,
+  InvalidUserUpdateFieldsError,
+  UserAlreadyExistsError,
+} from '../../../../domain/errors/user.error'
 import { USER_ROLES } from '../../../../../../constants/user-roles.constant'
 
 const id = '22222222-2222-4222-8222-222222222222'

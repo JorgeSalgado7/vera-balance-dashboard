@@ -2,7 +2,7 @@ import { FindUserByEmailUseCase } from '../../../../users/application/use-cases/
 import { Test } from '@nestjs/testing'
 import { LoginUseCase } from '../../../application/use-cases/login.use-case'
 import { ValidateLoginDomainService } from '../../../domain/services/validate-login.domain-service'
-import { InvalidCredentialsError } from '../../../domain/errors/invalid-credentials.error'
+import { InvalidCredentialsError } from '../../../domain/errors/auth.error'
 import type { LoginUser } from '../../../domain/entities/login-user.entity'
 
 const user: LoginUser = {

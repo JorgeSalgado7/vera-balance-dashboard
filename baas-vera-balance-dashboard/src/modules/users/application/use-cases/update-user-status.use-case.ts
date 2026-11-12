@@ -1,23 +1,20 @@
 import type { IUserRepository } from '../../domain/repositories/user.repository'
-import type { IUpdateUserStatusRepository } from '../../domain/repositories/update-user-status.repository'
-import { UserNotFoundError } from '../../domain/errors/user-not-found.error'
-import { InvalidUserStatusError } from '../../domain/errors/user.error'
+import { UserNotFoundError, InvalidUserStatusError } from '../../domain/errors/user.error'
 import type { UpdateUserStatusDto } from '../dtos/update-user-status.dto'
 import type { UpdateUserStatusResponseDto } from '../dtos/update-user-status-response.dto'
 
 export class UpdateUserStatusUseCase {
   constructor(
-    private readonly users: Pick<IUserRepository, 'findById'>,
-    private readonly updater: IUpdateUserStatusRepository,
+    private readonly repository: Pick<IUserRepository, 'findById' | 'updateStatus'>,
   ) {}
 
   async execute(userId: string, dto: UpdateUserStatusDto): Promise<UpdateUserStatusResponseDto> {
     if (!['Activo', 'Inactivo'].includes(dto.status)) throw new InvalidUserStatusError()
 
-    const user = await this.users.findById(userId)
+    const user = await this.repository.findById(userId)
     if (!user) throw new UserNotFoundError()
 
-    const saved = user.status === dto.status ? user : await this.updater.updateStatus(user, dto.status, new Date(Date.now()).toISOString())
+    const saved = user.status === dto.status ? user : await this.repository.updateStatus(user, dto.status, new Date(Date.now()).toISOString())
 
     return {
       id: saved.pk,

@@ -3,11 +3,11 @@ import { Condition } from 'dynamoose'
 import { UserModel } from '../models/user.model'
 import { UserMapper } from '../../mappers/user.mapper'
 import type { UserEntity } from '../../../domain/entities/user.entity'
-import type { IUpdateUserStatusRepository } from '../../../domain/repositories/update-user-status.repository'
-import { UserNotFoundError } from '../../../domain/errors/user-not-found.error'
+import type { IUserRepository } from '../../../domain/repositories/user.repository'
+import { UserNotFoundError } from '../../../domain/errors/user.error'
 
 @Injectable()
-export class UpdateUserStatusDynamooseAdapter implements IUpdateUserStatusRepository {
+export class UpdateUserStatusDynamooseAdapter implements Pick<IUserRepository, 'updateStatus'> {
   private readonly model = UserModel
 
   async updateStatus(user: UserEntity, status: UserEntity['status'], updatedAt: string): Promise<UserEntity> {

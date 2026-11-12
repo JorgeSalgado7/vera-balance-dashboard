@@ -2,12 +2,11 @@ import { Injectable } from '@nestjs/common'
 import { Condition } from 'dynamoose'
 import { UserModel } from '../models/user.model'
 import type { UserEntity } from '../../../domain/entities/user.entity'
-import type { IDeleteUserRepository } from '../../../domain/repositories/delete-user.repository'
-import { UserNotFoundError } from '../../../domain/errors/user-not-found.error'
-import { UserDeletionConflictError } from '../../../domain/errors/user-deletion-conflict.error'
+import type { IUserRepository } from '../../../domain/repositories/user.repository'
+import { UserNotFoundError, UserDeletionConflictError } from '../../../domain/errors/user.error'
 
 @Injectable()
-export class DeleteUserDynamooseAdapter implements IDeleteUserRepository {
+export class DeleteUserDynamooseAdapter implements Pick<IUserRepository, 'delete'> {
   private readonly model = UserModel
 
   async delete(user: UserEntity): Promise<void> {

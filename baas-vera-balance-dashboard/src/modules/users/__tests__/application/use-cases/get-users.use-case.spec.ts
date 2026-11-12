@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing'
 import { GetUsersUseCase } from '../../../application/use-cases/get-users.use-case'
-import type { IFindAllUsersRepository } from '../../../domain/repositories/find-all-users.repository'
+import type { IUserRepository } from '../../../domain/repositories/user.repository'
 import { UserEntity } from '../../../domain/entities/user.entity'
 import { USER_ROLES } from '../../../../../constants/user-roles.constant'
 
@@ -31,11 +31,11 @@ describe('GetUsersUseCase', () => {
     jest.resetAllMocks()
     const module = await Test.createTestingModule({
       providers: [
-        { provide: 'IFindAllUsersRepository', useValue: { findAll } },
+        { provide: 'IUserRepository', useValue: { findAll } },
         {
           provide: GetUsersUseCase,
-          inject: ['IFindAllUsersRepository'],
-          useFactory: (repository: IFindAllUsersRepository) => new GetUsersUseCase(repository),
+          inject: ['IUserRepository'],
+          useFactory: (repository: Pick<IUserRepository, 'findAll'>) => new GetUsersUseCase(repository),
         },
       ],
     }).compile()

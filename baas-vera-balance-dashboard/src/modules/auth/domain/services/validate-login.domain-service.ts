@@ -1,4 +1,4 @@
-import { InvalidCredentialsError } from '../errors/invalid-credentials.error'
+import { InvalidCredentialsError } from '../errors/auth.error'
 import type { LoginUser } from '../entities/login-user.entity'
 
 export class ValidateLoginDomainService {

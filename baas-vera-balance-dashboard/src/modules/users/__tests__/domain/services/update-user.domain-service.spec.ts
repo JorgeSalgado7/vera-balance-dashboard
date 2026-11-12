@@ -1,8 +1,8 @@
 import { UpdateUserDomainService } from '../../../domain/services/update-user.domain-service'
 import type { UpdateUserChanges } from '../../../domain/interfaces/update-user-changes'
-import { EmptyUserUpdateError } from '../../../domain/errors/empty-user-update.error'
-import { InvalidUserUpdateFieldsError } from '../../../domain/errors/invalid-user-update-fields.error'
 import {
+  EmptyUserUpdateError,
+  InvalidUserUpdateFieldsError,
   MissingUserNameError,
   MissingUserProfessionalLicenseError,
   InvalidUserRoleError,

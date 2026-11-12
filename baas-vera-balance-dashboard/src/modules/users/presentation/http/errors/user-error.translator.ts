@@ -1,14 +1,14 @@
-import { IncorrectCurrentUserPasswordError } from '../../../domain/errors/incorrect-current-user-password.error'
-import { ReusedUserPasswordError } from '../../../domain/errors/reused-user-password.error'
-import { InvalidNewUserPasswordError } from '../../../domain/errors/invalid-new-user-password.error'
-import { UserPasswordConfirmationMismatchError } from '../../../domain/errors/user-password-confirmation-mismatch.error'
-import { UserDeletionConflictError } from '../../../domain/errors/user-deletion-conflict.error'
-import { UserHasTherapeuticProcessesError } from '../../../domain/errors/user-has-therapeutic-processes.error'
-import { EmptyUserUpdateError } from '../../../domain/errors/empty-user-update.error'
-import { InvalidUserUpdateFieldsError } from '../../../domain/errors/invalid-user-update-fields.error'
-import { UserUpdateConflictError } from '../../../domain/errors/user-update-conflict.error'
-import { UserNotFoundError } from '../../../domain/errors/user-not-found.error'
 import {
+  IncorrectCurrentUserPasswordError,
+  ReusedUserPasswordError,
+  InvalidNewUserPasswordError,
+  UserPasswordConfirmationMismatchError,
+  UserDeletionConflictError,
+  UserHasTherapeuticProcessesError,
+  EmptyUserUpdateError,
+  InvalidUserUpdateFieldsError,
+  UserUpdateConflictError,
+  UserNotFoundError,
   UserAlreadyExistsError,
   MissingUserNameError,
   MissingUserEmailError,
@@ -49,7 +49,9 @@ export class UserErrorTranslator {
       error instanceof InvalidUserStatusError ||
       error instanceof InvalidUserClinicError
     ) {
-      throw HttpProblem.badRequest(error.message, instance)
+      throw HttpProblem.badRequest(error.message, instance,
+        error instanceof InvalidUserUpdateFieldsError ? error.fields.map(field => ({ field, message: `No puedes actualizar el campo «${field}».` })) :
+          'field' in error ? [{ field: error.field, message: error.message }] : undefined)
     }
   }
 }

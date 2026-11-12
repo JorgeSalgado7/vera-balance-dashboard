@@ -2,8 +2,7 @@ import { Condition } from 'dynamoose'
 import { UpdateUserDynamooseAdapter } from '../../../infrastructure/persistance/adapters/update-user-dynamoose.adapter'
 import { UserModel } from '../../../infrastructure/persistance/models/user.model'
 import { UserEntity } from '../../../domain/entities/user.entity'
-import { UserNotFoundError } from '../../../domain/errors/user-not-found.error'
-import { UserUpdateConflictError } from '../../../domain/errors/user-update-conflict.error'
+import { UserNotFoundError, UserUpdateConflictError } from '../../../domain/errors/user.error'
 import { USER_ROLES } from '../../../../../constants/user-roles.constant'
 
 jest.mock('../../../infrastructure/persistance/models/user.model', () => ({ UserModel: { update: jest.fn(), get: jest.fn(), query: jest.fn(), scan: jest.fn() } }))

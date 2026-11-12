@@ -1,7 +1,7 @@
-import type { IResetUserPasswordRepository } from '../../domain/repositories/reset-user-password.repository'
+import type { IUserRepository } from '../../domain/repositories/user.repository'
 import type { IHashPasswordService } from '../../../auth/domain/services/hash-password.service'
 import { ValidateChangeUserPasswordDomainService } from '../../domain/services/validate-change-user-password.domain-service'
-import { InvalidNewUserPasswordError } from '../../domain/errors/invalid-new-user-password.error'
+import { InvalidNewUserPasswordError } from '../../domain/errors/user.error'
 
 interface ResetUserPasswordCommand {
   userId: string
@@ -16,7 +16,7 @@ export class ResetUserPasswordUseCase {
   constructor(
     private readonly domain: ValidateChangeUserPasswordDomainService,
     private readonly hasher: IHashPasswordService,
-    private readonly repository: IResetUserPasswordRepository,
+    private readonly repository: Pick<IUserRepository, 'reset'>,
   ) {}
 
   async execute(input: ResetUserPasswordCommand): Promise<boolean> {

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import type { IVerifyRefreshTokenService } from '../../domain/services/verify-refresh-token.service'
-import { InvalidRefreshTokenError } from '../../domain/errors/invalid-refresh-token.error'
+import { InvalidRefreshTokenError } from '../../domain/errors/auth.error'
 
 @Injectable()
 export class VerifyRefreshTokenJwtService implements IVerifyRefreshTokenService {

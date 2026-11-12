@@ -1,3 +1,4 @@
+import { AppLogger } from './shared/logger/app-logger.service'
 import type { ValidationError } from 'class-validator'
 import { ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
@@ -8,7 +9,18 @@ import { AppModule } from './app.module'
 import { openApiHeader } from './docs/openapi.header';
 import { usersOperationsSorter } from './docs/users-operations-sorter'
 
+const logger = new AppLogger()
+
 async function bootstrap() {
+  logger.info('Bootstrap', 'app.starting', { runtime: process.version })
+  logger.info('Bootstrap', 'app.configuration', {
+    environment: ['development', 'production', 'test'].includes(process.env.NODE_ENV ?? '') ? process.env.NODE_ENV : 'custom',
+    configured: {
+      dynamodb: Boolean(process.env.DYNAMO_TABLE_NAME),
+      resend: Boolean(process.env.RESEND_API_KEY && process.env.RESEND_FROM_EMAIL),
+      jwt: Boolean(process.env.JWT_ACCESS_SECRET && process.env.JWT_REFRESH_SECRET),
+    },
+  })
   const app = await NestFactory.create(AppModule)
 
   //*CORS
@@ -31,7 +43,7 @@ async function bootstrap() {
           for (const err of errorsArray) {
             const field = parent ? `${parent}.${err.property}` : err.property
             if (err.constraints) {
-              messages.push(...Object.values(err.constraints).map((message) => ({ field, message })))
+              messages.push(...Object.entries(err.constraints).map(([constraint, message]) => ({ field, message: constraint === 'whitelistValidation' ? `El campo «${field}» no está permitido en esta solicitud.` : message })))
             }
 
             if (err.children?.length) {
@@ -42,7 +54,7 @@ async function bootstrap() {
           return messages
         }
 
-        return HttpProblem.badRequest('Validate that the elements in the errors parameter exist and are correct.', '', extractErrors(errors))
+        return HttpProblem.badRequest('Revisa los campos indicados e inténtalo de nuevo.', '', extractErrors(errors))
       },
     }),
   )
@@ -55,6 +67,10 @@ async function bootstrap() {
   })
 
   await app.listen(process.env.PORT ?? 3000)
+  logger.info('Bootstrap', 'app.listening', { port: process.env.PORT ?? 3000, docsPath: '/docs' })
 }
 
-void bootstrap()
+void bootstrap().catch(error => {
+  logger.error('Bootstrap', 'app.start.failed', error)
+  process.exitCode = 1
+})

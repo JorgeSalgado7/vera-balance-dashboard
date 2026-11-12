@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common'
 import { UserModel } from '../models/user.model'
 import { UserMapper } from '../../mappers/user.mapper'
 import type { UserEntity } from '../../../domain/entities/user.entity'
-import type { IFindAllUsersRepository } from '../../../domain/repositories/find-all-users.repository'
+import type { IUserRepository } from '../../../domain/repositories/user.repository'
 
 @Injectable()
-export class FindAllUsersDynamooseAdapter implements IFindAllUsersRepository {
+export class FindAllUsersDynamooseAdapter implements Pick<IUserRepository, 'findAll'> {
   private readonly model = UserModel
 
   async findAll(): Promise<UserEntity[]> {

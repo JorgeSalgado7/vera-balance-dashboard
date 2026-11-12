@@ -4,13 +4,12 @@ import { UserModel } from '../models/user.model'
 import { UserMapper } from '../../mappers/user.mapper'
 import type { UserEntity } from '../../../domain/entities/user.entity'
 import type { UpdateUserChanges } from '../../../domain/interfaces/update-user-changes'
-import type { IUpdateUserRepository } from '../../../domain/repositories/update-user.repository'
-import { UserNotFoundError } from '../../../domain/errors/user-not-found.error'
-import { UserUpdateConflictError } from '../../../domain/errors/user-update-conflict.error'
+import type { IUserRepository } from '../../../domain/repositories/user.repository'
+import { UserNotFoundError, UserUpdateConflictError } from '../../../domain/errors/user.error'
 import { UPDATE_USER_FIELDS } from '../../../domain/constants/update-user-fields.constant'
 
 @Injectable()
-export class UpdateUserDynamooseAdapter implements IUpdateUserRepository {
+export class UpdateUserDynamooseAdapter implements Pick<IUserRepository, 'update'> {
   private readonly model = UserModel
 
   async update(user: UserEntity, changes: UpdateUserChanges, updatedAt: string): Promise<UserEntity> {

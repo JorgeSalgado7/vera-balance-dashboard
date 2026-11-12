@@ -1,4 +1,4 @@
-import { InvalidPasswordRecoveryCodeError } from '../errors/invalid-password-recovery-code.error'
+import { InvalidPasswordRecoveryCodeError } from '../errors/auth.error'
 
 export class ValidatePasswordRecoveryDomainService {
   validate(matches: boolean, expiresAt: string | undefined): asserts expiresAt is string {

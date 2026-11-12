@@ -1,6 +1,4 @@
-import { EmptyTherapyTypeUpdateError } from '../../../domain/errors/empty-therapy-type-update.error'
-import { TherapyTypeNotFoundError } from '../../../domain/errors/therapy-type-not-found.error'
-import { TherapyTypeConflictError } from '../../../domain/errors/therapy-type-conflict.error'
+import { EmptyTherapyTypeUpdateError, TherapyTypeNotFoundError, TherapyTypeConflictError } from '../../../domain/errors/therapy-type.error'
 import { HttpProblem } from '../../../../../shared/http-problem/http-problem.util'
 
 export class TherapyTypeErrorTranslator {

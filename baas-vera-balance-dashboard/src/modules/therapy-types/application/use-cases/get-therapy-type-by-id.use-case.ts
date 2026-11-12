@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common'
 import type { ITherapyTypeRepository } from '../../domain/repositories/therapy-type.repository'
-import { TherapyTypeNotFoundError } from '../../domain/errors/therapy-type-not-found.error'
+import { TherapyTypeNotFoundError } from '../../domain/errors/therapy-type.error'
 import type { GetTherapyTypeByIdResponseDto } from '../dtos/get-therapy-type-by-id-response.dto'
 
 @Injectable()

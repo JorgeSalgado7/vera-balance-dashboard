@@ -1,8 +1,6 @@
 import { HttpException } from '@nestjs/common'
-import { EmptyTherapyTypeUpdateError } from '../../../../domain/errors/empty-therapy-type-update.error'
+import { EmptyTherapyTypeUpdateError, TherapyTypeNotFoundError, TherapyTypeConflictError } from '../../../../domain/errors/therapy-type.error'
 import { TherapyTypeErrorTranslator } from '../../../../presentation/http/errors/therapy-type-error.translator'
-import { TherapyTypeNotFoundError } from '../../../../domain/errors/therapy-type-not-found.error'
-import { TherapyTypeConflictError } from '../../../../domain/errors/therapy-type-conflict.error'
 
 describe('TherapyTypeErrorTranslator', () => {
   it.each([[new EmptyTherapyTypeUpdateError(), 400], [new TherapyTypeNotFoundError(), 404], [new TherapyTypeConflictError(), 409]])('translates %s to %s', (error, status) => {

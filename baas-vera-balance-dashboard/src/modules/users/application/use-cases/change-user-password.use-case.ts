@@ -2,28 +2,28 @@ import type { SendPasswordUpdatedEmailUseCase } from '../../../emails/applicatio
 import type { IHashPasswordService } from '../../../auth/domain/services/hash-password.service'
 import type { IVerifyPasswordService } from '../../../auth/domain/services/verify-password.service'
 import type { IUserRepository } from '../../domain/repositories/user.repository'
-import type { IChangeUserPasswordRepository } from '../../domain/repositories/change-user-password.repository'
 import { ValidateChangeUserPasswordDomainService } from '../../domain/services/validate-change-user-password.domain-service'
-import { UserNotFoundError } from '../../domain/errors/user-not-found.error'
-import { IncorrectCurrentUserPasswordError } from '../../domain/errors/incorrect-current-user-password.error'
-import { ReusedUserPasswordError } from '../../domain/errors/reused-user-password.error'
-import { InvalidNewUserPasswordError } from '../../domain/errors/invalid-new-user-password.error'
+import {
+  UserNotFoundError,
+  IncorrectCurrentUserPasswordError,
+  ReusedUserPasswordError,
+  InvalidNewUserPasswordError,
+} from '../../domain/errors/user.error'
 import type { ChangeUserPasswordDto } from '../dtos/change-user-password.dto'
 import type { ChangeUserPasswordResponseDto } from '../dtos/change-user-password-response.dto'
 
 export class ChangeUserPasswordUseCase {
   constructor(
     private readonly domain: ValidateChangeUserPasswordDomainService,
-    private readonly users: Pick<IUserRepository, 'findById'>,
+    private readonly repository: Pick<IUserRepository, 'findById' | 'changePassword'>,
     private readonly verifier: IVerifyPasswordService,
     private readonly hasher: IHashPasswordService,
-    private readonly updater: IChangeUserPasswordRepository,
     private readonly notification: SendPasswordUpdatedEmailUseCase,
   ) {}
 
   async execute(userId: string, dto: ChangeUserPasswordDto): Promise<ChangeUserPasswordResponseDto> {
     this.domain.execute(dto.password, dto.password_confirmation)
-    const user = await this.users.findById(userId)
+    const user = await this.repository.findById(userId)
     if (!user) throw new UserNotFoundError()
 
     if (typeof dto.current_password !== 'string' || !(await this.verifier.verify(dto.current_password, user.password))) throw new IncorrectCurrentUserPasswordError()
@@ -38,7 +38,7 @@ export class ChangeUserPasswordUseCase {
     }
 
     const updatedAt = new Date(Date.now()).toISOString()
-    await this.updater.changePassword(user, hash, updatedAt)
+    await this.repository.changePassword(user, hash, updatedAt)
     await this.notification.execute(user.email)
     return { message: 'Contraseña actualizada' }
   }

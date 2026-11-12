@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing'
 import { GetUserByIdUseCase } from '../../../application/use-cases/get-user-by-id.use-case'
-import { UserNotFoundError } from '../../../domain/errors/user-not-found.error'
+import { UserNotFoundError } from '../../../domain/errors/user.error'
 import type { IUserRepository } from '../../../domain/repositories/user.repository'
 import { UserEntity } from '../../../domain/entities/user.entity'
 import { USER_ROLES } from '../../../../../constants/user-roles.constant'

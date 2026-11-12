@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing'
 import { LogoutUseCase } from '../../../application/use-cases/logout.use-case'
-import { InvalidAccessTokenError } from '../../../domain/errors/invalid-access-token.error'
+import { InvalidAccessTokenError } from '../../../domain/errors/auth.error'
 
 describe('LogoutUseCase', () => {
   const verify = jest.fn()

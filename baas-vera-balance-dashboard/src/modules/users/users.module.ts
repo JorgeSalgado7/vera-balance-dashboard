@@ -1,10 +1,9 @@
 import { EmailsModule } from '../emails/emails.module'
 import { SendPasswordUpdatedEmailUseCase } from '../emails/application/use-cases/send-password-updated-email.use-case'
 import { ResetUserPasswordUseCase } from './application/use-cases/reset-user-password.use-case'
-import type { IResetUserPasswordRepository } from './domain/repositories/reset-user-password.repository'
+import type { IUserRepository } from './domain/repositories/user.repository'
 import { ResetUserPasswordDynamooseAdapter } from './infrastructure/persistance/adapters/reset-user-password-dynamoose.adapter'
 import { SetUserPasswordRecoveryUseCase } from './application/use-cases/set-user-password-recovery.use-case'
-import type { ISetUserPasswordRecoveryRepository } from './domain/repositories/set-user-password-recovery.repository'
 import { SetUserPasswordRecoveryDynamooseAdapter } from './infrastructure/persistance/adapters/set-user-password-recovery-dynamoose.adapter'
 import { Module } from '@nestjs/common'
 
@@ -32,13 +31,6 @@ import { CreateUserDomainService } from './domain/services/create-user.domain-se
 import { ValidateCreateUserDomainService } from './domain/services/validate-create-user.domain-service'
 import { UpdateUserDomainService } from './domain/services/update-user.domain-service'
 import { ValidateChangeUserPasswordDomainService } from './domain/services/validate-change-user-password.domain-service'
-import type { IUserRepository } from './domain/repositories/user.repository'
-import type { IFindAllUsersRepository } from './domain/repositories/find-all-users.repository'
-import type { IUpdateUserRepository } from './domain/repositories/update-user.repository'
-import type { IUpdateUserStatusRepository } from './domain/repositories/update-user-status.repository'
-import type { IChangeUserPasswordRepository } from './domain/repositories/change-user-password.repository'
-import type { IDeleteUserRepository } from './domain/repositories/delete-user.repository'
-import type { IUserTherapeuticProcessesRepository } from './domain/repositories/user-therapeutic-processes.repository'
 
 import { CreateUserDynamooseAdapter } from './infrastructure/persistance/adapters/create-user-dynamoose.adapter'
 import { FindAllUsersDynamooseAdapter } from './infrastructure/persistance/adapters/find-all-users-dynamoose.adapter'
@@ -57,19 +49,17 @@ import { UserTherapeuticProcessesDynamooseAdapter } from './infrastructure/persi
 
   providers: [
     ResetUserPasswordDynamooseAdapter,
-    { provide: 'IResetUserPasswordRepository', useExisting: ResetUserPasswordDynamooseAdapter },
     {
       provide: ResetUserPasswordUseCase,
       useFactory: (domain: ValidateChangeUserPasswordDomainService, hasher: IHashPasswordService,
-        repository: IResetUserPasswordRepository) => new ResetUserPasswordUseCase(domain, hasher, repository),
-      inject: [ValidateChangeUserPasswordDomainService, 'IHashPasswordService', 'IResetUserPasswordRepository'],
+        repository: IUserRepository) => new ResetUserPasswordUseCase(domain, hasher, repository),
+      inject: [ValidateChangeUserPasswordDomainService, 'IHashPasswordService', 'IUserRepository'],
     },
     SetUserPasswordRecoveryDynamooseAdapter,
-    { provide: 'ISetUserPasswordRecoveryRepository', useExisting: SetUserPasswordRecoveryDynamooseAdapter },
     {
       provide: SetUserPasswordRecoveryUseCase,
-      useFactory: (repository: ISetUserPasswordRecoveryRepository) => new SetUserPasswordRecoveryUseCase(repository),
-      inject: ['ISetUserPasswordRecoveryRepository'],
+      useFactory: (repository: IUserRepository) => new SetUserPasswordRecoveryUseCase(repository),
+      inject: ['IUserRepository'],
     },
     {
       provide: FindUserByEmailUseCase,
@@ -78,37 +68,32 @@ import { UserTherapeuticProcessesDynamooseAdapter } from './infrastructure/persi
     },
     ValidateChangeUserPasswordDomainService,
     ChangeUserPasswordDynamooseAdapter,
-    { provide: 'IChangeUserPasswordRepository', useExisting: ChangeUserPasswordDynamooseAdapter },
     {
       provide: ChangeUserPasswordUseCase,
-      useFactory: (domain: ValidateChangeUserPasswordDomainService, users: IUserRepository, verifier: IVerifyPasswordService, hasher: IHashPasswordService, updater: IChangeUserPasswordRepository, notification: SendPasswordUpdatedEmailUseCase) =>
-        new ChangeUserPasswordUseCase(domain, users, verifier, hasher, updater, notification),
-      inject: [ValidateChangeUserPasswordDomainService, 'IUserRepository', 'IVerifyPasswordService', 'IHashPasswordService', 'IChangeUserPasswordRepository', SendPasswordUpdatedEmailUseCase],
+      useFactory: (domain: ValidateChangeUserPasswordDomainService, users: IUserRepository, verifier: IVerifyPasswordService, hasher: IHashPasswordService, notification: SendPasswordUpdatedEmailUseCase) =>
+        new ChangeUserPasswordUseCase(domain, users, verifier, hasher, notification),
+      inject: [ValidateChangeUserPasswordDomainService, 'IUserRepository', 'IVerifyPasswordService', 'IHashPasswordService', SendPasswordUpdatedEmailUseCase],
     },
     UpdateUserStatusDynamooseAdapter,
-    { provide: 'IUpdateUserStatusRepository', useExisting: UpdateUserStatusDynamooseAdapter },
     {
       provide: UpdateUserStatusUseCase,
-      useFactory: (users: IUserRepository, updater: IUpdateUserStatusRepository) => new UpdateUserStatusUseCase(users, updater),
-      inject: ['IUserRepository', 'IUpdateUserStatusRepository'],
+      useFactory: (repository: IUserRepository) => new UpdateUserStatusUseCase(repository),
+      inject: ['IUserRepository'],
     },
     DeleteUserDynamooseAdapter,
     UserTherapeuticProcessesDynamooseAdapter,
-    { provide: 'IDeleteUserRepository', useExisting: DeleteUserDynamooseAdapter },
-    { provide: 'IUserTherapeuticProcessesRepository', useExisting: UserTherapeuticProcessesDynamooseAdapter },
     {
       provide: DeleteUserUseCase,
-      useFactory: (users: IUserRepository, relations: IUserTherapeuticProcessesRepository, deleter: IDeleteUserRepository) => new DeleteUserUseCase(users, relations, deleter),
-      inject: ['IUserRepository', 'IUserTherapeuticProcessesRepository', 'IDeleteUserRepository'],
+      useFactory: (repository: IUserRepository) => new DeleteUserUseCase(repository),
+      inject: ['IUserRepository'],
     },
     UpdateUserDomainService,
     UpdateUserDynamooseAdapter,
-    { provide: 'IUpdateUserRepository', useExisting: UpdateUserDynamooseAdapter },
     {
       provide: UpdateUserUseCase,
-      useFactory: (domain: UpdateUserDomainService, users: IUserRepository, updater: IUpdateUserRepository) =>
-        new UpdateUserUseCase(domain, users, updater),
-      inject: [UpdateUserDomainService, 'IUserRepository', 'IUpdateUserRepository'],
+      useFactory: (domain: UpdateUserDomainService, repository: IUserRepository) =>
+        new UpdateUserUseCase(domain, repository),
+      inject: [UpdateUserDomainService, 'IUserRepository'],
     },
     {
       provide: GetUserByIdUseCase,
@@ -116,11 +101,10 @@ import { UserTherapeuticProcessesDynamooseAdapter } from './infrastructure/persi
       inject: ['IUserRepository'],
     },
     FindAllUsersDynamooseAdapter,
-    { provide: 'IFindAllUsersRepository', useExisting: FindAllUsersDynamooseAdapter },
     {
       provide: GetUsersUseCase,
-      useFactory: (repository: IFindAllUsersRepository) => new GetUsersUseCase(repository),
-      inject: ['IFindAllUsersRepository'],
+      useFactory: (repository: IUserRepository) => new GetUsersUseCase(repository),
+      inject: ['IUserRepository'],
     },
     ValidateCreateUserDomainService,
     {
@@ -135,12 +119,28 @@ import { UserTherapeuticProcessesDynamooseAdapter } from './infrastructure/persi
 
     {
       provide: 'IUserRepository',
-      useFactory: (createAdapter: CreateUserDynamooseAdapter, findByEmailAdapter: FindUserByEmailDynamooseAdapter, findByIdAdapter: FindUserByIdDynamooseAdapter): IUserRepository => ({
+      useFactory: (createAdapter: CreateUserDynamooseAdapter, findByEmailAdapter: FindUserByEmailDynamooseAdapter, findByIdAdapter: FindUserByIdDynamooseAdapter,
+        findAllAdapter: FindAllUsersDynamooseAdapter, updateAdapter: UpdateUserDynamooseAdapter,
+        statusAdapter: UpdateUserStatusDynamooseAdapter, passwordAdapter: ChangeUserPasswordDynamooseAdapter,
+        deleteAdapter: DeleteUserDynamooseAdapter, processesAdapter: UserTherapeuticProcessesDynamooseAdapter,
+        resetAdapter: ResetUserPasswordDynamooseAdapter, recoveryAdapter: SetUserPasswordRecoveryDynamooseAdapter,
+      ): IUserRepository => ({
         create: (entity) => createAdapter.create(entity),
         findByEmail: (email) => findByEmailAdapter.findByEmail(email),
         findById: (id) => findByIdAdapter.findById(id),
+        findAll: () => findAllAdapter.findAll(),
+        update: (user, changes, updatedAt) => updateAdapter.update(user, changes, updatedAt),
+        updateStatus: (user, status, updatedAt) => statusAdapter.updateStatus(user, status, updatedAt),
+        changePassword: (user, passwordHash, updatedAt) => passwordAdapter.changePassword(user, passwordHash, updatedAt),
+        delete: (user) => deleteAdapter.delete(user),
+        hasTherapeuticProcesses: (userId) => processesAdapter.hasTherapeuticProcesses(userId),
+        reset: (input, updatedAt) => resetAdapter.reset(input, updatedAt),
+        set: (input, updatedAt) => recoveryAdapter.set(input, updatedAt),
       }),
-      inject: [CreateUserDynamooseAdapter, FindUserByEmailDynamooseAdapter, FindUserByIdDynamooseAdapter],
+      inject: [CreateUserDynamooseAdapter, FindUserByEmailDynamooseAdapter, FindUserByIdDynamooseAdapter,
+        FindAllUsersDynamooseAdapter, UpdateUserDynamooseAdapter, UpdateUserStatusDynamooseAdapter,
+        ChangeUserPasswordDynamooseAdapter, DeleteUserDynamooseAdapter, UserTherapeuticProcessesDynamooseAdapter,
+        ResetUserPasswordDynamooseAdapter, SetUserPasswordRecoveryDynamooseAdapter],
     },
 
     CreateUserUseCase,

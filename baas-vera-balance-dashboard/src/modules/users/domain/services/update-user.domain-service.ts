@@ -2,13 +2,19 @@ import { USER_ROLES, USER_ROLE_VALUES } from '../../../../constants/user-roles.c
 import { UPDATE_USER_FIELDS } from '../constants/update-user-fields.constant'
 import type { UserEntity } from '../entities/user.entity'
 import type { UpdateUserChanges } from '../interfaces/update-user-changes'
-import { EmptyUserUpdateError } from '../errors/empty-user-update.error'
-import { InvalidUserUpdateFieldsError } from '../errors/invalid-user-update-fields.error'
-import { MissingUserNameError, MissingUserProfessionalLicenseError, InvalidUserRoleError, InvalidUserClinicError } from '../errors/user.error'
+import {
+  EmptyUserUpdateError,
+  InvalidUserUpdateFieldsError,
+  MissingUserNameError,
+  MissingUserProfessionalLicenseError,
+  InvalidUserRoleError,
+  InvalidUserClinicError,
+} from '../errors/user.error'
 
 export class UpdateUserDomainService {
   execute(user: UserEntity, changes: UpdateUserChanges): UpdateUserChanges {
-    if (Object.keys(changes).some((field) => !UPDATE_USER_FIELDS.includes(field as (typeof UPDATE_USER_FIELDS)[number]))) throw new InvalidUserUpdateFieldsError()
+    const invalidFields = Object.keys(changes).filter(field => !UPDATE_USER_FIELDS.includes(field as (typeof UPDATE_USER_FIELDS)[number]))
+    if (invalidFields.length) throw new InvalidUserUpdateFieldsError(invalidFields)
     if (!UPDATE_USER_FIELDS.some((field) => changes[field] !== undefined)) throw new EmptyUserUpdateError()
 
     const result: UpdateUserChanges = {}

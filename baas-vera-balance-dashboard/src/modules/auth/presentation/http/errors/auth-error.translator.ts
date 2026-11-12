@@ -1,7 +1,9 @@
-import { InvalidPasswordRecoveryCodeError } from '../../../domain/errors/invalid-password-recovery-code.error'
-import { InvalidAccessTokenError } from '../../../domain/errors/invalid-access-token.error'
-import { InvalidRefreshTokenError } from '../../../domain/errors/invalid-refresh-token.error'
-import { InvalidCredentialsError } from '../../../domain/errors/invalid-credentials.error'
+import {
+  InvalidPasswordRecoveryCodeError,
+  InvalidAccessTokenError,
+  InvalidRefreshTokenError,
+  InvalidCredentialsError,
+} from '../../../domain/errors/auth.error'
 import { HttpProblem } from '../../../../../shared/http-problem/http-problem.util'
 
 export class AuthErrorTranslator {

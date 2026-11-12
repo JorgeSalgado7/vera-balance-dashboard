@@ -1,7 +1,7 @@
 import { Controller, Headers, HttpCode, HttpStatus, Post } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { LogoutUseCase } from '../../../application/use-cases/logout.use-case'
-import { InvalidAccessTokenError } from '../../../domain/errors/invalid-access-token.error'
+import { InvalidAccessTokenError } from '../../../domain/errors/auth.error'
 import { AuthErrorTranslator } from '../errors/auth-error.translator'
 
 @Controller('auth')

@@ -3,7 +3,7 @@ import type { FindUserByEmailUseCase } from '../../../users/application/use-case
 import type { ResetUserPasswordUseCase } from '../../../users/application/use-cases/reset-user-password.use-case'
 import type { IVerifyPasswordService } from '../../domain/services/verify-password.service'
 import { ValidatePasswordRecoveryDomainService } from '../../domain/services/validate-password-recovery.domain-service'
-import { InvalidPasswordRecoveryCodeError } from '../../domain/errors/invalid-password-recovery-code.error'
+import { InvalidPasswordRecoveryCodeError } from '../../domain/errors/auth.error'
 import type { ResetPasswordDto } from '../dtos/reset-password.dto'
 import type { ResetPasswordResponseDto } from '../dtos/reset-password-response.dto'
 

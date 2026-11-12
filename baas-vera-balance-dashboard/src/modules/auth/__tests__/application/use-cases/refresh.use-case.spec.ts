@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing'
 import { RefreshUseCase } from '../../../application/use-cases/refresh.use-case'
-import { InvalidRefreshTokenError } from '../../../domain/errors/invalid-refresh-token.error'
+import { InvalidRefreshTokenError } from '../../../domain/errors/auth.error'
 
 describe('RefreshUseCase', () => {
   const verify = jest.fn()

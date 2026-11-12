@@ -26,7 +26,7 @@ describe('ChangeUserPasswordUseCase role-independent access', () => {
       { provide: 'Users', useValue: users }, { provide: 'Verifier', useValue: verifier },
       { provide: 'Hasher', useValue: hasher }, { provide: 'Updater', useValue: updater },
       { provide: ChangeUserPasswordUseCase, inject: [ValidateChangeUserPasswordDomainService, 'Users', 'Verifier', 'Hasher', 'Updater'],
-        useFactory: (d, u, v, h, updater) => new ChangeUserPasswordUseCase(d, u, v, h, updater,
+        useFactory: (d, u, v, h, updater) => new ChangeUserPasswordUseCase(d, { ...u, ...updater }, v, h,
           new SendPasswordUpdatedEmailUseCase(new PasswordUpdatedEmailTemplate(new EmailLayoutTemplate()), { send }, reportFailure)) }
     ] }).compile()
     useCase = module.get(ChangeUserPasswordUseCase)

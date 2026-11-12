@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common'
 import { UserModel } from '../models/user.model'
-import type { IUserTherapeuticProcessesRepository } from '../../../domain/repositories/user-therapeutic-processes.repository'
+import type { IUserRepository } from '../../../domain/repositories/user.repository'
 
 @Injectable()
-export class UserTherapeuticProcessesDynamooseAdapter implements IUserTherapeuticProcessesRepository {
+export class UserTherapeuticProcessesDynamooseAdapter implements Pick<IUserRepository, 'hasTherapeuticProcesses'> {
   private readonly model = UserModel
 
   async hasTherapeuticProcesses(userId: string): Promise<boolean> {

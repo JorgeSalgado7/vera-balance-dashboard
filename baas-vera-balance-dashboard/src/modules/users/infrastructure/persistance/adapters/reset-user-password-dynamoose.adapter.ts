@@ -1,13 +1,14 @@
+import type { ResetUserPasswordDto } from '../../../application/dtos/reset-user-password.dto'
 import { Injectable } from '@nestjs/common'
 import { Condition } from 'dynamoose'
 import { UserModel } from '../models/user.model'
-import type { IResetUserPasswordRepository, ResetUserPasswordInput } from '../../../domain/repositories/reset-user-password.repository'
+import type { IUserRepository } from '../../../domain/repositories/user.repository'
 
 @Injectable()
-export class ResetUserPasswordDynamooseAdapter implements IResetUserPasswordRepository {
+export class ResetUserPasswordDynamooseAdapter implements Pick<IUserRepository, 'reset'> {
   private readonly model = UserModel
 
-  async reset(input: ResetUserPasswordInput, updatedAt: string): Promise<boolean> {
+  async reset(input: ResetUserPasswordDto, updatedAt: string): Promise<boolean> {
     const condition = new Condition().where('pk').exists()
       .and().where('password').eq(input.currentPasswordHash)
       .and().where('password_recovery_code_hash').eq(input.codeHash)

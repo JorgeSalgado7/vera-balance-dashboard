@@ -1,5 +1,5 @@
 import { GetTherapyTypeByIdUseCase } from '../../../application/use-cases/get-therapy-type-by-id.use-case'
-import { TherapyTypeNotFoundError } from '../../../domain/errors/therapy-type-not-found.error'
+import { TherapyTypeNotFoundError } from '../../../domain/errors/therapy-type.error'
 const entity = { pk: 'therapy-id', sk: 'THERAPY_TYPE' as const, name: 'Individual', icon: null, gsi1pk: 'THERAPY_TYPE' as const, gsi1sk: 'THERAPY_TYPE#therapy-id', created_at: '2026-11-12T00:00:00.000Z', updated_at: '2026-11-12T00:00:00.000Z' }
 
 describe('GetTherapyTypeByIdUseCase', () => {

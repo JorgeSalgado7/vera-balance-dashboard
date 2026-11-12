@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import type { IVerifyAccessTokenService } from '../../domain/services/verify-access-token.service'
-import { InvalidAccessTokenError } from '../../domain/errors/invalid-access-token.error'
+import { InvalidAccessTokenError } from '../../domain/errors/auth.error'
 
 @Injectable()
 export class VerifyAccessTokenJwtService implements IVerifyAccessTokenService {

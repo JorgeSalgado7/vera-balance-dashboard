@@ -1,6 +1,5 @@
 import { DeleteTherapyTypeDynamooseAdapter } from '../../../infrastructure/persistance/adapters/delete-therapy-type-dynamoose.adapter'
-import { TherapyTypeConflictError } from '../../../domain/errors/therapy-type-conflict.error'
-import { TherapyTypeNotFoundError } from '../../../domain/errors/therapy-type-not-found.error'
+import { TherapyTypeConflictError, TherapyTypeNotFoundError } from '../../../domain/errors/therapy-type.error'
 jest.mock('../../../infrastructure/persistance/models/therapy-type.model', () => ({ TherapyTypeModel: { create: jest.fn(), get: jest.fn(), update: jest.fn(), delete: jest.fn(), query: jest.fn() } }))
 import { TherapyTypeModel } from '../../../infrastructure/persistance/models/therapy-type.model'
 const model = TherapyTypeModel as unknown as { create: jest.Mock, get: jest.Mock, update: jest.Mock, delete: jest.Mock, query: jest.Mock }

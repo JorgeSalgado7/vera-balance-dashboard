@@ -1,9 +1,10 @@
-import type { ISetUserPasswordRecoveryRepository, SetUserPasswordRecoveryInput } from '../../domain/repositories/set-user-password-recovery.repository'
+import type { SetUserPasswordRecoveryDto } from '../dtos/set-user-password-recovery.dto'
+import type { IUserRepository } from '../../domain/repositories/user.repository'
 
 export class SetUserPasswordRecoveryUseCase {
-  constructor(private readonly repository: ISetUserPasswordRecoveryRepository) {}
+  constructor(private readonly repository: Pick<IUserRepository, 'set'>) {}
 
-  execute(input: SetUserPasswordRecoveryInput): Promise<boolean> {
+  execute(input: SetUserPasswordRecoveryDto): Promise<boolean> {
     return this.repository.set(input, new Date(Date.now()).toISOString())
   }
 }

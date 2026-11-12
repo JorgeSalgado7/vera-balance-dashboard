@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { TherapyTypeModel } from '../models/therapy-type.model'
 import type { ITherapyTypeRepository } from '../../../domain/repositories/therapy-type.repository'
 import type { TherapyTypeEntity } from '../../../domain/entities/therapy-type.entity'
-import { TherapyTypeConflictError } from '../../../domain/errors/therapy-type-conflict.error'
+import { TherapyTypeConflictError } from '../../../domain/errors/therapy-type.error'
 import { TherapyTypeMapper } from '../../mappers/therapy-type.mapper'
 
 @Injectable()

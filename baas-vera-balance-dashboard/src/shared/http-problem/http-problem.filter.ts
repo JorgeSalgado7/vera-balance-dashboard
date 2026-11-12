@@ -10,6 +10,8 @@ import { HttpProblem } from './http-problem.util'
 
 
 //* Modules imports
+import { AuthErrorTranslator } from '../../modules/auth/presentation/http/errors/auth-error.translator'
+import { TherapyTypeErrorTranslator } from '../../modules/therapy-types/presentation/http/errors/therapy-type-error.translator'
 import { UserErrorTranslator } from '../../modules/users/presentation/http/errors/user-error.translator'
 
 
@@ -33,6 +35,8 @@ type HttpExceptionResponse = {
 //* List error translators
 const errorTranslators: ErrorTranslator[] = [
 	UserErrorTranslator,
+  AuthErrorTranslator,
+  TherapyTypeErrorTranslator,
 ]
 
 @Catch()

@@ -2,9 +2,7 @@ import { Test } from '@nestjs/testing'
 import { UpdateUserUseCase } from '../../../application/use-cases/update-user.use-case'
 import { UpdateUserDomainService } from '../../../domain/services/update-user.domain-service'
 import type { IUserRepository } from '../../../domain/repositories/user.repository'
-import type { IUpdateUserRepository } from '../../../domain/repositories/update-user.repository'
-import { UserNotFoundError } from '../../../domain/errors/user-not-found.error'
-import { InvalidUserUpdateFieldsError } from '../../../domain/errors/invalid-user-update-fields.error'
+import { UserNotFoundError, InvalidUserUpdateFieldsError } from '../../../domain/errors/user.error'
 import { UserEntity } from '../../../domain/entities/user.entity'
 import { USER_ROLES } from '../../../../../constants/user-roles.constant'
 
@@ -40,12 +38,12 @@ describe('UpdateUserUseCase', () => {
       providers: [
         UpdateUserDomainService,
         { provide: 'IUserRepository', useValue: { findById, findByEmail } },
-        { provide: 'IUpdateUserRepository', useValue: { update } },
+        { provide: 'Updater', useValue: { update } },
         {
           provide: UpdateUserUseCase,
-          inject: [UpdateUserDomainService, 'IUserRepository', 'IUpdateUserRepository'],
-          useFactory: (domain: UpdateUserDomainService, users: IUserRepository, updater: IUpdateUserRepository) =>
-            new UpdateUserUseCase(domain, users, updater),
+          inject: [UpdateUserDomainService, 'IUserRepository', 'Updater'],
+          useFactory: (domain: UpdateUserDomainService, users: IUserRepository, updater: Pick<IUserRepository, 'update'>) =>
+            new UpdateUserUseCase(domain, { ...users, ...updater }),
         },
       ],
     }).compile()

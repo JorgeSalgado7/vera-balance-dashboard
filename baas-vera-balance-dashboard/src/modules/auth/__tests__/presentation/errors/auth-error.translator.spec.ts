@@ -1,7 +1,5 @@
-import { InvalidPasswordRecoveryCodeError } from '../../../domain/errors/invalid-password-recovery-code.error'
-import { InvalidRefreshTokenError } from '../../../domain/errors/invalid-refresh-token.error'
+import { InvalidPasswordRecoveryCodeError, InvalidRefreshTokenError, InvalidCredentialsError } from '../../../domain/errors/auth.error'
 import { AuthErrorTranslator } from '../../../presentation/http/errors/auth-error.translator'
-import { InvalidCredentialsError } from '../../../domain/errors/invalid-credentials.error'
 import { HttpProblem } from '../../../../../shared/http-problem/http-problem.util'
 
 describe('AuthErrorTranslator', () => {
@@ -12,7 +10,7 @@ describe('AuthErrorTranslator', () => {
     } catch (error) {
       expect(error).toBeInstanceOf(HttpProblem)
       expect((error as HttpProblem).getStatus()).toBe(401)
-      expect((error as HttpProblem).getResponse()).toMatchObject({ status: 401, instance: '/auth/login', detail: 'Credenciales inválidas.' })
+      expect((error as HttpProblem).getResponse()).toMatchObject({ status: 401, instance: '/auth/login', detail: 'El correo electrónico o la contraseña no son correctos. Revisa tus datos e inténtalo de nuevo.' })
     }
   })
 
@@ -34,7 +32,7 @@ describe('AuthErrorTranslator', () => {
     } catch (error) {
       expect(error).toBeInstanceOf(HttpProblem)
       expect((error as HttpProblem).getStatus()).toBe(400)
-      expect((error as HttpProblem).getResponse()).toMatchObject({ status: 400, instance: '/auth/forgot-password/reset', detail: 'Código de recuperación inválido o expirado.' })
+      expect((error as HttpProblem).getResponse()).toMatchObject({ status: 400, instance: '/auth/forgot-password/reset', detail: 'El código de recuperación no es válido o ha vencido. Revisa el código o solicita uno nuevo.' })
     }
   })
 

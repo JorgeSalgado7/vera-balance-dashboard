@@ -2,7 +2,7 @@ import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import type { JwtSignOptions } from '@nestjs/jwt'
 import { VerifyRefreshTokenJwtService } from '../../../infrastructure/services/verify-refresh-token-jwt.service'
-import { InvalidRefreshTokenError } from '../../../domain/errors/invalid-refresh-token.error'
+import { InvalidRefreshTokenError } from '../../../domain/errors/auth.error'
 
 describe('VerifyRefreshTokenJwtService', () => {
   const jwt = new JwtService()

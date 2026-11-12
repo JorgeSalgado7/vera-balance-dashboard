@@ -1,3 +1,4 @@
+import { LoggerModule } from './shared/logger/logger.module';
 //* Nest
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -14,6 +15,7 @@ import { TherapyTypesModule } from './modules/therapy-types/therapy-types.module
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    LoggerModule,
 		UsersModule,
 		TherapyTypesModule,
 		AuthModule

@@ -30,6 +30,8 @@ sk: string -> 'USER'
 name: string
 email: string
 password: string
+password_recovery_code_hash: string -> opcional, hash seguro del código de recuperación
+password_recovery_expires_at: datetime -> opcional, vencimiento del código en UTC
 professional_license: string
 role: string -> 'admin' | 'clinic' | 'therapist'
 status: string -> 'Activo' | 'Inactivo'
@@ -45,6 +47,19 @@ updated_at: datetime
 ```
 
 Los atributos `gsi2pk` y `gsi2sk` se omiten cuando `clinic` es `null`.
+
+### Recuperación de contraseña
+
+Los códigos de recuperación pertenecen al mismo item `USER` (`pk = user UUID`, `sk = 'USER'`). No se crean tablas, items ni índices adicionales.
+
+- El código tiene exactamente seis dígitos, incluidos posibles ceros iniciales.
+- Solo se almacena su hash seguro en `password_recovery_code_hash`; el código original se envía al email registrado mediante Resend.
+- `password_recovery_expires_at` es la fecha UTC de emisión más cinco minutos.
+- Ambos atributos son opcionales para usuarios que todavía no han solicitado recuperación y se actualizan juntos de forma atómica.
+- Una nueva emisión reemplaza el hash y vencimiento anteriores. En emisiones concurrentes prevalece la última escritura completada en DynamoDB.
+- La escritura requiere que el usuario siga existiendo y conserve la contraseña leída al solicitar la recuperación; no debe recrear un usuario eliminado.
+- Los atributos de recuperación no forman parte de las respuestas HTTP de usuarios ni de autenticación y no se registran en logs.
+- El código es de un solo uso. El restablecimiento deberá comprobar el hash y vencimiento y retirar ambos atributos al actualizar la contraseña mediante una operación atómica condicionada al código vigente. La eliminación corresponde al flujo de restablecimiento, no al de solicitud.
 
 ## 2. Therapy types
 

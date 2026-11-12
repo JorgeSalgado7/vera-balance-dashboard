@@ -2,7 +2,7 @@
 
 ## 1. Propósito
 
-Este archivo define las instrucciones generales que Codex deberá seguir para implementar User Stories de **Vera Balance Dashboard**.
+Este archivo define las instrucciones generales que Codex deberá seguir para desarrollar y mantener **Vera Balance Dashboard**.
 
 El proyecto está compuesto por dos aplicaciones:
 
@@ -10,12 +10,6 @@ El proyecto está compuesto por dos aplicaciones:
 - **MFE:** Frontend desarrollado con React, TypeScript, Vite, Redux Toolkit, Material UI y SCSS.
 
 Ambas aplicaciones implementarán Clean Architecture y deberán respetar sus respectivas responsabilidades.
-
-El desarrollo está basado en especificaciones mediante User Stories (US).
-
-Las User Stories se encuentran en:
-
-`docs/user-stories/`
 
 Las definiciones técnicas, arquitectónicas, funcionales y de contratos se encuentran en:
 
@@ -40,9 +34,6 @@ vera-balance-dashboard/
 │   ├── DEFINITIONS.md
 │   ├── PROJECT_ARCHITECTURE.md
 │   ├── ARCHITECTURE_GUIDELINES.md
-│   └── user-stories/
-│       ├── baas/
-│       └── mfe/
 ├── baas/
 └── mfe/
 ```
@@ -55,64 +46,27 @@ Codex deberá inspeccionar el estado real del repositorio antes de realizar camb
 
 ---
 
-## 3. Organización de User Stories
+## 3. Flujo obligatorio de trabajo
 
-Las User Stories estarán separadas por aplicación.
-
-### BAAS
-
-`docs/user-stories/baas/{module}/{user-story}.md`
-
-Ejemplo:
-
-`docs/user-stories/baas/users/US-BAAS-USERS-001-create-user.md`
-
-### MFE
-
-`docs/user-stories/mfe/{feature}/{user-story}.md`
-
-Ejemplo:
-
-`docs/user-stories/mfe/users/US-MFE-USERS-001-create-user.md`
-
-### Reglas
-
-1. Codex deberá localizar la User Story utilizando su identificador.
-2. Deberá leer el archivo completo.
-3. Deberá identificar la aplicación a la que pertenece.
-4. Deberá implementar únicamente el alcance correspondiente.
-5. No deberá modificar la otra aplicación salvo que la User Story lo solicite expresamente.
-6. No deberá modificar otras User Stories.
-7. No deberá asumir que una User Story del BAAS autoriza cambios en el MFE, ni viceversa.
-
-Si el identificador solicitado coincide con más de una historia o no permite determinar su ubicación, Codex deberá solicitar aclaración.
-
----
-
-## 4. Flujo obligatorio de trabajo
-
-Para cada User Story solicitada, Codex deberá:
+Para cada tarea solicitada, Codex deberá:
 
 1. Inspeccionar la estructura del repositorio.
 2. Leer íntegramente `AGENTS.md`.
-3. Localizar y leer la User Story solicitada.
-4. Identificar si pertenece al BAAS o al MFE.
-5. Revisar su estado, alcance, criterios de aceptación, reglas de negocio y Definition of Done.
-6. Leer la documentación técnica aplicable.
-7. Analizar las dependencias de la historia.
-8. Revisar las implementaciones existentes relacionadas.
-9. Identificar los patrones arquitectónicos aplicables.
-10. Determinar los archivos y componentes necesarios.
-11. Implementar exclusivamente la funcionalidad solicitada.
-12. Agregar o actualizar las pruebas necesarias.
-13. Verificar la versión de Node.js.
-14. Ejecutar las pruebas permitidas cuando el entorno esté preparado.
-15. Verificar todos los criterios de aceptación.
-16. Verificar las reglas de negocio.
-17. Revisar la Definition of Done.
-18. Revisar el diff completo.
-19. Identificar bloqueos y acciones manuales pendientes.
-20. Actualizar el estado de la User Story cuando corresponda.
+3. Identificar si la tarea pertenece al BAAS o al MFE.
+4. Analizar el objetivo y alcance solicitado.
+5. Leer la documentación técnica aplicable.
+6. Analizar las dependencias de la funcionalidad.
+7. Revisar las implementaciones existentes relacionadas.
+8. Verificar que no existan funciones o funcionalidades equivalentes antes de crear nuevas implementaciones.
+8. Identificar los patrones arquitectónicos aplicables.
+9. Determinar los archivos y componentes necesarios.
+10. Implementar exclusivamente la funcionalidad solicitada.
+11. Agregar o actualizar las pruebas necesarias.
+12. Verificar la versión de Node.js.
+13. Ejecutar las pruebas permitidas cuando el entorno esté preparado.
+14. Verificar el comportamiento esperado.
+15. Revisar el diff completo.
+16. Identificar bloqueos y acciones manuales pendientes.
 
 No omitir etapas.
 
@@ -120,7 +74,7 @@ No comenzar a modificar código sin haber analizado la documentación y la imple
 
 ---
 
-## 5. Documentación obligatoria
+## 4. Documentación obligatoria
 
 Los documentos principales del proyecto son:
 
@@ -130,15 +84,15 @@ Los documentos principales del proyecto son:
 - `docs/PROJECT_ARCHITECTURE.md`
 - `docs/ARCHITECTURE_GUIDELINES.md`
 
-Codex deberá revisar los documentos aplicables a la User Story solicitada y todas las referencias indicadas en ella.
+Codex deberá revisar los documentos aplicables a la tarea solicitada.
 
 ### BAAS
 
-Para historias del BAAS, revisar obligatoriamente los cinco documentos.
+Para implementaciones del BAAS, revisar obligatoriamente los cinco documentos.
 
 ### MFE
 
-Para historias del MFE, revisar obligatoriamente:
+Para implementaciones del MFE, revisar obligatoriamente:
 
 - `docs/DEFINITIONS.md`
 - `docs/PROJECT_ARCHITECTURE.md`
@@ -164,7 +118,7 @@ Para contratos HTTP:
 Para reglas funcionales:
 
 1. `docs/DEFINITIONS.md`
-2. User Story solicitada, siempre que no contradiga contratos obligatorios.
+2. Contratos y documentación funcional aplicable.
 
 Para arquitectura:
 
@@ -178,66 +132,52 @@ No inventar soluciones ni modificar documentos para eliminar el conflicto.
 
 ---
 
-## 6. Estados de User Stories
+## 5. Alcance de las implementaciones
 
-Los estados válidos son:
+Cada tarea deberá implementarse de manera independiente.
 
-- `approved`
-- `under review`
+### BAAS
 
-### approved
-
-La historia está aprobada para implementación.
-
-Permanecerá en este estado durante su desarrollo.
-
-### under review
-
-La historia ha completado todos sus criterios de aceptación y elementos del Definition of Done, y está lista para revisión manual.
-
-### Transición permitida
-
-`approved → under review`
-
-Codex únicamente podrá realizar esta transición cuando todos los elementos del DoD estén verificados.
-
-Si existen criterios pendientes, pruebas sin ejecutar o bloqueos técnicos, deberá mantener el estado `approved`.
-
-No introducir estados adicionales sin autorización.
-
----
-
-## 7. Alcance de las User Stories
-
-Cada historia deberá implementarse de manera independiente.
-
-### Historias BAAS
-
-Las historias ubicadas en `docs/user-stories/baas/` corresponden al backend.
+Las funcionalidades del backend deberán implementarse dentro de `baas/`.
 
 No modificar el MFE salvo autorización explícita.
 
-### Historias MFE
+### MFE
 
-Las historias ubicadas en `docs/user-stories/mfe/` corresponden al frontend.
+Las funcionalidades del frontend deberán implementarse dentro de `mfe/`.
 
 No modificar el BAAS salvo autorización explícita.
 
 ### Reglas generales
 
-- Implementar exclusivamente los criterios de aceptación.
+- Implementar exclusivamente la funcionalidad solicitada.
 - Respetar las dependencias documentadas.
 - No implementar funcionalidades futuras.
 - No modificar módulos o features ajenos.
 - No realizar refactorizaciones innecesarias.
 - Reutilizar capacidades existentes cuando corresponda.
+- Buscar y verificar implementaciones equivalentes antes de crear código nuevo.
 - No inventar contratos ni comportamientos.
 
 Si una dependencia obligatoria no existe, reportar el bloqueo.
 
 ---
 
-## 8. Clean Architecture
+### Verificación obligatoria antes de crear código
+
+**Antes de crear una función, componente, servicio, caso de uso, repositorio, adapter, módulo o funcionalidad, Codex deberá buscar si ya existe una implementación equivalente en el proyecto.**
+
+1. Inspeccionar los módulos, features y capacidades compartidas relevantes, sin limitar la búsqueda al nombre de la función.
+2. Revisar el comportamiento, las interfaces y las dependencias de las implementaciones encontradas.
+3. Reutilizar una implementación existente cuando sea compatible con la necesidad y con Clean Architecture.
+4. Evitar duplicaciones aunque los nombres o las ubicaciones de los archivos sean diferentes.
+5. Cuando exista una implementación parcial, evaluar una ampliación mínima antes de crear otra, sin mezclar responsabilidades independientes.
+6. Si reutilizarla requiere cambiar contratos o funcionalidades ajenas, solicitar autorización antes de modificarla.
+7. Crear una implementación nueva únicamente cuando no exista una alternativa compatible, manteniendo la separación de responsabilidades.
+
+---
+
+## 6. Clean Architecture
 
 Ambas aplicaciones implementarán Clean Architecture.
 
@@ -281,7 +221,7 @@ Infrastructure implementará los contratos requeridos por las capas internas.
 
 ---
 
-## 9. Separación estricta de responsabilidades
+## 7. Separación estricta de responsabilidades
 
 **Cada función o responsabilidad independiente deberá tener su propio archivo.**
 
@@ -318,7 +258,7 @@ Los archivos de configuración, composición de dependencias, declaración de m�
 
 ---
 
-## 10. Arquitectura BAAS
+## 8. Arquitectura BAAS
 
 El BAAS utiliza NestJS y separación por módulos funcionales.
 
@@ -341,7 +281,7 @@ Cada módulo deberá encapsular sus responsabilidades.
 
 No crear módulos completos para funcionalidades que todavía no han sido solicitadas.
 
-### 10.1 Use Cases
+### 8.1 Use Cases
 
 Cada operación de aplicación tendrá su propio Use Case.
 
@@ -357,13 +297,13 @@ application/
 
 No concentrar todos los casos de uso en un único servicio.
 
-### 10.2 Domain Services
+### 8.2 Domain Services
 
 Cada servicio de dominio deberá representar una responsabilidad concreta.
 
 No utilizar servicios genéricos para agrupar validaciones independientes.
 
-### 10.3 Repositories
+### 8.3 Repositories
 
 Los repositories deberán representar operaciones específicas.
 
@@ -373,7 +313,7 @@ Dirección esperada:
 
 No crear repositories CRUD genéricos cuando las operaciones tengan responsabilidades independientes.
 
-### 10.4 Infrastructure Adapters
+### 8.4 Infrastructure Adapters
 
 **Cada operación independiente contra DynamoDB deberá tener su propio adapter y su propio archivo.**
 
@@ -396,7 +336,7 @@ Cada adapter deberá implementar exclusivamente su operación.
 
 Una operación podrá realizar varias llamadas técnicas cuando sean necesarias para completar una única responsabilidad.
 
-### 10.5 Controllers
+### 8.5 Controllers
 
 Los controllers deberán mantenerse delgados.
 
@@ -410,7 +350,7 @@ Podrán:
 
 No deberán contener lógica de negocio ni persistencia.
 
-### 10.6 Errores
+### 8.6 Errores
 
 Los errores deberán representar condiciones concretas.
 
@@ -422,7 +362,7 @@ La traducción a HTTP pertenece a Presentation.
 
 ---
 
-## 11. Arquitectura MFE
+## 9. Arquitectura MFE
 
 El MFE utiliza React, TypeScript y separación por features.
 
@@ -441,19 +381,19 @@ mfe/src/features/{feature}/
 └── scss/
 ```
 
-### 11.1 Domain
+### 9.1 Domain
 
 Contiene modelos, contratos y reglas del dominio.
 
 No deberá depender de React, Redux ni Material UI.
 
-### 11.2 Application
+### 9.2 Application
 
 Contiene los casos de uso y la coordinación del estado.
 
 Los casos de uso deberán mantener responsabilidades independientes.
 
-### 11.3 Infrastructure
+### 9.3 Infrastructure
 
 Contiene clientes HTTP, repositories y adapters para comunicarse con el BAAS.
 
@@ -461,13 +401,13 @@ Cada operación independiente deberá mantener su propia implementación.
 
 No concentrar múltiples peticiones HTTP no relacionadas dentro de un único adapter genérico.
 
-### 11.4 UI
+### 9.4 UI
 
 Contiene páginas, componentes React, formularios y elementos visuales.
 
 Los componentes no deberán implementar directamente reglas de negocio ni solicitudes HTTP.
 
-### 11.5 SCSS
+### 9.5 SCSS
 
 Cada feature tendrá su propia carpeta `scss`.
 
@@ -477,7 +417,7 @@ No duplicar valores globales del tema.
 
 ---
 
-## 12. Sistema de diseño MFE
+## 10. Sistema de diseño MFE
 
 El MFE utilizará una librería propia de componentes basada en Material UI.
 
@@ -502,7 +442,7 @@ El tema global estará definido en:
 
 ---
 
-## 13. Redux Toolkit
+## 11. Redux Toolkit
 
 El MFE utilizará Redux Toolkit para la gestión de estado.
 
@@ -518,7 +458,7 @@ El MFE utilizará Redux Toolkit para la gestión de estado.
 
 ---
 
-## 14. Modelos y contratos
+## 12. Modelos y contratos
 
 Mantener separadas las representaciones utilizadas por cada capa.
 
@@ -538,7 +478,7 @@ Cada mapper independiente deberá estar separado en su propio archivo.
 
 ---
 
-## 15. DynamoDB
+## 13. DynamoDB
 
 Esta sección aplica a implementaciones BAAS.
 
@@ -584,7 +524,7 @@ Si una funcionalidad requiere persistencia adicional:
 
 ---
 
-## 16. Contratos HTTP
+## 14. Contratos HTTP
 
 La fuente de verdad es:
 
@@ -620,7 +560,7 @@ Los errores deberán respetar el contrato correspondiente.
 
 ---
 
-## 17. Seguridad y autenticación
+## 15. Seguridad y autenticación
 
 La autenticación y autorización son responsabilidades del BAAS.
 
@@ -653,7 +593,7 @@ Domain y Application no deberán depender directamente de bibliotecas concretas 
 
 ---
 
-## 18. Comunicación entre módulos y features
+## 16. Comunicación entre módulos y features
 
 ### BAAS
 
@@ -673,7 +613,7 @@ No crear servicios compartidos genéricos para concentrar lógica funcional.
 
 ---
 
-## 19. Entorno de ejecución
+## 17. Entorno de ejecución
 
 El proyecto utiliza obligatoriamente:
 
@@ -707,7 +647,7 @@ No modificar la configuración del proyecto para adaptarla al entorno.
 
 ---
 
-## 20. Dependencias
+## 18. Dependencias
 
 Codex no deberá instalar, actualizar ni eliminar dependencias durante una implementación normal.
 
@@ -742,7 +682,7 @@ La instalación corresponde al responsable del proyecto.
 
 ---
 
-## 21. Comandos permitidos
+## 19. Comandos permitidos
 
 El único comando npm autorizado para validación es:
 
@@ -795,9 +735,9 @@ En la respuesta final indicar:
 
 ---
 
-## 22. Pruebas
+## 20. Pruebas
 
-Las pruebas forman parte de la implementación cuando el DoD las requiere.
+Las pruebas forman parte de la implementación cuando sean necesarias para validar el comportamiento solicitado.
 
 ### BAAS
 
@@ -829,7 +769,7 @@ No introducir nuevas herramientas de pruebas sin necesidad justificada.
 
 - Mantener las pruebas separadas por responsabilidad.
 - No concentrar pruebas independientes en archivos genéricos.
-- Cubrir los criterios de aceptación verificables.
+- Cubrir los comportamientos verificables de la funcionalidad.
 - No modificar pruebas únicamente para hacer pasar código incorrecto.
 - No inventar comportamientos no documentados.
 
@@ -849,9 +789,9 @@ No afirmar que una prueba pasó si no fue ejecutada.
 
 ---
 
-## 23. Restricciones de implementación
+## 21. Restricciones de implementación
 
-Implementar el cambio mínimo y coherente que satisfaga completamente la User Story.
+Implementar el cambio mínimo y coherente que satisfaga completamente la tarea solicitada.
 
 No:
 
@@ -862,6 +802,7 @@ No:
 - Modificar contratos públicos innecesariamente.
 - Crear endpoints adicionales.
 - Agregar abstracciones especulativas.
+- Duplicar funciones o funcionalidades existentes, incluso bajo nombres distintos.
 - Combinar responsabilidades independientes en un único archivo.
 - Combinar operaciones DynamoDB en un mismo adapter.
 - Combinar múltiples operaciones HTTP independientes en un adapter genérico del MFE.
@@ -876,7 +817,7 @@ Reducir archivos a costa de combinar responsabilidades está prohibido.
 
 ---
 
-## 24. Protección de documentación
+## 22. Protección de documentación
 
 Durante una implementación normal, Codex no podrá modificar:
 
@@ -888,16 +829,6 @@ Durante una implementación normal, Codex no podrá modificar:
 - README.
 - Diagramas.
 - Contratos.
-- Otras User Stories.
-
-Dentro de `docs/`, únicamente podrá modificar la User Story solicitada.
-
-Y dentro de esa historia solamente podrá modificar:
-
-- `Status`.
-- Checks del Definition of Done.
-
-No modificar criterios de aceptación, reglas de negocio, descripciones, dependencias o referencias sin autorización.
 
 Si un documento requiere cambios, informar:
 
@@ -909,29 +840,14 @@ Esperar autorización explícita.
 
 ---
 
-## 25. Definition of Done
-
-Antes de considerar terminada una implementación, verificar todos los elementos de su Definition of Done.
-
-Un elemento solamente podrá marcarse como completado cuando exista evidencia suficiente.
-
-No marcar pruebas como completadas si no pudieron ejecutarse.
-
-No marcar comportamientos bloqueados como verificados.
-
-La User Story solamente podrá pasar de `approved` a `under review` cuando todos los elementos del DoD estén satisfechos.
-
-Si existen pendientes, mantener `approved` y reportarlos.
-
----
-
-## 26. Validación final
+## 23. Validación final
 
 Al terminar:
 
-1. Comparar la implementación con todos los criterios de aceptación.
+1. Comparar la implementación con la funcionalidad solicitada.
 2. Verificar las reglas de negocio.
-3. Verificar la arquitectura correspondiente al BAAS o MFE.
+3. Verificar que no se hayan duplicado funciones o funcionalidades existentes.
+4. Verificar la arquitectura correspondiente al BAAS o MFE.
 4. Confirmar la separación de responsabilidades por archivos.
 5. Confirmar que cada operación independiente tiene su propio adapter.
 6. Revisar los contratos OpenAPI.
@@ -942,29 +858,25 @@ Al terminar:
 11. Revisar el diff completo.
 12. Confirmar que no existen cambios no relacionados.
 13. Confirmar que no se modificó documentación protegida.
-14. Revisar todos los elementos del DoD.
-15. Identificar dependencias y acciones manuales pendientes.
-16. Actualizar el estado de la User Story cuando corresponda.
+14. Identificar dependencias y acciones manuales pendientes.
 
-No presentar una historia con criterios pendientes como completamente implementada.
+No presentar una implementación con funcionalidades pendientes como completamente terminada.
 
 ---
 
-## 27. Respuesta final
+## 24. Respuesta final
 
 Al finalizar, informar de forma concisa:
 
-- Identificador de la User Story.
 - Aplicación trabajada: BAAS o MFE.
 - Funcionalidades implementadas.
 - Archivos creados o modificados.
-- Criterios de aceptación satisfechos.
-- Criterios bloqueados o pendientes.
+- Comportamientos verificados.
+- Funcionalidades bloqueadas o pendientes.
 - Tests ejecutados y resultados.
 - Versión de Node.js utilizada.
 - Dependencias nuevas necesarias.
-- Elementos del DoD pendientes.
-- Estado final de la User Story.
+- Acciones manuales pendientes.
 
 Incluir siempre:
 
@@ -985,19 +897,18 @@ Incluir:
 
 `Build: no ejecutado por restricción del proyecto.`
 
-No cambiar automáticamente una historia a `Done`.
-
 ---
 
-## 28. Regla principal de consistencia
+## 25. Regla principal de consistencia
 
 Antes de implementar, verificar:
 
-1. Que la User Story corresponde a la aplicación identificada.
+1. Que la tarea corresponde a la aplicación identificada.
 2. Que respeta la documentación.
-3. Que satisface todos los criterios de aceptación.
+3. Que satisface el comportamiento solicitado.
 4. Que mantiene Clean Architecture.
-5. Que cada responsabilidad independiente está separada en su propio archivo.
+5. Que se revisaron y reutilizaron las implementaciones existentes compatibles, evitando duplicados.
+6. Que cada responsabilidad independiente está separada en su propio archivo.
 6. Que cada operación de persistencia o comunicación externa utiliza su adapter correspondiente.
 7. Que respeta los contratos y modelos definidos.
 8. Que no introduce persistencia ni comportamientos no documentados.
@@ -1005,12 +916,12 @@ Antes de implementar, verificar:
 10. Que no incorpora dependencias innecesarias.
 11. Que identifica las acciones manuales pendientes.
 
-**AGENTS.md es el gestor central de las User Stories de BAAS y MFE.**
+**AGENTS.md es el gestor central de instrucciones para BAAS y MFE.**
 
 **La separación de responsabilidades por archivos es obligatoria.**
 
 **Cada adapter deberá representar una operación independiente.**
 
-Codex deberá implementar únicamente el código y las pruebas correspondientes a la User Story solicitada.
+Codex deberá implementar únicamente el código y las pruebas correspondientes a la tarea solicitada.
 
 La instalación de dependencias, ejecución de builds y preparación del entorno corresponden al responsable del proyecto.

@@ -10,7 +10,7 @@ describe('OpenAPI header', () => {
   it('declares the relative server, module tags without global authentication', () => {
     expect(openApiHeader.servers).toEqual([expect.objectContaining({ url: '/' })])
     expect(openApiHeader.tags?.map((tag) => tag.name)).toEqual(['Auth', 'Users', 'Clinics', 'Patients', 'Therapy Types', 'Therapeutic Processes', 'Records', 'HomeWorks'])
-    expect(openApiHeader.components?.securitySchemes?.bearerAuth).toBeUndefined()
+    expect(openApiHeader.components?.securitySchemes?.bearerAuth).toMatchObject({ type: 'http', scheme: 'bearer', bearerFormat: 'JWT' })
     expect(openApiHeader.security ?? []).toEqual([])
   })
 })

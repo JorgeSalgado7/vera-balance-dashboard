@@ -1,3 +1,4 @@
+import type { SendPasswordUpdatedEmailUseCase } from '../../../emails/application/use-cases/send-password-updated-email.use-case'
 import type { IHashPasswordService } from '../../../auth/domain/services/hash-password.service'
 import type { IVerifyPasswordService } from '../../../auth/domain/services/verify-password.service'
 import type { IUserRepository } from '../../domain/repositories/user.repository'
@@ -17,6 +18,7 @@ export class ChangeUserPasswordUseCase {
     private readonly verifier: IVerifyPasswordService,
     private readonly hasher: IHashPasswordService,
     private readonly updater: IChangeUserPasswordRepository,
+    private readonly notification: SendPasswordUpdatedEmailUseCase,
   ) {}
 
   async execute(userId: string, dto: ChangeUserPasswordDto): Promise<ChangeUserPasswordResponseDto> {
@@ -37,6 +39,7 @@ export class ChangeUserPasswordUseCase {
 
     const updatedAt = new Date(Math.max(Date.now(), Date.parse(user.updated_at) + 1)).toISOString()
     await this.updater.changePassword(user, hash, updatedAt)
+    await this.notification.execute(user.email)
     return { message: 'Contraseña actualizada' }
   }
 }

@@ -67,6 +67,9 @@ const UserSchema = new Schema(
       required: true,
     },
 
+    password_recovery_code_hash: { type: String },
+    password_recovery_expires_at: { type: String },
+
     professional_license: {
       type: String,
       required: true,

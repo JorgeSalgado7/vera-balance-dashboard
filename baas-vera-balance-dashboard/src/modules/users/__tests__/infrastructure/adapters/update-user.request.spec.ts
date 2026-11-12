@@ -6,7 +6,7 @@ import { USER_ROLES } from '../../../../../constants/user-roles.constant'
 // Build real DynamoDB UpdateItem requests with the installed Dynamoose schema; mock only AWS I/O.
 jest.mock('dynamoose', () => {
   const actual = jest.requireActual('dynamoose')
-  return { ...actual, model: (_name, schema, options) => actual.model('users-update-request-test', schema, { ...options, waitForActive: false }) }
+  return { ...actual, model: (_name, schema, options) => actual.model('users-update-request-test', schema, { ...options, create: false, update: false, waitForActive: false }) }
 })
 
 const user = Object.assign(new UserEntity(), {

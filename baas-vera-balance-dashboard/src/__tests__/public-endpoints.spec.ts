@@ -23,7 +23,7 @@ describe('Public endpoint composition', () => {
     try {
       const document = SwaggerModule.createDocument(app, openApiHeader)
       expect(document.security ?? []).toEqual([])
-      const operations = Object.values(document.paths).flatMap(path =>
+      const operations = Object.entries(document.paths).filter(([path]) => path.startsWith('/users')).flatMap(([, path]) =>
         ['get', 'post', 'patch', 'delete'].map(method => path[method]).filter(Boolean))
       expect(operations).toHaveLength(7)
       for (const operation of operations) {

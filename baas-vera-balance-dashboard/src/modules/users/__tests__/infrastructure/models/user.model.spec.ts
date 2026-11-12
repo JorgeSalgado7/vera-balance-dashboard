@@ -25,8 +25,14 @@ describe('UserModel storage contract', () => {
     else process.env.DYNAMO_TABLE_NAME = previousTableName
   })
 
-  it('uses the configured shared table and disables automatic table creation or updates', () => {
-    expect(model).toHaveBeenCalledWith('users-model-test', configured, { create: false, update: false })
+  it('declares optional recovery credentials without exposing a plain code field', () => {
+    expect(configured.definition.password_recovery_code_hash).toEqual({ type: String })
+    expect(configured.definition.password_recovery_expires_at).toEqual({ type: String })
+    expect(configured.definition).not.toHaveProperty('password_recovery_code')
+  })
+
+  it('uses the configured shared table with the default Dynamoose table options', () => {
+    expect(model).toHaveBeenCalledWith('users-model-test', configured)
   })
 
   it('declares the documented primary keys and secondary indexes', () => {
@@ -40,6 +46,6 @@ describe('UserModel storage contract', () => {
   it('constrains roles and statuses and leaves timestamps under application control', () => {
     expect(configured.definition.role.enum).toEqual(USER_ROLE_VALUES)
     expect(configured.definition.status.enum).toEqual(['Activo', 'Inactivo'])
-    expect(configured.options).toEqual({ timestamps: false, saveUnknown: false })
+    expect(configured.options).toEqual({ timestamps: false })
   })
 })

@@ -1,3 +1,4 @@
+import { SendEmailResendService } from '../../emails/infrastructure/services/send-email-resend.service'
 import { UpdateUserUseCase } from '../application/use-cases/update-user.use-case'
 import { UpdateUserDynamooseAdapter } from '../infrastructure/persistance/adapters/update-user-dynamoose.adapter'
 import { GetUserByIdUseCase } from '../application/use-cases/get-user-by-id.use-case'
@@ -6,7 +7,7 @@ import { FindAllUsersDynamooseAdapter } from '../infrastructure/persistance/adap
 import { Module } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
 import { UsersModule } from '../users.module'
-import { AuthModule } from '../../auth/auth.module'
+import { PasswordModule } from '../../auth/password.module'
 import { CreateUserUseCase } from '../application/use-cases/create-user.use-case'
 import { CreateUserDomainService } from '../domain/services/create-user.domain-service'
 import { ValidateCreateUserDomainService } from '../domain/services/validate-create-user.domain-service'
@@ -26,7 +27,7 @@ const hash = jest.fn()
   ],
   exports: ['IHashPasswordService', 'IVerifyPasswordService'],
 })
-class TestAuthModule {}
+class TestPasswordModule {}
 
 describe('UsersModule', () => {
   const findAll = jest.fn()
@@ -39,8 +40,10 @@ describe('UsersModule', () => {
   beforeEach(async () => {
     jest.resetAllMocks()
     const module = await Test.createTestingModule({ imports: [UsersModule] })
-      .overrideModule(AuthModule)
-      .useModule(TestAuthModule)
+      .overrideProvider(SendEmailResendService)
+      .useValue({ send: jest.fn() })
+      .overrideModule(PasswordModule)
+      .useModule(TestPasswordModule)
       .overrideProvider(FindAllUsersDynamooseAdapter)
       .useValue({ findAll })
       .overrideProvider(CreateUserDynamooseAdapter)

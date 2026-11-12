@@ -328,3 +328,16 @@ La primera versión operativa de Vera Balance deberá permitir:
 - Consultar la información correspondiente según los permisos de cada usuario.
 
 El objetivo del MVP será permitir la operación real de la clínica y validar los flujos principales antes de incorporar funcionalidades adicionales.
+
+---
+
+## 13. Recuperación de contraseña
+
+- `POST /auth/forgot-password` recibe un email y devuelve el mismo mensaje genérico, exista o no el usuario.
+- La consulta, generación, persistencia y entrega se procesan en segundo plano. Los fallos internos de ese procesamiento no cambian la respuesta pública ni exponen el email o código en logs.
+- Se reutiliza la consulta por email del módulo Users. Los correos se envían a la dirección registrada, mediante Resend.
+- El código tiene seis dígitos, dura cinco minutos y es de un solo uso para restablecer la contraseña de ese usuario.
+- El hash del código y su fecha de vencimiento se guardan en el item USER, según `DB.md`.
+- Cada emisión reemplaza el código anterior. No existe un límite de solicitudes en la aplicación.
+- La solicitud no cambia la contraseña ni crea una sesión autenticada.
+- El flujo de restablecimiento deberá rechazar códigos vencidos, sustituidos o consumidos y consumir el código vigente al cambiar la contraseña.

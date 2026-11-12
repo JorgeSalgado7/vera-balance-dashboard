@@ -10,6 +10,8 @@ export class UserMapper {
     entity.name = item.name
     entity.email = item.email
     entity.password = item.password
+    if (item.password_recovery_code_hash !== undefined) entity.password_recovery_code_hash = item.password_recovery_code_hash
+    if (item.password_recovery_expires_at !== undefined) entity.password_recovery_expires_at = item.password_recovery_expires_at
     entity.professional_license = item.professional_license
 
     entity.role = item.role
@@ -58,6 +60,9 @@ export class UserMapper {
       data.gsi2pk = entity.gsi2pk
       data.gsi2sk = entity.gsi2sk
     }
+
+    if (entity.password_recovery_code_hash !== undefined) data.password_recovery_code_hash = entity.password_recovery_code_hash
+    if (entity.password_recovery_expires_at !== undefined) data.password_recovery_expires_at = entity.password_recovery_expires_at
 
     return data
   }

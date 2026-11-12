@@ -6,6 +6,8 @@ export class UserEntity {
   name!: string
   email!: string
   password!: string
+  declare password_recovery_code_hash?: string
+  declare password_recovery_expires_at?: string
   professional_license!: string
 
   role!: UserRole

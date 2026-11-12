@@ -23,6 +23,10 @@ const item = {
 }
 
 describe('UserMapper', () => {
+  it('round-trips optional recovery metadata only in internal entity and persistence mappings', () => {
+    const persisted = { ...item, password_recovery_code_hash: 'recovery-hash', password_recovery_expires_at: '2026-11-11T00:05:00.000Z' }
+    expect(UserMapper.toPersistence(UserMapper.toEntity(persisted))).toEqual(persisted)
+  })
   describe('toEntity', () => {
     it('restores all persisted fields in a new domain entity', () => {
       const result = UserMapper.toEntity(item)

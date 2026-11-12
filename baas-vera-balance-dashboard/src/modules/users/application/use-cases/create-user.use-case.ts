@@ -1,3 +1,4 @@
+import { SendWelcomeEmailUseCase } from '../../../emails/application/use-cases/send-welcome-email.use-case'
 import { Inject, Injectable } from '@nestjs/common'
 import { randomUUID } from 'crypto'
 
@@ -21,6 +22,8 @@ export class CreateUserUseCase {
 
     @Inject('IHashPasswordService')
     private readonly hashPasswordService: IHashPasswordService,
+
+    private readonly welcomeEmail: SendWelcomeEmailUseCase,
   ) {}
 
   async execute(dto: CreateUserDto): Promise<CreateUserResponseDto> {
@@ -51,6 +54,7 @@ export class CreateUserUseCase {
     })
 
     const saved = await this.repository.create(entity)
+    await this.welcomeEmail.execute(saved.email, saved.name)
 
     return {
       id: saved.pk,

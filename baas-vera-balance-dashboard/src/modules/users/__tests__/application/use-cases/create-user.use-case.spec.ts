@@ -1,3 +1,6 @@
+import { SendWelcomeEmailUseCase } from '../../../../emails/application/use-cases/send-welcome-email.use-case'
+import { WelcomeEmailTemplate } from '../../../../emails/infrastructure/templates/welcome-email.template'
+import { EmailLayoutTemplate } from '../../../../emails/infrastructure/templates/email-layout.template'
 import { USER_ROLES } from '../../../../../constants/user-roles.constant'
 
 import { CreateUserUseCase } from '../../../application/use-cases/create-user.use-case'
@@ -12,6 +15,8 @@ import { UserAlreadyExistsError, UserCreationNotAllowedError } from '../../../do
 
 describe('CreateUserUseCase', () => {
   let useCase: CreateUserUseCase
+  const send = jest.fn()
+  const reportFailure = jest.fn()
 
   let domain: jest.Mocked<Pick<CreateUserDomainService, 'create'>>
 
@@ -69,6 +74,8 @@ describe('CreateUserUseCase', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    send.mockReset().mockResolvedValue(undefined)
+    reportFailure.mockReset()
 
     domain = {
       create: jest.fn(),
@@ -84,7 +91,8 @@ describe('CreateUserUseCase', () => {
       hash: jest.fn(),
     }
 
-    useCase = new CreateUserUseCase(domain as unknown as CreateUserDomainService, repository, hashPasswordService)
+    useCase = new CreateUserUseCase(domain as unknown as CreateUserDomainService, repository, hashPasswordService,
+      new SendWelcomeEmailUseCase(new WelcomeEmailTemplate(new EmailLayoutTemplate()), { send }, reportFailure))
   })
 
   const mockSuccessfulCreation = () => {
@@ -96,6 +104,28 @@ describe('CreateUserUseCase', () => {
 
     repository.create.mockResolvedValue(savedUser)
   }
+
+  it('sends the HTML welcome email only after the user is saved', async () => {
+    mockSuccessfulCreation()
+    await useCase.execute(baseDto)
+    expect(send).toHaveBeenCalledWith(expect.objectContaining({ to: savedUser.email, subject: 'Bienvenida a Vera Balance', html: expect.stringContaining('Mónica Vera') }))
+    expect(send.mock.calls[0][0].html).not.toContain(baseDto.password)
+    expect(repository.create.mock.invocationCallOrder[0]).toBeLessThan(send.mock.invocationCallOrder[0])
+  })
+
+  it('does not send a welcome email if persistence fails', async () => {
+    mockSuccessfulCreation()
+    repository.create.mockRejectedValue(new Error('DynamoDB unavailable'))
+    await expect(useCase.execute(baseDto)).rejects.toThrow('DynamoDB unavailable')
+    expect(send).not.toHaveBeenCalled()
+  })
+
+  it('preserves user creation success when welcome delivery fails', async () => {
+    mockSuccessfulCreation()
+    send.mockRejectedValue(new Error('Resend unavailable'))
+    await expect(useCase.execute(baseDto)).resolves.toEqual(expectedResponse)
+    expect(reportFailure).toHaveBeenCalledWith()
+  })
 
   // =========================================
   // AUTHORIZATION

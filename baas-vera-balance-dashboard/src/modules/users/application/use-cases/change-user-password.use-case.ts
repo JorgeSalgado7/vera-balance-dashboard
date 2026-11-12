@@ -37,7 +37,7 @@ export class ChangeUserPasswordUseCase {
       throw new Error('No se pudo procesar el cambio de contraseña.')
     }
 
-    const updatedAt = new Date(Math.max(Date.now(), Date.parse(user.updated_at) + 1)).toISOString()
+    const updatedAt = new Date(Date.now()).toISOString()
     await this.updater.changePassword(user, hash, updatedAt)
     await this.notification.execute(user.email)
     return { message: 'Contraseña actualizada' }

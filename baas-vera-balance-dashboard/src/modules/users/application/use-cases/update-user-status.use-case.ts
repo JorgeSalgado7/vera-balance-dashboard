@@ -17,7 +17,7 @@ export class UpdateUserStatusUseCase {
     const user = await this.users.findById(userId)
     if (!user) throw new UserNotFoundError()
 
-    const saved = user.status === dto.status ? user : await this.updater.updateStatus(user, dto.status, new Date(Math.max(Date.now(), Date.parse(user.updated_at) + 1)).toISOString())
+    const saved = user.status === dto.status ? user : await this.updater.updateStatus(user, dto.status, new Date(Date.now()).toISOString())
 
     return {
       id: saved.pk,

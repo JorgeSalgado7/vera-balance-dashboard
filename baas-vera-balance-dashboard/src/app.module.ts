@@ -9,10 +9,13 @@ import './infrastructure/dynamoose/dynamoose.config';
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 
+import { TherapyTypesModule } from './modules/therapy-types/therapy-types.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
 		UsersModule,
+		TherapyTypesModule,
 		AuthModule
   ],
 })

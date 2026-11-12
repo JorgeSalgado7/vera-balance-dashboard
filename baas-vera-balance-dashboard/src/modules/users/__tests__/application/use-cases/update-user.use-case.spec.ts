@@ -65,11 +65,13 @@ describe('UpdateUserUseCase', () => {
     expect(findByEmail).not.toHaveBeenCalled()
   })
 
-  it('uses a strictly increasing timestamp even when the stored timestamp is ahead of the clock', async () => {
+  it('uses the current timestamp without parsing or adjusting the stored timestamp', async () => {
+    const clock = jest.spyOn(Date, 'now').mockReturnValue(1794445200000)
     const current = { ...user, updated_at: '2099-01-01T00:00:00.000Z' }
     findById.mockResolvedValue(current)
     const result = await useCase.execute(user.pk, { name: 'New' })
-    expect(result.updated_at).toBe('2099-01-01T00:00:00.001Z')
+    expect(result.updated_at).toBe('2026-11-12T01:00:00.000Z')
+    clock.mockRestore()
   })
 
   it.each(['other@example.com', user.email, null, undefined])('rejects any supplied email (%s) without a write or lookup', async email => {

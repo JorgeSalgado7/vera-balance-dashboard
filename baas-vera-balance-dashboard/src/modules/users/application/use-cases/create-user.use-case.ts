@@ -37,7 +37,7 @@ export class CreateUserUseCase {
 
     const password = await this.hashPasswordService.hash(dto.password)
 
-    const now = new Date().toISOString()
+    const now = new Date(Date.now()).toISOString()
     const userId = randomUUID()
 
     const entity = this.domain.create({

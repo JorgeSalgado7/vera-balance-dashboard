@@ -34,6 +34,6 @@ export class ResetUserPasswordUseCase {
       codeHash: input.codeHash,
       expiresAt: input.expiresAt,
       passwordHash,
-    }, new Date().toISOString())
+    }, new Date(Date.now()).toISOString())
   }
 }

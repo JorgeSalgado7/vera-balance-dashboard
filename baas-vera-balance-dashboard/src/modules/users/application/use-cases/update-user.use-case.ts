@@ -18,7 +18,7 @@ export class UpdateUserUseCase {
 
     const changes = this.domain.execute(user, input)
 
-    const updatedAt = new Date(Math.max(Date.now(), Date.parse(user.updated_at) + 1)).toISOString()
+    const updatedAt = new Date(Date.now()).toISOString()
     const saved = await this.updateUser.update(user, changes, updatedAt)
     return {
       id: saved.pk,

@@ -4,6 +4,8 @@ import { CreateUserUseCase } from '../modules/users/application/use-cases/create
 import { PasswordHashService } from '../modules/auth/infrastructure/services/password-hash.service'
 import { AppModule } from '../app.module'
 
+jest.mock('../modules/therapy-types/infrastructure/persistance/models/therapy-type.model', () => ({ TherapyTypeModel: {} }))
+
 jest.mock('../modules/users/infrastructure/persistance/models/user.model', () => ({ UserModel: {} }))
 
 describe('AppModule composition', () => {

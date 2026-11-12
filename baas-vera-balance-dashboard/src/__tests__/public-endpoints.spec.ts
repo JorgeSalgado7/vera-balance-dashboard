@@ -11,6 +11,8 @@ import { DeleteUserController } from '../modules/users/presentation/http/control
 import { UpdateUserStatusController } from '../modules/users/presentation/http/controllers/update-user-status.controller'
 import { ChangeUserPasswordController } from '../modules/users/presentation/http/controllers/change-user-password.controller'
 
+jest.mock('../modules/therapy-types/infrastructure/persistance/models/therapy-type.model', () => ({ TherapyTypeModel: {} }))
+
 jest.mock('../modules/users/infrastructure/persistance/models/user.model', () => ({ UserModel: {} }))
 
 const controllers = [CreateUserController, GetUsersController, GetUserByIdController, UpdateUserController,

@@ -17,7 +17,8 @@ import { openApiHeader } from '../../../docs/openapi.header'
 jest.mock('../../users/infrastructure/persistance/models/user.model', () => ({ UserModel: {} }))
 
 describe('Password reset composition', () => {
-  const hasher = new PasswordHasher()
+  // Keep real scrypt hashing with a lower test-only work factor.
+  const hasher = new PasswordHasher({ logN: 10 })
   const send = jest.fn()
   const reset = jest.fn()
   let record: UserEntity
@@ -43,6 +44,7 @@ describe('Password reset composition', () => {
       return true
     })
     module = await Test.createTestingModule({ imports: [AuthModule] })
+      .overrideProvider(PasswordHasher).useValue(hasher)
       .overrideProvider(ConfigService).useValue(new ConfigService({ JWT_ACCESS_SECRET: 'test-access-secret', JWT_REFRESH_SECRET: 'test-refresh-secret' }))
       .overrideProvider(FindUserByEmailDynamooseAdapter).useValue({ findByEmail: jest.fn(async () => ({ ...record })) })
       .overrideProvider(SetUserPasswordRecoveryDynamooseAdapter).useValue({ set: jest.fn(async (input, updatedAt) => {
@@ -56,7 +58,7 @@ describe('Password reset composition', () => {
       .overrideProvider(GenerateRecoveryCodeCryptoService).useValue({ generate: () => String(++sequence).padStart(6, '0') })
       .compile()
   })
-  afterEach(async () => { await module.close() })
+  afterEach(async () => { await module?.close() })
 
   async function requestCode() {
     module.get(ForgotPasswordUseCase).execute({ email: 'user@example.com' })

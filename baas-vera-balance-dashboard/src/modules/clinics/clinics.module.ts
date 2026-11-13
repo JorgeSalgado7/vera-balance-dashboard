@@ -1,3 +1,4 @@
+import { ClinicExistsUseCase } from './application/use-cases/clinic-exists.use-case'
 import { Module } from '@nestjs/common'
 import { UsersModule } from '../users/users.module'
 import { TherapyTypesModule } from '../therapy-types/therapy-types.module'
@@ -24,7 +25,9 @@ import { UpdateClinicDynamooseAdapter } from './infrastructure/persistance/adapt
 @Module({
   imports: [UsersModule, TherapyTypesModule],
   controllers: [CreateClinicController, GetClinicsController, GetClinicByIdController, UpdateClinicController, GetClinicUsersController],
+  exports: [ClinicExistsUseCase],
   providers: [
+    ClinicExistsUseCase,
     CreateClinicDynamooseAdapter, FindClinicByIdDynamooseAdapter, FindAllClinicsDynamooseAdapter, UpdateClinicDynamooseAdapter,
     ValidateCreateClinicDomainService,
     {

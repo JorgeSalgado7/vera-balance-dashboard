@@ -3,7 +3,7 @@ import { CreateTherapyTypeDomainService } from '../../../domain/services/create-
 const entity = { pk: 'therapy-id', sk: 'THERAPY_TYPE' as const, name: 'Individual', icon: null, gsi1pk: 'THERAPY_TYPE' as const, gsi1sk: 'THERAPY_TYPE#therapy-id', created_at: '2026-11-12T00:00:00.000Z', updated_at: '2026-11-12T00:00:00.000Z' }
 
 describe('CreateTherapyTypeUseCase', () => {
-  const repository = { create: jest.fn(), findById: jest.fn(), findAll: jest.fn(), update: jest.fn(), delete: jest.fn() }
+  const repository = { isAssignedToClinic: jest.fn(), findByIds: jest.fn(), create: jest.fn(), findById: jest.fn(), findAll: jest.fn(), update: jest.fn(), delete: jest.fn() }
   beforeEach(() => {
     jest.resetAllMocks()
     jest.spyOn(Date, 'now').mockReturnValue(1794445200000)

@@ -9,3 +9,7 @@ export class TherapyTypeConflictError extends Error {
 export class TherapyTypeNotFoundError extends Error {
   constructor() { super('No encontramos el tipo de terapia solicitado. Es posible que haya sido eliminado.') }
 }
+
+export class TherapyTypeInUseError extends Error {
+  constructor() { super('No puedes eliminar este tipo de terapia porque está asignado a una clínica.') }
+}

@@ -1,3 +1,6 @@
+import { TherapyTypeClinicAssignmentsDynamooseAdapter } from './infrastructure/persistance/adapters/therapy-type-clinic-assignments-dynamoose.adapter'
+import { FindTherapyTypesByIdsUseCase } from './application/use-cases/find-therapy-types-by-ids.use-case'
+import { FindTherapyTypesByIdsDynamooseAdapter } from './infrastructure/persistance/adapters/find-therapy-types-by-ids-dynamoose.adapter'
 import { UpdateTherapyTypeDomainService } from './domain/services/update-therapy-type.domain-service'
 import type { ITherapyTypeRepository } from './domain/repositories/therapy-type.repository'
 import { Module } from '@nestjs/common'
@@ -21,6 +24,9 @@ import { DeleteTherapyTypeDynamooseAdapter } from './infrastructure/persistance/
 @Module({
   controllers: [CreateTherapyTypeController, GetTherapyTypesController, GetTherapyTypeByIdController, UpdateTherapyTypeController, DeleteTherapyTypeController],
   providers: [
+    TherapyTypeClinicAssignmentsDynamooseAdapter,
+    FindTherapyTypesByIdsUseCase,
+    FindTherapyTypesByIdsDynamooseAdapter,
     CreateTherapyTypeDynamooseAdapter, FindTherapyTypeByIdDynamooseAdapter, FindAllTherapyTypesDynamooseAdapter, UpdateTherapyTypeDynamooseAdapter, DeleteTherapyTypeDynamooseAdapter,
     CreateTherapyTypeDomainService,
     UpdateTherapyTypeDomainService,
@@ -32,15 +38,19 @@ import { DeleteTherapyTypeDynamooseAdapter } from './infrastructure/persistance/
         lister: FindAllTherapyTypesDynamooseAdapter,
         updater: UpdateTherapyTypeDynamooseAdapter,
         deleter: DeleteTherapyTypeDynamooseAdapter,
+        batchReader: FindTherapyTypesByIdsDynamooseAdapter,
+        assignments: TherapyTypeClinicAssignmentsDynamooseAdapter,
       ): ITherapyTypeRepository => ({
         create: entity => creator.create(entity),
         findById: id => finder.findById(id),
         findAll: () => lister.findAll(),
+        findByIds: ids => batchReader.findByIds(ids),
         update: (entity, changes, updatedAt) => updater.update(entity, changes, updatedAt),
+        isAssignedToClinic: id => assignments.isAssignedToClinic(id),
         delete: id => deleter.delete(id),
       }),
       inject: [CreateTherapyTypeDynamooseAdapter, FindTherapyTypeByIdDynamooseAdapter,
-        FindAllTherapyTypesDynamooseAdapter, UpdateTherapyTypeDynamooseAdapter, DeleteTherapyTypeDynamooseAdapter],
+        FindAllTherapyTypesDynamooseAdapter, UpdateTherapyTypeDynamooseAdapter, DeleteTherapyTypeDynamooseAdapter, FindTherapyTypesByIdsDynamooseAdapter, TherapyTypeClinicAssignmentsDynamooseAdapter],
     },
     CreateTherapyTypeUseCase,
     GetTherapyTypesUseCase,
@@ -48,6 +58,6 @@ import { DeleteTherapyTypeDynamooseAdapter } from './infrastructure/persistance/
     UpdateTherapyTypeUseCase,
     DeleteTherapyTypeUseCase,
   ],
-  exports: [GetTherapyTypeByIdUseCase],
+  exports: [FindTherapyTypesByIdsUseCase, GetTherapyTypeByIdUseCase],
 })
 export class TherapyTypesModule {}

@@ -1,9 +1,9 @@
 import { HttpException } from '@nestjs/common'
-import { EmptyTherapyTypeUpdateError, TherapyTypeNotFoundError, TherapyTypeConflictError } from '../../../../domain/errors/therapy-type.error'
+import { TherapyTypeInUseError, EmptyTherapyTypeUpdateError, TherapyTypeNotFoundError, TherapyTypeConflictError } from '../../../../domain/errors/therapy-type.error'
 import { TherapyTypeErrorTranslator } from '../../../../presentation/http/errors/therapy-type-error.translator'
 
 describe('TherapyTypeErrorTranslator', () => {
-  it.each([[new EmptyTherapyTypeUpdateError(), 400], [new TherapyTypeNotFoundError(), 404], [new TherapyTypeConflictError(), 409]])('translates %s to %s', (error, status) => {
+  it.each([[new TherapyTypeInUseError(), 409], [new EmptyTherapyTypeUpdateError(), 400], [new TherapyTypeNotFoundError(), 404], [new TherapyTypeConflictError(), 409]])('translates %s to %s', (error, status) => {
     try { TherapyTypeErrorTranslator.translate(error, '/therapy-types/id'); throw new Error('Expected translation') }
     catch (translated) {
       if (!(translated instanceof HttpException)) throw translated

@@ -1,3 +1,5 @@
+import { GetUsersByClinicUseCase } from './application/use-cases/get-users-by-clinic.use-case'
+import { FindUsersByClinicDynamooseAdapter } from './infrastructure/persistance/adapters/find-users-by-clinic-dynamoose.adapter'
 import { EmailsModule } from '../emails/emails.module'
 import { SendPasswordUpdatedEmailUseCase } from '../emails/application/use-cases/send-password-updated-email.use-case'
 import { ResetUserPasswordUseCase } from './application/use-cases/reset-user-password.use-case'
@@ -48,6 +50,12 @@ import { UserTherapeuticProcessesDynamooseAdapter } from './infrastructure/persi
   controllers: [ChangeUserPasswordController, UpdateUserStatusController, DeleteUserController, CreateUserController, GetUsersController, GetUserByIdController, UpdateUserController],
 
   providers: [
+    FindUsersByClinicDynamooseAdapter,
+    {
+      provide: GetUsersByClinicUseCase,
+      useFactory: (repository: IUserRepository) => new GetUsersByClinicUseCase(repository),
+      inject: ['IUserRepository'],
+    },
     ResetUserPasswordDynamooseAdapter,
     {
       provide: ResetUserPasswordUseCase,
@@ -124,11 +132,13 @@ import { UserTherapeuticProcessesDynamooseAdapter } from './infrastructure/persi
         statusAdapter: UpdateUserStatusDynamooseAdapter, passwordAdapter: ChangeUserPasswordDynamooseAdapter,
         deleteAdapter: DeleteUserDynamooseAdapter, processesAdapter: UserTherapeuticProcessesDynamooseAdapter,
         resetAdapter: ResetUserPasswordDynamooseAdapter, recoveryAdapter: SetUserPasswordRecoveryDynamooseAdapter,
+        findByClinicAdapter: FindUsersByClinicDynamooseAdapter,
       ): IUserRepository => ({
         create: (entity) => createAdapter.create(entity),
         findByEmail: (email) => findByEmailAdapter.findByEmail(email),
         findById: (id) => findByIdAdapter.findById(id),
         findAll: () => findAllAdapter.findAll(),
+        findByClinic: clinicId => findByClinicAdapter.findByClinic(clinicId),
         update: (user, changes, updatedAt) => updateAdapter.update(user, changes, updatedAt),
         updateStatus: (user, status, updatedAt) => statusAdapter.updateStatus(user, status, updatedAt),
         changePassword: (user, passwordHash, updatedAt) => passwordAdapter.changePassword(user, passwordHash, updatedAt),
@@ -140,12 +150,12 @@ import { UserTherapeuticProcessesDynamooseAdapter } from './infrastructure/persi
       inject: [CreateUserDynamooseAdapter, FindUserByEmailDynamooseAdapter, FindUserByIdDynamooseAdapter,
         FindAllUsersDynamooseAdapter, UpdateUserDynamooseAdapter, UpdateUserStatusDynamooseAdapter,
         ChangeUserPasswordDynamooseAdapter, DeleteUserDynamooseAdapter, UserTherapeuticProcessesDynamooseAdapter,
-        ResetUserPasswordDynamooseAdapter, SetUserPasswordRecoveryDynamooseAdapter],
+        ResetUserPasswordDynamooseAdapter, SetUserPasswordRecoveryDynamooseAdapter, FindUsersByClinicDynamooseAdapter],
     },
 
     CreateUserUseCase,
   ],
 
-  exports: [CreateUserUseCase, FindUserByEmailUseCase, SetUserPasswordRecoveryUseCase, ResetUserPasswordUseCase],
+  exports: [GetUsersByClinicUseCase, GetUserByIdUseCase, CreateUserUseCase, FindUserByEmailUseCase, SetUserPasswordRecoveryUseCase, ResetUserPasswordUseCase],
 })
 export class UsersModule {}

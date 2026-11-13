@@ -29,6 +29,14 @@ describe('UpdateUserDomainService', () => {
     expect(domain.execute({ ...user, role: USER_ROLES.ADMIN, clinic: null }, { role: USER_ROLES.CLINIC, clinic })).toEqual({ role: USER_ROLES.CLINIC, clinic })
   })
 
+  it.each([USER_ROLES.ADMIN, USER_ROLES.CLINIC, USER_ROLES.THERAPIST])('allows assigning or clearing clinic for role %s', role => {
+    expect(domain.execute(user, { role, clinic })).toEqual({ role, clinic })
+    expect(domain.execute(user, { role, clinic: null })).toEqual({ role, clinic: null })
+    expect(domain.execute({ ...user, role }, { clinic })).toEqual({ clinic })
+    expect(domain.execute({ ...user, role }, { clinic: null })).toEqual({ clinic: null })
+    expect(domain.execute(user, { role })).toEqual({ role })
+  })
+
   it('preserves missing fields and skips explicit undefined values', () => {
     expect(domain.execute(user, { name: 'New' })).toEqual({ name: 'New' })
     expect(domain.execute(user, { clinic })).toEqual({ clinic })
@@ -55,8 +63,6 @@ describe('UpdateUserDomainService', () => {
     [{ role: null }, InvalidUserRoleError],
     [{ clinic: 'invalid' }, InvalidUserClinicError],
     [{ clinic: 123 }, InvalidUserClinicError],
-    [{ clinic: null }, InvalidUserClinicError],
-    [{ role: USER_ROLES.ADMIN }, InvalidUserClinicError],
   ] as const)('rejects invalid data %j', (input, ErrorType) => {
     expect(() => domain.execute(user, input as UpdateUserChanges)).toThrow(ErrorType)
   })

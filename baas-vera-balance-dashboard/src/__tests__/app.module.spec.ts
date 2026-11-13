@@ -1,3 +1,4 @@
+jest.mock('../modules/clinics/infrastructure/persistance/models/clinic.model', () => ({ ClinicModel: {} }))
 import { Test } from '@nestjs/testing'
 import { PasswordHasher } from '@nestjs/authentication'
 import { CreateUserUseCase } from '../modules/users/application/use-cases/create-user.use-case'

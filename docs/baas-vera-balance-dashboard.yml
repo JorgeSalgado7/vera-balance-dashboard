@@ -519,13 +519,13 @@ paths:
           $ref: '#/components/responses/Conflict'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /clinics/{clinicId}/users:
+  /clinics/{clinicId}/therapists:
     get:
       tags:
       - Clinics
-      operationId: getClinicUsers
-      summary: Obtener usuarios de una clínica
-      description: Consulta mediante GSI2 (gsi2pk = CLINIC#{clinicId}).
+      operationId: getClinicTherapists
+      summary: Obtener usuarios ligados a una clínica
+      description: Devuelve todos los usuarios asociados a la clínica, sin filtrar por rol. Consulta mediante GSI2 (gsi2pk = CLINIC#{clinicId}).
       parameters:
       - name: clinicId
         in: path
@@ -541,41 +541,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/User'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-  /clinics/{clinicId}/users/{userId}:
-    get:
-      tags:
-      - Clinics
-      operationId: getClinicUser
-      summary: Obtener usuario de una clínica
-      description: GetItem por pk y sk, verificando que el usuario pertenezca a la clínica.
-      parameters:
-      - name: clinicId
-        in: path
-        required: true
-        description: ID de la clínica
-        schema: *id002
-      - name: userId
-        in: path
-        required: true
-        description: ID del usuario
-        schema: *id001
-      responses:
-        '200':
-          description: Usuario encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':

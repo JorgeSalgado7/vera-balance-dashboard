@@ -434,13 +434,13 @@ describe('ValidateCreateUserDomainService', () => {
       expect(() => service.execute(entity)).not.toThrow()
     })
 
-    it('should reject admin with assigned clinic', () => {
+    it('should accept admin with assigned clinic', () => {
       const entity = createValidEntity({
         role: USER_ROLES.ADMIN,
         clinic: clinicId,
       })
 
-      expect(() => service.execute(entity)).toThrow(InvalidUserClinicError)
+      expect(() => service.execute(entity)).not.toThrow()
     })
 
     it('should accept therapist without clinic', () => {

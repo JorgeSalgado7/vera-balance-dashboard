@@ -1,3 +1,4 @@
+jest.mock('../modules/clinics/infrastructure/persistance/models/clinic.model', () => ({ ClinicModel: {} }))
 import { Test } from '@nestjs/testing'
 import { GUARDS_METADATA, ROUTE_ARGS_METADATA } from '@nestjs/common/constants'
 import { SwaggerModule } from '@nestjs/swagger'

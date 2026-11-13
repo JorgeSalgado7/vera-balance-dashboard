@@ -7,6 +7,7 @@ export interface IUserRepository {
   create(entity: UserEntity): Promise<UserEntity>
   findByEmail(email: string): Promise<UserEntity | null>
   findById(id: string): Promise<UserEntity | null>
+  findByClinic(clinicId: string): Promise<UserEntity[]>
   findAll(): Promise<UserEntity[]>
   update(user: UserEntity, changes: UpdateUserChanges, updatedAt: string): Promise<UserEntity>
   updateStatus(user: UserEntity, status: UserEntity['status'], updatedAt: string): Promise<UserEntity>

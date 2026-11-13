@@ -1,4 +1,4 @@
-import { USER_ROLES, USER_ROLE_VALUES } from '../../../../constants/user-roles.constant'
+import { USER_ROLE_VALUES } from '../../../../constants/user-roles.constant'
 import type { UserRole } from '../../../../constants/user-roles.constant'
 import { UserEntity } from '../entities/user.entity'
 
@@ -47,8 +47,5 @@ export class ValidateCreateUserDomainService {
       throw new InvalidUserClinicError()
     }
 
-    if (entity.role === USER_ROLES.ADMIN && entity.clinic !== null) {
-      throw new InvalidUserClinicError()
-    }
   }
 }

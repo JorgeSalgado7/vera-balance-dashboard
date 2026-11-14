@@ -2169,6 +2169,7 @@ components:
       - id
       - description
       - record
+      - therapeutic_process
       - created_at
       - updated_at
       properties:
@@ -2178,12 +2179,17 @@ components:
           type: string
         record:
           type: string
+        therapeutic_process:
+          type: string
+          readOnly: true
+          description: ID del proceso terapéutico, obtenido por el backend desde el registro de sesión asociado.
         created_at:
           $ref: '#/components/schemas/DateTime'
         updated_at:
           $ref: '#/components/schemas/DateTime'
     CreateHomework:
       type: object
+      description: El backend obtiene y almacena therapeutic_process desde el registro indicado en record.
       required:
       - description
       - record

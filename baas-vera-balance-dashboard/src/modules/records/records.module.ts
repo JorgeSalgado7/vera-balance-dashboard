@@ -19,6 +19,7 @@ import { UpdateRecordDomainService } from './domain/services/update-record.domai
 
 @Module({
   imports: [TherapeuticProcessesModule],
+  exports: [GetRecordByIdUseCase],
   controllers: [CreateRecordController, GetTherapeuticProcessRecordsController, GetRecordByIdController, UpdateRecordController],
   providers: [
     CreateRecordDynamooseAdapter, FindRecordByIdDynamooseAdapter, FindRecordsByProcessDynamooseAdapter, UpdateRecordDynamooseAdapter,

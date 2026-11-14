@@ -1,3 +1,4 @@
+import { HomeworkErrorTranslator } from '../../modules/homeworks/presentation/http/errors/homework-error.translator'
 import { RecordErrorTranslator } from '../../modules/records/presentation/http/errors/record-error.translator'
 import {
   ArgumentsHost,
@@ -43,6 +44,7 @@ const errorTranslators: ErrorTranslator[] = [
   PatientErrorTranslator,
   TherapeuticProcessErrorTranslator,
   RecordErrorTranslator,
+  HomeworkErrorTranslator,
   AuthErrorTranslator,
   TherapyTypeErrorTranslator,
 ]

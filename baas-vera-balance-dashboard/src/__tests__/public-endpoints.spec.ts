@@ -1,3 +1,4 @@
+jest.mock('../modules/homeworks/infrastructure/persistance/models/homework.model', () => ({ HomeworkModel: {} }))
 jest.mock('../modules/records/infrastructure/persistance/models/record.model', () => ({ RecordModel: {} }))
 jest.mock('../modules/therapeutic-processes/infrastructure/persistance/models/therapeutic-process.model', () => ({ TherapeuticProcessModel: {} }))
 jest.mock('../modules/therapeutic-processes/infrastructure/persistance/models/patient-therapeutic-process.model', () => ({ PatientTherapeuticProcessModel: {} }))
@@ -31,7 +32,7 @@ describe('Public endpoint composition', () => {
       const document = SwaggerModule.createDocument(app, openApiHeader)
       expect(document.security ?? []).toEqual([])
       const operations = Object.entries(document.paths).filter(([path]) => path.startsWith('/users')).flatMap(([, path]) =>
-        ['get', 'post', 'patch', 'delete'].map(method => path[method]).filter(Boolean))
+        (['get', 'post', 'patch', 'delete'] as const).map(method => path[method]).filter((operation): operation is NonNullable<typeof operation> => operation !== undefined))
       expect(operations).toHaveLength(7)
       for (const operation of operations) {
         expect(operation.security ?? []).toEqual([])

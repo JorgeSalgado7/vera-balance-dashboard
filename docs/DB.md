@@ -187,9 +187,14 @@ gsi2pk: string -> 'RECORD#' + record UUID
 gsi2sk: string -> 'HOME_WORK#' + homework UUID
 description: string
 record: string -> RECORD UUID
+therapeutic_process: string -> THERAPEUTIC PROCESS UUID, obtenido del registro de sesión
 created_at: datetime
 updated_at: datetime
 ```
+
+El backend obtiene `therapeutic_process` del registro indicado en `record` al crear la tarea y lo almacena en el mismo item `HOME_WORK`. Ambas relaciones son inmutables. No se añaden índices ni nuevos tipos de items.
+
+Los items anteriores pueden no tener `therapeutic_process`: en ese caso las respuestas lo resuelven desde su registro de sesión, sin modificar automáticamente los datos existentes.
 
 ## 9. Catalogs
 

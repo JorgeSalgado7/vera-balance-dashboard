@@ -1,3 +1,4 @@
+jest.mock('../modules/homeworks/infrastructure/persistance/models/homework.model', () => ({ HomeworkModel: {} }))
 jest.mock('../modules/records/infrastructure/persistance/models/record.model', () => ({ RecordModel: {} }))
 jest.mock('../modules/therapeutic-processes/infrastructure/persistance/models/therapeutic-process.model', () => ({ TherapeuticProcessModel: {} }))
 jest.mock('../modules/therapeutic-processes/infrastructure/persistance/models/patient-therapeutic-process.model', () => ({ PatientTherapeuticProcessModel: {} }))

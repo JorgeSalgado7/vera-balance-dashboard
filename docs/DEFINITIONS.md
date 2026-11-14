@@ -283,6 +283,8 @@ Las tareas representan actividades indicadas durante una sesión terapéutica.
 ### Reglas
 
 - Cada tarea estará relacionada con un registro de sesión.
+- Cada tarea guardará el ID del proceso terapéutico en `therapeutic_process`. El backend lo obtendrá de la sesión indicada en `record`; no se enviará en el request ni se podrá modificar mediante PATCH.
+- Las respuestas de creación, consulta, listado y actualización incluirán `therapeutic_process`. Para tareas anteriores sin este atributo, se resolverá desde su sesión.
 - Un registro podrá tener múltiples tareas.
 - La asignación de tareas será opcional.
 - Una sesión podrá finalizar sin tareas registradas.

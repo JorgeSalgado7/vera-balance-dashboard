@@ -1,3 +1,4 @@
+import { RecordsModule } from './modules/records/records.module';
 import { TherapeuticProcessesModule } from './modules/therapeutic-processes/therapeutic-processes.module';
 import { PatientsModule } from './modules/patients/patients.module';
 import { ClinicsModule } from './modules/clinics/clinics.module';
@@ -22,6 +23,7 @@ import { TherapyTypesModule } from './modules/therapy-types/therapy-types.module
     ClinicsModule,
     PatientsModule,
     TherapeuticProcessesModule,
+    RecordsModule,
 		UsersModule,
 		TherapyTypesModule,
 		AuthModule

@@ -1,3 +1,4 @@
+import { TherapeuticProcessExistsUseCase } from './application/use-cases/therapeutic-process-exists.use-case'
 import { Module } from '@nestjs/common'
 import { ClinicsModule } from '../clinics/clinics.module'
 import { PatientsModule } from '../patients/patients.module'
@@ -34,8 +35,10 @@ import { DeleteTherapeuticProcessCascadeDynamooseAdapter } from './infrastructur
 
 @Module({
   imports: [ClinicsModule, PatientsModule, UsersModule, TherapyTypesModule],
+  exports: [TherapeuticProcessExistsUseCase],
   controllers: [CreateTherapeuticProcessController, GetClinicTherapeuticProcessesController, GetPatientTherapeuticProcessesController, GetTherapeuticProcessByIdController, UpdateTherapeuticProcessController, DeleteTherapeuticProcessController, UpdateTherapeuticProcessStatusController],
   providers: [
+    TherapeuticProcessExistsUseCase,
     CreateTherapeuticProcessDynamooseAdapter, FindTherapeuticProcessByIdDynamooseAdapter, FindTherapeuticProcessesByClinicDynamooseAdapter, FindTherapeuticProcessesByPatientDynamooseAdapter, UpdateTherapeuticProcessDynamooseAdapter, UpdateTherapeuticProcessStatusDynamooseAdapter, DeleteTherapeuticProcessCascadeDynamooseAdapter,
     ValidateTherapeuticProcessDomainService,
     ValidateTherapyPatientsDomainService,

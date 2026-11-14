@@ -1,0 +1,31 @@
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { IsString, IsNotEmpty, IsIn, IsISO8601, Matches, ValidateIf } from 'class-validator'
+import { RECORD_ATTENDANCE } from '../../domain/constants/record-attendance.constant'
+
+export class CreateRecordDto {
+  @ApiProperty({ format: 'date-time' })
+  @Matches(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/, { message: 'El campo «session_date» debe incluir fecha, hora y zona horaria.' })
+  @IsISO8601({ strict: true, strictSeparator: true }, { message: 'El campo «session_date» debe ser una fecha ISO válida con hora y zona horaria.' })
+  @IsString({ message: 'El campo «session_date» debe ser un texto de fecha ISO.' })
+  session_date!: string
+
+  @ApiProperty({ enum: RECORD_ATTENDANCE })
+  @IsIn(RECORD_ATTENDANCE, { message: 'Selecciona una asistencia válida: Asistida, Cancelada, Con retraso o Falta.' })
+  attendance!: typeof RECORD_ATTENDANCE[number]
+
+  @ApiPropertyOptional({ type: String, nullable: true })
+  @ValidateIf((_, value) => value !== undefined && value !== null)
+  @IsString({ message: 'El campo «resume» debe ser un texto.' })
+  resume?: string | null
+
+  @ApiPropertyOptional({ type: String, nullable: true })
+  @ValidateIf((_, value) => value !== undefined && value !== null)
+  @IsString({ message: 'El campo «tools» debe ser un texto.' })
+  tools?: string | null
+
+  @ApiProperty()
+  @IsString({ message: 'El campo «therapeutic_process» debe ser un texto.' })
+  @IsNotEmpty({ message: 'El campo «therapeutic_process» es obligatorio.' })
+  therapeutic_process!: string
+
+}

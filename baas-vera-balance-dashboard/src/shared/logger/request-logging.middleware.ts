@@ -12,7 +12,7 @@ export class RequestLoggingMiddleware implements NestMiddleware {
     const context = { requestId: randomUUID() }
     const start = performance.now()
     const segments = request.originalUrl.split('?')[0]!.split('/').filter(Boolean)
-    const resources = ['therapeutic-processes', 'patients', 'clinics', 'users', 'auth', 'therapy-types', 'docs', 'favicon.ico']
+    const resources = ['records', 'therapeutic-processes', 'patients', 'clinics', 'users', 'auth', 'therapy-types', 'docs', 'favicon.ico']
     const routes = ['login', 'logout', 'refresh', 'forgot-password', 'reset', 'password', 'status']
     const path = resources.includes(segments[0] ?? '')
       ? '/' + segments.map((segment, index) => index === 0 || routes.includes(segment) ? segment : ':id').join('/')

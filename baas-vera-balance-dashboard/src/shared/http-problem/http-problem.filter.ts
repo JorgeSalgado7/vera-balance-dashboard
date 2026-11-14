@@ -1,3 +1,4 @@
+import { RecordErrorTranslator } from '../../modules/records/presentation/http/errors/record-error.translator'
 import {
   ArgumentsHost,
   Catch,
@@ -41,6 +42,7 @@ const errorTranslators: ErrorTranslator[] = [
   ClinicErrorTranslator,
   PatientErrorTranslator,
   TherapeuticProcessErrorTranslator,
+  RecordErrorTranslator,
   AuthErrorTranslator,
   TherapyTypeErrorTranslator,
 ]

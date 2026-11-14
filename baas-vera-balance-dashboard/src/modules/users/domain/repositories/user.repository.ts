@@ -6,6 +6,7 @@ import type { UpdateUserChanges } from '../interfaces/update-user-changes'
 export interface IUserRepository {
   create(entity: UserEntity): Promise<UserEntity>
   findByEmail(email: string): Promise<UserEntity | null>
+  findByIds(ids: string[]): Promise<UserEntity[]>
   findById(id: string): Promise<UserEntity | null>
   findByClinic(clinicId: string): Promise<UserEntity[]>
   findAll(): Promise<UserEntity[]>

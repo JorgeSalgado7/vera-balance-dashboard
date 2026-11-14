@@ -1,3 +1,5 @@
+import { FindPatientsByIdsUseCase } from './application/use-cases/find-patients-by-ids.use-case'
+import { FindPatientsByIdsDynamooseAdapter } from './infrastructure/persistance/adapters/find-patients-by-ids-dynamoose.adapter'
 import { Module } from '@nestjs/common'
 import { ClinicsModule } from '../clinics/clinics.module'
 import type { IPatientRepository } from './domain/repositories/patient.repository'
@@ -19,8 +21,10 @@ import { UpdatePatientDynamooseAdapter } from './infrastructure/persistance/adap
 
 @Module({
   imports: [ClinicsModule],
+  exports: [FindPatientsByIdsUseCase],
   controllers: [CreatePatientController, GetClinicPatientsController, GetPatientByIdController, UpdatePatientController],
   providers: [
+    FindPatientsByIdsUseCase, FindPatientsByIdsDynamooseAdapter,
     CreatePatientDynamooseAdapter, FindPatientByIdDynamooseAdapter, FindPatientsByClinicDynamooseAdapter, UpdatePatientDynamooseAdapter,
     ValidatePatientDomainService,
     {
@@ -36,13 +40,14 @@ import { UpdatePatientDynamooseAdapter } from './infrastructure/persistance/adap
     {
       provide: 'IPatientRepository',
       useFactory: (creator: CreatePatientDynamooseAdapter, reader: FindPatientByIdDynamooseAdapter,
-        lister: FindPatientsByClinicDynamooseAdapter, updater: UpdatePatientDynamooseAdapter): IPatientRepository => ({
+        lister: FindPatientsByClinicDynamooseAdapter, updater: UpdatePatientDynamooseAdapter, batch: FindPatientsByIdsDynamooseAdapter): IPatientRepository => ({
         create: entity => creator.create(entity),
+        findByIds: ids => batch.findByIds(ids),
         findById: id => reader.findById(id),
         findByClinic: clinicId => lister.findByClinic(clinicId),
         update: (entity, changes, updatedAt) => updater.update(entity, changes, updatedAt),
       }),
-      inject: [CreatePatientDynamooseAdapter, FindPatientByIdDynamooseAdapter, FindPatientsByClinicDynamooseAdapter, UpdatePatientDynamooseAdapter],
+      inject: [CreatePatientDynamooseAdapter, FindPatientByIdDynamooseAdapter, FindPatientsByClinicDynamooseAdapter, UpdatePatientDynamooseAdapter, FindPatientsByIdsDynamooseAdapter],
     },
     CreatePatientUseCase, GetClinicPatientsUseCase, GetPatientByIdUseCase, UpdatePatientUseCase,
   ],

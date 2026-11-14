@@ -1,3 +1,4 @@
+import { TherapeuticProcessesModule } from './modules/therapeutic-processes/therapeutic-processes.module';
 import { PatientsModule } from './modules/patients/patients.module';
 import { ClinicsModule } from './modules/clinics/clinics.module';
 import { LoggerModule } from './shared/logger/logger.module';
@@ -20,6 +21,7 @@ import { TherapyTypesModule } from './modules/therapy-types/therapy-types.module
     LoggerModule,
     ClinicsModule,
     PatientsModule,
+    TherapeuticProcessesModule,
 		UsersModule,
 		TherapyTypesModule,
 		AuthModule

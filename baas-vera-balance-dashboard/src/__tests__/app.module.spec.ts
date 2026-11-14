@@ -1,3 +1,5 @@
+jest.mock('../modules/therapeutic-processes/infrastructure/persistance/models/therapeutic-process.model', () => ({ TherapeuticProcessModel: {} }))
+jest.mock('../modules/therapeutic-processes/infrastructure/persistance/models/patient-therapeutic-process.model', () => ({ PatientTherapeuticProcessModel: {} }))
 jest.mock('../modules/patients/infrastructure/persistance/models/patient.model', () => ({ PatientModel: {} }))
 jest.mock('../modules/clinics/infrastructure/persistance/models/clinic.model', () => ({ ClinicModel: {} }))
 import { Test } from '@nestjs/testing'

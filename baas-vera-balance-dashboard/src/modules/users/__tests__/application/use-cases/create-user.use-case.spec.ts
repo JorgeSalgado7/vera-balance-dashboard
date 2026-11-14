@@ -83,6 +83,7 @@ describe('CreateUserUseCase', () => {
 
     repository = {
       findByClinic: jest.fn(),
+    findByIds: jest.fn(),
       findAll: jest.fn(),
       update: jest.fn(),
       updateStatus: jest.fn(),

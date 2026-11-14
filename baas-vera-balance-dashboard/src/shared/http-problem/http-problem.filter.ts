@@ -10,6 +10,7 @@ import { HttpProblem } from './http-problem.util'
 
 
 //* Modules imports
+import { TherapeuticProcessErrorTranslator } from '../../modules/therapeutic-processes/presentation/http/errors/therapeutic-process-error.translator'
 import { PatientErrorTranslator } from '../../modules/patients/presentation/http/errors/patient-error.translator'
 import { ClinicErrorTranslator } from '../../modules/clinics/presentation/http/errors/clinic-error.translator'
 import { AuthErrorTranslator } from '../../modules/auth/presentation/http/errors/auth-error.translator'
@@ -39,6 +40,7 @@ const errorTranslators: ErrorTranslator[] = [
 	UserErrorTranslator,
   ClinicErrorTranslator,
   PatientErrorTranslator,
+  TherapeuticProcessErrorTranslator,
   AuthErrorTranslator,
   TherapyTypeErrorTranslator,
 ]

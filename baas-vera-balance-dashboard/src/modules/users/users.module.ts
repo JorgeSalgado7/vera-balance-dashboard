@@ -1,3 +1,5 @@
+import { FindUsersByIdsUseCase } from './application/use-cases/find-users-by-ids.use-case'
+import { FindUsersByIdsDynamooseAdapter } from './infrastructure/persistance/adapters/find-users-by-ids-dynamoose.adapter'
 import { GetUsersByClinicUseCase } from './application/use-cases/get-users-by-clinic.use-case'
 import { FindUsersByClinicDynamooseAdapter } from './infrastructure/persistance/adapters/find-users-by-clinic-dynamoose.adapter'
 import { EmailsModule } from '../emails/emails.module'
@@ -50,6 +52,7 @@ import { UserTherapeuticProcessesDynamooseAdapter } from './infrastructure/persi
   controllers: [ChangeUserPasswordController, UpdateUserStatusController, DeleteUserController, CreateUserController, GetUsersController, GetUserByIdController, UpdateUserController],
 
   providers: [
+    FindUsersByIdsUseCase, FindUsersByIdsDynamooseAdapter,
     FindUsersByClinicDynamooseAdapter,
     {
       provide: GetUsersByClinicUseCase,
@@ -133,9 +136,11 @@ import { UserTherapeuticProcessesDynamooseAdapter } from './infrastructure/persi
         deleteAdapter: DeleteUserDynamooseAdapter, processesAdapter: UserTherapeuticProcessesDynamooseAdapter,
         resetAdapter: ResetUserPasswordDynamooseAdapter, recoveryAdapter: SetUserPasswordRecoveryDynamooseAdapter,
         findByClinicAdapter: FindUsersByClinicDynamooseAdapter,
+        batch: FindUsersByIdsDynamooseAdapter,
       ): IUserRepository => ({
         create: (entity) => createAdapter.create(entity),
         findByEmail: (email) => findByEmailAdapter.findByEmail(email),
+        findByIds: ids => batch.findByIds(ids),
         findById: (id) => findByIdAdapter.findById(id),
         findAll: () => findAllAdapter.findAll(),
         findByClinic: clinicId => findByClinicAdapter.findByClinic(clinicId),
@@ -150,12 +155,12 @@ import { UserTherapeuticProcessesDynamooseAdapter } from './infrastructure/persi
       inject: [CreateUserDynamooseAdapter, FindUserByEmailDynamooseAdapter, FindUserByIdDynamooseAdapter,
         FindAllUsersDynamooseAdapter, UpdateUserDynamooseAdapter, UpdateUserStatusDynamooseAdapter,
         ChangeUserPasswordDynamooseAdapter, DeleteUserDynamooseAdapter, UserTherapeuticProcessesDynamooseAdapter,
-        ResetUserPasswordDynamooseAdapter, SetUserPasswordRecoveryDynamooseAdapter, FindUsersByClinicDynamooseAdapter],
+        ResetUserPasswordDynamooseAdapter, SetUserPasswordRecoveryDynamooseAdapter, FindUsersByClinicDynamooseAdapter, FindUsersByIdsDynamooseAdapter],
     },
 
     CreateUserUseCase,
   ],
 
-  exports: [GetUsersByClinicUseCase, GetUserByIdUseCase, CreateUserUseCase, FindUserByEmailUseCase, SetUserPasswordRecoveryUseCase, ResetUserPasswordUseCase],
+  exports: [FindUsersByIdsUseCase, GetUsersByClinicUseCase, GetUserByIdUseCase, CreateUserUseCase, FindUserByEmailUseCase, SetUserPasswordRecoveryUseCase, ResetUserPasswordUseCase],
 })
 export class UsersModule {}

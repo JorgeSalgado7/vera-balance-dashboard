@@ -1,5 +1,20 @@
 services:
 
+  mfe-vera-balance-dashboard:
+    container_name: mfe-vera-balance-dashboard
+    build:
+      context: ./mfe-vera-balance-dashboard
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./mfe-vera-balance-dashboard:/app
+      - /app/node_modules
+    env_file:
+      - ./mfe-vera-balance-dashboard/.env
+    depends_on:
+      - baas-vera-balance-dashboard
+
   baas-vera-balance-dashboard:
     container_name: baas-vera-balance-dashboard
     build:

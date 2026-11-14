@@ -1,0 +1,2 @@
+# URL pública del backend, accesible desde el navegador.
+VITE_API_URL=http://localhost:3000

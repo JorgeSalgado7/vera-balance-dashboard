@@ -1,6 +1,7 @@
 import { BrowserRouter,Route, Routes } from 'react-router-dom'
 import { Login } from '../features/auth/pages/Login'
 import { PasswordRecovery } from '../features/auth/pages/PasswordRecovery'
+import { ResetPassword } from '../features/auth/pages/ResetPassword'
 import { RequestPasswordRecoveryUseCase } from '../features/auth/application/use-cases/request-password-recovery.use-case'
 import { ResetPasswordUseCase } from '../features/auth/application/use-cases/reset-password.use-case'
 import { RequestPasswordRecoveryAdapter } from '../features/auth/infrastructure/adapters/request-password-recovery.adapter'
@@ -13,7 +14,8 @@ export const PageRouter = () => (
   <BrowserRouter>
     <Routes>
       <Route path="/" element={<Login />} />
-      <Route path="/forgot-password" element={<PasswordRecovery requestRecovery={requestRecovery} resetPassword={resetPassword} />} />
+      <Route path="/forgot-password" element={<PasswordRecovery requestRecovery={requestRecovery} />} />
+      <Route path="/reset-password" element={<ResetPassword requestRecovery={requestRecovery} resetPassword={resetPassword} />} />
     </Routes>
   </BrowserRouter>
 )

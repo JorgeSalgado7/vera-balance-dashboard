@@ -1,39 +1,41 @@
-import { useState } from 'react'
-import { Alert } from 'antd'
-import { Link } from 'react-router-dom'
+import { Alert, Button } from 'antd'
+import { Link, useNavigate } from 'react-router-dom'
 import { AuthLayout } from '../../../layouts/auth/AuthLayout'
 import { locales } from '../../../locales'
+import { VBInputEmail } from '../../../ui/components/inputs/VBInputEmail'
 import type { RequestPasswordRecoveryUseCase } from '../application/use-cases/request-password-recovery.use-case'
-import type { ResetPasswordUseCase } from '../application/use-cases/reset-password.use-case'
 import { useRequestPasswordRecovery } from '../hooks/use-request-password-recovery'
-import { useResetPassword } from '../hooks/use-reset-password'
-import { RequestRecoveryCode } from '../components/password-recovery/RequestRecoveryCode'
-import { ResetPasswordForm } from '../components/password-recovery/ResetPasswordForm'
 
-export const PasswordRecovery = ({ requestRecovery, resetPassword }: {
+export const PasswordRecovery = ({ requestRecovery }: {
   requestRecovery: RequestPasswordRecoveryUseCase
-  resetPassword: ResetPasswordUseCase
 }) => {
-  const [step, setStep] = useState<'request' | 'reset'>('request')
   const recovery = useRequestPasswordRecovery(requestRecovery)
-  const reset = useResetPassword(resetPassword, recovery.email)
+  const navigate = useNavigate()
   const texts = locales.auth.passwordRecovery
 
   return (
     <AuthLayout>
-      {reset.succeeded ? (
-        <div className="vb-auth__recovery">
-          <h3>{texts.successTitle}</h3>
-          <Alert type="success" title={reset.message} showIcon role="status" />
-        </div>
-      ) : step === 'request' ? (
-        <RequestRecoveryCode recovery={recovery} onContinue={() => setStep('reset')} />
-      ) : (
-        <ResetPasswordForm recovery={recovery} reset={reset} onChangeEmail={() => {
-          reset.clear()
-          setStep('request')
-        }} />
-      )}
+      <div className="vb-auth__recovery">
+        <h3>{texts.title}</h3>
+        <p>{texts.description}</p>
+        {recovery.error && <Alert type="error" title={recovery.error} showIcon role="alert" />}
+        <VBInputEmail
+          value={recovery.email}
+          setValue={recovery.changeEmail}
+          disabled={recovery.pending}
+          label={locales.auth.login.email.label}
+          placeholder={locales.auth.login.email.placeholder}
+          hasError={recovery.emailTouched && recovery.emailError}
+          errorMessage={recovery.emailErrorMessage}
+        />
+        <Button block type="primary" loading={recovery.pending} disabled={recovery.emailError || recovery.pending}
+          onClick={async () => {
+            const message = await recovery.requestCode()
+            if (message !== null) navigate('/reset-password', { state: { email: recovery.email, message } })
+          }}>
+          {texts.requestCode}
+        </Button>
+      </div>
       <Link className="vb-auth__link" to="/">{texts.backToLogin}</Link>
     </AuthLayout>
   )

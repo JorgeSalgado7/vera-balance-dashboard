@@ -1,8 +1,10 @@
 import type { RequestPasswordRecoveryRepository } from '../../domain/repositories/request-password-recovery.repository'
-import { postAuthMessage } from '../http/post-auth-message'
+import { api } from '../../../../infrastructure/http/api'
+import { readMessageResponse } from '../http/read-message-response'
 
 export class RequestPasswordRecoveryAdapter implements RequestPasswordRecoveryRepository {
-  execute(email: string): Promise<string> {
-    return postAuthMessage('/auth/forgot-password', { email })
+  async execute(email: string): Promise<string> {
+    const { data } = await api.post<unknown>('/auth/forgot-password', { email })
+    return readMessageResponse(data)
   }
 }

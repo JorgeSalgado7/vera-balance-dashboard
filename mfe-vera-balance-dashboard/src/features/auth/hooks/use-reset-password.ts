@@ -59,7 +59,7 @@ export const useResetPassword = (useCase: ResetPasswordUseCase, email: string) =
       setPassword('')
       setConfirmation('')
     } catch (failure) {
-      setError(failure instanceof Error ? failure.message : texts.requestError)
+      setError(failure instanceof Error ? failure.message : locales.api.requestError)
     } finally {
       setPending(false)
     }

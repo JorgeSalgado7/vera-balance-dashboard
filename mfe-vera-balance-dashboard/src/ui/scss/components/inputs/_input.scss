@@ -1,0 +1,18 @@
+@use '../../../../ui/scss/theme/theme';
+
+.vb-input {
+  width: 100%;
+
+	&__label {
+		margin-bottom: 6px;
+		display: flex;
+	}
+
+	&__error-message {
+		display: flex;
+		margin-top: 6px;
+		font-size: theme.$small-font-size;
+		color: theme.$error-color
+	}
+
+}

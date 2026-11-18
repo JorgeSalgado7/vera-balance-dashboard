@@ -1,0 +1,32 @@
+@use './theme';
+
+* {
+  font-family: theme.$poppins;
+  font-size: theme.$font-size;
+}
+
+h1, h2, h3 {
+  font-weight: theme.$heading-font-weight;
+}
+
+h1 {
+  font-size: theme.$main-title-size;
+}
+
+h2 {
+  font-size: theme.$h2-font-size;
+}
+
+h3 {
+  font-size: theme.$h3-font-size;
+}
+
+p {
+  font-size: theme.$font-size;
+  font-weight: theme.$font-weight;
+}
+
+label {
+  font-size: theme.$font-size;
+	font-weight: theme.$label-weight;
+}

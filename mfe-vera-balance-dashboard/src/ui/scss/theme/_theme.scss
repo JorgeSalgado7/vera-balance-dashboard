@@ -1,0 +1,57 @@
+@use 'sass:color';
+
+/* Colors **/
+
+$primary-color: #e75d5d;
+$primary-button-text-color: #ffffff;
+$primary-button-hover-color: color.scale($primary-color, $lightness: -15%);
+$primary-button-disabled-color: color.scale($primary-color, $lightness: 50%);
+$error-color: #cf090d;
+$secondary-color: #feb2ad;
+$background-color: #faf3ec;
+$tertiary-color: #0cb795;
+$tertiary-alt-color: #2b4058;
+$font-color: #000000;
+$placeholder-color: #9ca3af;
+$input-border-color: #6b7280;
+$white: #FFFFFFFF;
+
+/* Spacing **/
+$spacing: (6: 6px, 12: 12px, 18: 18px, 24: 24px, 30: 30px, 36: 36px, 42: 42px);
+
+/* Button **/
+$button-height: 42px;
+$button-padding-block: 8px;
+$button-padding-inline: 12px;
+$button-line-height: 24px;
+
+/* Input **/ 
+$input-height: 42px;
+$input-line-height: 24px;
+$input-border-width: 1px;
+$input-padding-block: ($input-height - $input-line-height - 2 * $input-border-width) * 0.5;
+$input-padding-inline: 12px;
+$input-border-radius: 6px;
+
+/* Card **/
+$card-padding: 18px;
+$card-padding-lg: 30px;
+$card-border-radius: 18px;
+
+/* Fonts **/
+$poppins: 'Poppins', sans-serif;
+$dancing: 'Dancing Script', cursive;
+$main-title-size: 42px;
+$h2-font-size: 36px;
+$h3-font-size: 30px;
+$font-size: 18px;
+$small-font-size: 15px;
+$font-weight: 400;
+$heading-font-weight: 700;
+$label-weight: 500;
+
+/* Breakpoints **/
+$breakpoint-md: 768px;
+$breakpoint-lg: 992px;
+$breakpoint-xl: 1200px;
+

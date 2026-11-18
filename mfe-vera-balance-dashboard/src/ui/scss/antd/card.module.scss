@@ -1,0 +1,18 @@
+@use '../theme/theme';
+
+@media (min-width: theme.$breakpoint-lg) {
+  :global(.ant-card.ant-card) {
+    > :global(.ant-card-body) {
+      padding: theme.$card-padding-lg;
+    }
+
+    > :global(.ant-card-head) {
+      padding-inline: theme.$card-padding-lg;
+    }
+  }
+}
+
+:export {
+  cardPadding: theme.$card-padding;
+  cardBorderRadius: theme.$card-border-radius;
+}

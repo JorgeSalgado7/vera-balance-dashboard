@@ -1,0 +1,10 @@
+@use './theme/theme';
+
+:root {
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+  color: theme.$font-color;
+}

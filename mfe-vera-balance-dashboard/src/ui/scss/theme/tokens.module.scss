@@ -1,0 +1,15 @@
+@use './theme';
+
+:export {
+  primary: theme.$primary-color;
+  error: theme.$error-color;
+  fontFamily: theme.$poppins;
+  fontSize: theme.$font-size;
+  h1FontSize: theme.$main-title-size;
+  h2FontSize: theme.$h2-font-size;
+  h3FontSize: theme.$h3-font-size;
+  headingFontWeight: theme.$heading-font-weight;
+  breakpointMD: theme.$breakpoint-md;
+  breakpointLG: theme.$breakpoint-lg;
+  breakpointXL: theme.$breakpoint-xl;
+}

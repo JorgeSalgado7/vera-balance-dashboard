@@ -1,0 +1,12 @@
+@use './theme';
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+@each $size, $value in theme.$spacing {
+  .vb-p-#{$size} { padding: $value; }
+  .vb-m-#{$size} { margin: $value; }
+  .vb-gap-#{$size} { gap: $value; }
+}

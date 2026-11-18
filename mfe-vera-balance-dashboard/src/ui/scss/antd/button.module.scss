@@ -1,0 +1,21 @@
+@use '../theme/theme';
+
+:global(.ant-btn-primary) * {
+  color: inherit;
+}
+
+:global(.ant-btn.ant-btn-primary):disabled {
+  color: theme.$primary-button-text-color;
+  background-color: theme.$primary-button-disabled-color;
+  border-color: theme.$primary-button-disabled-color;
+}
+
+:export {
+  height: theme.$button-height;
+  paddingBlock: theme.$button-padding-block;
+  paddingInline: theme.$button-padding-inline;
+  lineHeight: theme.$button-line-height;
+  fontSize: theme.$font-size;
+  primaryColor: theme.$primary-button-text-color;
+  primaryHoverColor: theme.$primary-button-hover-color;
+}

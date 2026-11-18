@@ -1,0 +1,31 @@
+@use '../theme/theme';
+
+input:not(.ant-input) {
+  width: 100%;
+  font-size: theme.$font-size;
+  line-height: theme.$input-line-height;
+  padding: theme.$input-padding-block theme.$input-padding-inline;
+  border: theme.$input-border-width solid theme.$input-border-color;
+  border-radius: theme.$input-border-radius;
+  outline: none;
+
+  &::placeholder {
+    color: theme.$placeholder-color;
+  }
+
+  &:hover:not(:disabled), &:focus {
+    border-color: theme.$primary-color;
+  }
+}
+
+:export {
+  fontSize: theme.$font-size;
+  primary: theme.$primary-color;
+  placeholder: theme.$placeholder-color;
+  inputBorder: theme.$input-border-color;
+  inputPaddingBlock: theme.$input-padding-block;
+  inputLineHeight: theme.$input-line-height;
+  inputBorderWidth: theme.$input-border-width;
+  inputPaddingInline: theme.$input-padding-inline;
+  inputBorderRadius: theme.$input-border-radius;
+}

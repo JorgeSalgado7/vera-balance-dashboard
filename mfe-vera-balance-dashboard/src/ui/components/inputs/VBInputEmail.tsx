@@ -2,7 +2,7 @@ import { useId } from 'react'
 import { Input } from 'antd'
 import type { InputTextI } from './interfaces/input-text.interface'
 
-export const VBInputEmail = ({ label, placeholder, hasError, errorMessage, value, setValue }: InputTextI) => {
+export const VBInputEmail = ({ label, placeholder, hasError, errorMessage, value, setValue, disabled, autoComplete }: InputTextI) => {
   const id = useId()
 
   return (
@@ -12,8 +12,9 @@ export const VBInputEmail = ({ label, placeholder, hasError, errorMessage, value
         id={id}
         className="vb-input__input"
         type="email"
-        autoComplete="email"
+        autoComplete={autoComplete ?? 'email'}
         placeholder={placeholder}
+        disabled={disabled}
         value={value}
         onChange={event => setValue(event.target.value)}
         status={hasError ? 'error' : undefined}

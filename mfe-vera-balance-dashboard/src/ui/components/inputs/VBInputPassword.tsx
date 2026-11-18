@@ -2,7 +2,7 @@ import { useId } from 'react'
 import { Input } from 'antd'
 import type { InputTextI } from './interfaces/input-text.interface'
 
-export const VBInputPassword = ({ label, placeholder, hasError, errorMessage, value, setValue }: InputTextI) => {
+export const VBInputPassword = ({ label, placeholder, hasError, errorMessage, value, setValue, disabled, autoComplete }: InputTextI) => {
   const id = useId()
 
   return (
@@ -11,8 +11,9 @@ export const VBInputPassword = ({ label, placeholder, hasError, errorMessage, va
       <Input.Password
         id={id}
         className="vb-input__input"
-        autoComplete="current-password"
+        autoComplete={autoComplete ?? 'current-password'}
         placeholder={placeholder}
+        disabled={disabled}
         value={value}
         onChange={event => setValue(event.target.value)}
         status={hasError ? 'error' : undefined}

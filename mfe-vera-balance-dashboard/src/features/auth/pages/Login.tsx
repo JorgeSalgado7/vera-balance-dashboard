@@ -28,33 +28,51 @@ export const Login = () => {
   return (
     <AuthLayout>
     <div className="vb-auth__login">
-      <VBInputEmail
-        value={email}
-        setValue={value => {
-          dispatch(setEmail(value))
-          validateEmail(value)
-        }}
-        label={login.email.label}
-        placeholder={login.email.placeholder}
-        hasError={emailError && Boolean(emailErrorMessage)}
-        errorMessage={emailErrorMessage}
-      />
-      <VBInputPassword
-        value={password}
-        setValue={value => {
-          dispatch(setPassword(value))
-          validatePassword(value)
-        }}
-        label={login.password.label}
-        placeholder={login.password.placeholder}
-        hasError={passwordError && Boolean(passwordErrorMessage)}
-        errorMessage={passwordErrorMessage}
-      />
-      <Button block className="vb-auth__login--login" type="primary" disabled={emailError || passwordError}>
-        {login.login}
-      </Button>
-      <Link className="vb-auth__link" to="/forgot-password">{login.forgotPassword}</Link>
-    </div>
+      {/** TITLE */}
+      <h3>{login.title}</h3>
+
+				{/** EMAIL */}
+				<VBInputEmail
+					value={email}
+					setValue={value => {
+						dispatch(setEmail(value))
+						validateEmail(value)
+					}}
+					label={login.email.label}
+					placeholder={login.email.placeholder}
+					hasError={emailError && Boolean(emailErrorMessage)}
+					errorMessage={emailErrorMessage}
+				/>
+
+				{/** PASSWORD */}
+				<VBInputPassword
+					value={password}
+					setValue={value => {
+						dispatch(setPassword(value))
+						validatePassword(value)
+					}}
+					label={login.password.label}
+					placeholder={login.password.placeholder}
+					hasError={passwordError && Boolean(passwordErrorMessage)}
+					errorMessage={passwordErrorMessage}
+				/>
+
+				{/** LOGIN */}
+				<Button 
+					block 
+					className="vb-auth__login--login" 
+					type="primary" 
+					disabled={emailError || passwordError}
+
+				>
+					{login.login}
+				</Button>
+
+				{/** FORGOT PASSWORD */}
+				<Link className="vb-auth__link" to="/forgot-password">{login.forgotPassword}</Link>
+			
+			</div>
+
     </AuthLayout>
   )
 }

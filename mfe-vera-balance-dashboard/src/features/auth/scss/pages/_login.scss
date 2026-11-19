@@ -1,3 +1,10 @@
+@use 'sass:map';
+@use '../../../../ui/scss/theme/theme';
+
+.vb-auth__login h3 {
+  margin-bottom: map.get(theme.$spacing, 18);
+}
+
 .vb-auth__login--login {
   width: 100%;
   margin-top: 12px;

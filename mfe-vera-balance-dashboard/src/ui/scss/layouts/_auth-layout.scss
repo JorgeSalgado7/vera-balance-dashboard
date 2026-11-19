@@ -96,4 +96,9 @@
   margin-top: map.get(theme.$spacing, 18);
   color: theme.$primary-color;
   text-align: center;
+
+  &:hover,
+  &:focus-visible {
+    color: theme.$primary-button-hover-color;
+  }
 }

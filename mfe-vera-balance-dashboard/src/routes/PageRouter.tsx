@@ -13,9 +13,14 @@ const resetPassword = new ResetPasswordUseCase(new ResetPasswordAdapter())
 export const PageRouter = () => (
   <BrowserRouter>
     <Routes>
+
+			{/** AUTH */}
       <Route path="/" element={<Login />} />
       <Route path="/forgot-password" element={<PasswordRecovery requestRecovery={requestRecovery} />} />
       <Route path="/reset-password" element={<ResetPassword requestRecovery={requestRecovery} resetPassword={resetPassword} />} />
-    </Routes>
+    
+			{/** AUTH */}
+		
+		</Routes>
   </BrowserRouter>
 )

@@ -6,20 +6,33 @@ import { VBInputEmail } from '../../../ui/components/inputs/VBInputEmail'
 import type { RequestPasswordRecoveryUseCase } from '../application/use-cases/request-password-recovery.use-case'
 import { useRequestPasswordRecovery } from '../hooks/use-request-password-recovery'
 
-export const PasswordRecovery = ({ requestRecovery }: {
-  requestRecovery: RequestPasswordRecoveryUseCase
-}) => {
-  const recovery = useRequestPasswordRecovery(requestRecovery)
+export const PasswordRecovery = ({ requestRecovery }: { requestRecovery: RequestPasswordRecoveryUseCase }) => {
+  
+	const recovery = useRequestPasswordRecovery(requestRecovery)
   const navigate = useNavigate()
   const texts = locales.auth.passwordRecovery
 
   return (
+
     <AuthLayout>
+
       <div className="vb-auth__recovery">
+
         <h3>{texts.title}</h3>
         <p>{texts.description}</p>
-        {recovery.error && <Alert type="error" title={recovery.error} showIcon role="alert" />}
-        <VBInputEmail
+
+        {
+					recovery.error && 
+					<Alert 
+						type="error" 
+						title={recovery.error} 
+						showIcon 
+						role="alert" 
+					/>
+				}
+        
+				{/** EMAIL */}
+				<VBInputEmail
           value={recovery.email}
           setValue={recovery.changeEmail}
           disabled={recovery.pending}
@@ -28,15 +41,30 @@ export const PasswordRecovery = ({ requestRecovery }: {
           hasError={recovery.emailTouched && recovery.emailError}
           errorMessage={recovery.emailErrorMessage}
         />
-        <Button block type="primary" loading={recovery.pending} disabled={recovery.emailError || recovery.pending}
+
+				{/** GET RECOVERY CODE */}
+        <Button 
+					block 
+					type="primary" 
+					loading={recovery.pending} 
+					disabled={recovery.emailError || recovery.pending}
           onClick={async () => {
             const message = await recovery.requestCode()
-            if (message !== null) navigate('/reset-password', { state: { email: recovery.email, message } })
-          }}>
+            if (message !== null) navigate('/reset-password', { 
+							state: { email: recovery.email, message } 
+						})
+          }}
+				>
           {texts.requestCode}
         </Button>
+
       </div>
+
+			{/** BACK TO LOGIN */}
       <Link className="vb-auth__link" to="/">{texts.backToLogin}</Link>
+
     </AuthLayout>
+
   )
+
 }

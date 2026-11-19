@@ -2,18 +2,14 @@ import { Alert, Button } from 'antd'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { AuthLayout } from '../../../layouts/auth/AuthLayout'
 import { locales } from '../../../locales'
-import type { RequestPasswordRecoveryUseCase } from '../application/use-cases/request-password-recovery.use-case'
-import type { ResetPasswordUseCase } from '../application/use-cases/reset-password.use-case'
+import type { ResetPasswordI } from './interfaces/reset-password.interface'
 import { useRequestPasswordRecovery } from '../hooks/use-request-password-recovery'
 import { useResetPassword } from '../hooks/use-reset-password'
 import { VBInputText } from '../../../ui/components/inputs/VBInputText'
 import { VBInputEmail } from '../../../ui/components/inputs/VBInputEmail'
 import { VBInputPassword } from '../../../ui/components/inputs/VBInputPassword'
 
-export const ResetPassword = ({ requestRecovery, resetPassword }: {
-  requestRecovery: RequestPasswordRecoveryUseCase
-  resetPassword: ResetPasswordUseCase
-}) => {
+export const ResetPassword = ({ requestRecovery, resetPassword }: ResetPasswordI) => {
   const location = useLocation()
   const navigate = useNavigate()
   const email = typeof location.state?.email === 'string' ? location.state.email : ''

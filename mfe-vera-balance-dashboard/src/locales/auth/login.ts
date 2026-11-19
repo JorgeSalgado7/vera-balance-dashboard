@@ -1,6 +1,6 @@
 export const login = {
   logoAlt: 'Vera Balance',
-  title: 'Iniciar sesión',
+  title: 'Inicia sesión',
   email: {
     label: 'Correo electrónico',
     required: 'Ingresa tu correo electrónico.',

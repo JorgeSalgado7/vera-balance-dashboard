@@ -12,6 +12,9 @@ export const antTheme: ThemeConfig = {
   algorithm: theme.defaultAlgorithm,
   cssVar: true,
   token: {
+    motionDurationFast: tokens.hoverTransitionDuration,
+    motionDurationMid: tokens.hoverTransitionDuration,
+    motionDurationSlow: tokens.hoverTransitionDuration,
     colorPrimary: tokens.primary,
     colorError: tokens.error,
     fontFamily: tokens.fontFamily,

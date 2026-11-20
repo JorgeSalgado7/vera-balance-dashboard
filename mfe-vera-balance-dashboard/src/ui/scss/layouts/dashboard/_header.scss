@@ -16,6 +16,31 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: theme.$header-content-gap;
+  }
+
+  &__logo {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: theme.$header-logo-container-size;
+    height: theme.$header-logo-container-size;
+    border-radius: 50%;
+    background-color: theme.$header-logo-background-color;
+    flex-shrink: 0;
+    justify-self: start;
+    margin-right: auto;
+
+    @media (min-width: theme.$breakpoint-md) {
+      display: flex;
+    }
+
+    img {
+      display: block;
+      width: theme.$header-logo-size;
+      height: theme.$header-logo-size;
+      object-fit: contain;
+    }
   }
 
   &__toggle {
@@ -70,20 +95,7 @@
     }
   }
 
-  &__avatar {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    width: theme.$header-avatar-size;
-    height: theme.$header-avatar-size;
-    margin-left: auto;
-    border-radius: 50%;
-    background-color: theme.$header-avatar-background-color;
-    color: theme.$header-avatar-color;
-    font-size: theme.$header-avatar-font-size;
-    font-weight: theme.$header-avatar-font-weight;
-  }
+
 
   @media (prefers-reduced-motion: reduce) {
     &__toggle-line {

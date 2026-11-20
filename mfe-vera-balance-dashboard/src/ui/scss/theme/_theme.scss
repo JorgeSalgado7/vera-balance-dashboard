@@ -19,6 +19,9 @@ $white: #FFFFFFFF;
 /* Spacing **/
 $spacing: (6: 6px, 12: 12px, 18: 18px, 24: 24px, 30: 30px, 36: 36px, 42: 42px);
 
+/* Transitions **/
+$hover-transition-duration: 0.3s;
+
 /* Button **/
 $button-height: 42px;
 $button-padding-block: 8px;
@@ -56,12 +59,13 @@ $breadcrumb-heading-font-weight: $heading-font-weight;
 $breadcrumb-route-font-size: $h3-font-size;
 $breadcrumb-greeting-color: $font-color;
 $breadcrumb-muted-color: $input-border-color;
-$breadcrumb-route-color: $primary-color;
+$breadcrumb-route-color: $input-border-color;
+$breadcrumb-name-color: $primary-color;
 $breadcrumb-gap: 18px;
 $breadcrumb-padding-block: 60px;
 
 /* Dashboard header **/
-$header-height: 60px;
+$header-height: 90px;
 $header-background-color: $background-color;
 $header-mobile-background-color: $white;
 $header-z-index: 20;
@@ -76,10 +80,29 @@ $header-toggle-line-height: 2px;
 $header-toggle-line-gap: 6px;
 $header-toggle-color: $primary-color;
 $header-toggle-hover-color: $primary-button-hover-color;
-$header-toggle-transition-duration: 0.3s;
+$header-toggle-transition-duration: $hover-transition-duration;
+$header-logo-size: 48px;
+$header-logo-container-size: 66px;
+$header-logo-background-color: $white;
+$header-content-gap: 12px;
+$header-menu-gap: 30px;
+$header-menu-font-size: $font-size;
+$header-menu-color: $font-color;
+$header-menu-hover-color: $primary-color;
+$header-menu-link-height: $button-height;
+$header-menu-link-padding-inline: $button-padding-inline;
+$header-menu-link-border-radius: 12px;
+$header-menu-font-weight: 600;
+$header-menu-link-background-color: $white;
 
 /* Sidebar **/
 $sidebar-width: 300px;
+$sidebar-border-color: color.change($font-color, $alpha: 0.08);
+$sidebar-active-color: $primary-button-hover-color;
+$sidebar-active-background-color: color.scale($primary-color, $lightness: 88%);
+$sidebar-brand-height: $header-height;
+$sidebar-brand-size: $header-logo-size;
+$sidebar-navigation-offset: 24px;
 $sidebar-mobile-offset: $header-height;
 $sidebar-z-index: 10;
 $sidebar-background-color: $white;
@@ -94,17 +117,36 @@ $sidebar-link-color: $font-color;
 $sidebar-link-hover-color: $font-color;
 $sidebar-link-icon-color: $primary-color;
 $sidebar-link-hover-background-color: #f6d3d1;
+$header-menu-link-hover-background-color: $sidebar-link-hover-background-color;
 $sidebar-link-height: 42px;
 $sidebar-link-padding-inline: 6px;
 $sidebar-link-border-radius: 6px;
 $sidebar-link-font-size: $font-size;
 $sidebar-link-margin-botton: 18px;
-$sidebar-link-transition-duration: 0.3s;
+$sidebar-link-transition-duration: $hover-transition-duration;
 $side-bar-link-font-weigth: 600;
 $sidebar-group-gap: 30px;
 $sidebar-link-row-gap: 6px;
 $sidebar-separator-font-weight: 600;
 $sidebar-footer-padding-top: 30px;
+
+/* User menu **/
+$user-menu-background-color: $white;
+$user-menu-color: $font-color;
+$user-menu-icon-color: $primary-color;
+$user-menu-hover-background-color: $sidebar-link-hover-background-color;
+$user-menu-border-radius: 12px;
+$user-menu-padding: 6px;
+$user-menu-min-width: 180px;
+$user-menu-item-height: $button-height;
+$user-menu-item-padding-inline: $button-padding-inline;
+$user-menu-font-size: $font-size;
+$user-menu-font-weight: 600;
+$user-menu-profile-padding: 18px;
+$user-menu-profile-gap: 12px;
+$user-menu-profile-avatar-size: 60px;
+$user-menu-divider-color: color.change($font-color, $alpha: 0.12);
+$user-menu-shadow: 0 6px 18px color.change($font-color, $alpha: 0.12);
 
 /* Breakpoints **/
 $breakpoint-md: 768px;

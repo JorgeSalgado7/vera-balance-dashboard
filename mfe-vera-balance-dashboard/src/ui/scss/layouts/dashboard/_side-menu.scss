@@ -21,11 +21,31 @@
 	}
 
 	@media(min-width: theme.$breakpoint-md){
-		visibility: visible;
 		top: 0;
 		left: 0;
-		padding: theme.$sidebar-padding-block-desktop theme.$sidebar-padding-inline;
 		height: 100vh;
+		visibility: visible;
+		padding-top: 0;
+		border-right: 1px solid theme.$sidebar-border-color;
+	}
+
+	&__brand {
+		display: none;
+		flex-shrink: 0;
+		align-items: center;
+		justify-content: center;
+		height: theme.$sidebar-brand-height;
+		margin-bottom: theme.$sidebar-navigation-offset;
+
+		@media(min-width: theme.$breakpoint-md) {
+			display: flex;
+		}
+
+		img {
+			width: theme.$sidebar-brand-size;
+			height: theme.$sidebar-brand-size;
+			object-fit: contain;
+		}
 	}
 
 	&__navigation {
@@ -43,6 +63,10 @@
 	&__footer {
 		margin-top: auto;
 		padding-top: theme.$sidebar-footer-padding-top;
+
+		@media(min-width: theme.$breakpoint-md) {
+			border-top: 1px solid theme.$sidebar-border-color;
+		}
 	}
 
 	&__separator {
@@ -52,6 +76,11 @@
 		font-size: theme.$sidebar-separator-font-size;
 		margin-bottom: theme.$sidebar-separator-margin-bottom;
 		font-weight: theme.$sidebar-separator-font-weight;
+
+		@media(min-width: theme.$breakpoint-md) {
+			border-color: theme.$sidebar-border-color;
+			color: theme.$input-border-color;
+		}
 	}
 
 	&__link {
@@ -63,6 +92,10 @@
 		transition: color theme.$sidebar-link-transition-duration, background-color theme.$sidebar-link-transition-duration;
 		padding: 0 theme.$sidebar-link-padding-inline;
 		border-radius: theme.$sidebar-link-border-radius;
+		border: 0;
+		background: transparent;
+		text-align: left;
+		cursor: pointer;
 
 		&--icon,
 		&--icon *,
@@ -87,6 +120,19 @@
 		&:focus-visible {
 			background-color: theme.$sidebar-link-hover-background-color;
 			color: theme.$sidebar-link-hover-color;
+		}
+
+		&--active {
+			&,
+			&:hover,
+			&:focus-visible {
+				background-color: theme.$sidebar-active-background-color;
+				color: theme.$sidebar-link-color;
+			}
+
+			.vb-side-menu__link--icon {
+				color: theme.$sidebar-link-icon-color;
+			}
 		}
 
 	}

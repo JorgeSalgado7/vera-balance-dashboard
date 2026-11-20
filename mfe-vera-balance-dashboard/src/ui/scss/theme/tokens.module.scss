@@ -1,6 +1,7 @@
 @use './theme';
 
 :export {
+  hoverTransitionDuration: theme.$hover-transition-duration;
   primary: theme.$primary-color;
   error: theme.$error-color;
   fontFamily: theme.$poppins;

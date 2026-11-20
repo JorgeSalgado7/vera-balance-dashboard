@@ -1,6 +1,12 @@
-import { Button } from 'antd'
+//* INTERFACES
+import type { LoginI } from './interfaces/login.interface'
+
+//* LOGIN
+import { useLogin } from '../hooks/use-login'
+
+import { Alert, Button } from 'antd'
 import { AuthLayout } from '../../../layouts/auth/AuthLayout'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../../../store/hooks'
 import { setEmail, setPassword, setEmailError, setPasswordError, setEmailErrorMessage, setPasswordErrorMessage } from '../application/store/login/login.slice'
 import { isEmail } from '../../../shared/validations/is-email'
@@ -8,7 +14,9 @@ import { locales } from '../../../locales'
 import { VBInputEmail } from '../../../ui/components/inputs/VBInputEmail'
 import { VBInputPassword } from '../../../ui/components/inputs/VBInputPassword'
 
-export const Login = () => {
+export const Login = ({ loginUseCase }: LoginI) => {
+  const navigate = useNavigate()
+  const { submitLogin, pending, error } = useLogin(loginUseCase)
   const dispatch = useAppDispatch()
   const { email, password, emailError, passwordError, emailErrorMessage, passwordErrorMessage } = useAppSelector(state => state.login)
   const login = locales.auth.login
@@ -31,9 +39,13 @@ export const Login = () => {
       {/** TITLE */}
       <h3>{login.title}</h3>
 
+      {/** LOGIN ERROR */}
+      {error && <Alert type="error" title={error} showIcon role="alert" />}
+
 				{/** EMAIL */}
 				<VBInputEmail
 					value={email}
+          disabled={pending}
 					setValue={value => {
 						dispatch(setEmail(value))
 						validateEmail(value)
@@ -47,6 +59,7 @@ export const Login = () => {
 				{/** PASSWORD */}
 				<VBInputPassword
 					value={password}
+          disabled={pending}
 					setValue={value => {
 						dispatch(setPassword(value))
 						validatePassword(value)
@@ -62,7 +75,11 @@ export const Login = () => {
 					block 
 					className="vb-auth__login--login" 
 					type="primary" 
-					disabled={emailError || passwordError}
+					disabled={emailError || passwordError || pending}
+          loading={pending}
+          onClick={async () => {
+            if (await submitLogin({ email, password })) navigate('/dashboard', { replace: true })
+          }}
 
 				>
 					{login.login}

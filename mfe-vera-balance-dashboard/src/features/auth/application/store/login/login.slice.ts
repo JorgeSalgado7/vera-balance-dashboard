@@ -5,6 +5,9 @@ const loginSlice = createSlice({
   name: 'auth/login',
   initialState: loginInitialState,
   reducers: {
+    resetLogin() {
+      return loginInitialState
+    },
     setPassword(state, action: PayloadAction<string>) {
       state.password = action.payload
     },
@@ -26,5 +29,5 @@ const loginSlice = createSlice({
   },
 })
 
-export const { setEmail, setPassword, setEmailError, setPasswordError, setEmailErrorMessage, setPasswordErrorMessage } = loginSlice.actions
+export const { resetLogin, setEmail, setPassword, setEmailError, setPasswordError, setEmailErrorMessage, setPasswordErrorMessage } = loginSlice.actions
 export const loginReducer = loginSlice.reducer

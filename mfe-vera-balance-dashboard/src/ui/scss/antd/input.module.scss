@@ -1,6 +1,7 @@
 @use '../theme/theme';
 
 input:not(.ant-input) {
+  transition: border-color theme.$hover-transition-duration;
   width: 100%;
   font-size: theme.$font-size;
   line-height: theme.$input-line-height;

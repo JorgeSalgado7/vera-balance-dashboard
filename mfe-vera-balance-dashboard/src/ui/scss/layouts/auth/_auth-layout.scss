@@ -92,6 +92,7 @@
 }
 
 .vb-auth__link {
+  transition: color theme.$hover-transition-duration;
   display: block;
   margin-top: map.get(theme.$spacing, 18);
   color: theme.$primary-color;

@@ -1,0 +1,112 @@
+@use '../../theme/theme';
+
+.vb-user-menu {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: theme.$header-avatar-size;
+  height: theme.$header-avatar-size;
+  margin-left: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background-color: theme.$header-avatar-background-color;
+  color: theme.$header-avatar-color;
+  font-size: theme.$header-avatar-font-size;
+  font-weight: theme.$header-avatar-font-weight;
+  cursor: pointer;
+  transition: background-color theme.$hover-transition-duration;
+
+  &:hover {
+    background-color: theme.$primary-button-hover-color;
+  }
+
+  &:focus-visible {
+    outline: 2px solid theme.$primary-color;
+    outline-offset: 2px;
+  }
+}
+
+.vb-user-menu__popup.ant-dropdown {
+  .vb-user-menu__panel {
+    min-width: theme.$user-menu-min-width;
+    border-radius: theme.$user-menu-border-radius;
+    background-color: theme.$user-menu-background-color;
+    box-shadow: theme.$user-menu-shadow;
+    overflow: hidden;
+  }
+
+  .vb-user-menu__profile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: theme.$user-menu-profile-gap;
+    padding: theme.$user-menu-profile-padding;
+  }
+
+  .vb-user-menu__profile-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: theme.$user-menu-profile-avatar-size;
+    height: theme.$user-menu-profile-avatar-size;
+    border-radius: 50%;
+    background-color: theme.$header-avatar-background-color;
+    color: theme.$header-avatar-color;
+    font-size: theme.$user-menu-font-size;
+    font-weight: theme.$user-menu-font-weight;
+  }
+
+  .vb-user-menu__name {
+    margin: 0;
+    color: theme.$user-menu-color;
+    font-size: theme.$user-menu-font-size;
+    font-weight: theme.$user-menu-font-weight;
+    text-align: center;
+  }
+
+  .vb-user-menu__separator {
+    border-top: 1px solid theme.$user-menu-divider-color;
+  }
+
+  .vb-user-menu__menu {
+    box-shadow: none;
+    min-width: theme.$user-menu-min-width;
+    padding: theme.$user-menu-padding;
+    border-radius: theme.$user-menu-border-radius;
+    background-color: theme.$user-menu-background-color;
+
+    .vb-user-menu__item {
+      min-height: theme.$user-menu-item-height;
+      padding-inline: theme.$user-menu-item-padding-inline;
+      border-radius: theme.$user-menu-border-radius;
+      color: theme.$user-menu-color;
+      font-size: theme.$user-menu-font-size;
+      font-weight: theme.$user-menu-font-weight;
+      transition: color theme.$hover-transition-duration, background-color theme.$hover-transition-duration;
+
+      &:hover,
+      &:focus-visible,
+      &.ant-dropdown-menu-item-active {
+        background-color: theme.$user-menu-hover-background-color;
+      }
+
+      .ant-dropdown-menu-title-content,
+      a {
+        color: inherit;
+        font-size: inherit;
+        font-weight: inherit;
+      }
+
+      .vb-user-menu__icon {
+        color: theme.$user-menu-icon-color;
+        font-size: theme.$user-menu-font-size;
+
+        * {
+          color: inherit;
+        }
+      }
+    }
+  }
+}

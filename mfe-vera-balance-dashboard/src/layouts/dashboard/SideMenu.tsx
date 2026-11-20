@@ -2,43 +2,51 @@
 import type { SideMenuI } from './interfaces/side-menu.interface'
 
 //* REACT ROUTER
-import { Link } from "react-router-dom"
-
-//* ANT DESIGN
-import { Button } from 'antd'
+import { Link, NavLink } from "react-router-dom"
 
 //* ICONS
 import { AppstoreOutlined, SolutionOutlined, TeamOutlined, UserOutlined, QuestionCircleOutlined, LogoutOutlined } from '@ant-design/icons'
+
+//* SESSION
+import { useLogout } from '../../features/auth/hooks/use-logout'
 
 //* LOCALES
 import { locales } from '../../locales'
 
 export const SideMenu = ({ isOpen }: SideMenuI) => {
   const menu = locales.dashboard.sideMenu
+  const logout = useLogout()
 
   return (
     <aside id="dashboard-side-menu" className={`vb-side-menu ${isOpen ? ' vb-side-menu--open' : ''}`}>
+      {/** BRAND */}
+      <Link className="vb-side-menu__brand" to="/dashboard" aria-label={menu.dashboard}>
+        <img src="/Logo.svg" alt={locales.auth.login.logoAlt} />
+      </Link>
+
+      {/** NAVIGATION */}
       <nav className="vb-side-menu__navigation" aria-label={menu.navigation}>
 
         {/** DASHBOARD */}
         <section className="vb-side-menu__group" aria-label={menu.dashboard}>
           <div className="vb-side-menu__separator">{menu.dashboard}</div>
-          <Link className="vb-side-menu__link" to="/dashboard">
+          <NavLink className={({ isActive }) => `vb-side-menu__link${isActive ? ' vb-side-menu__link--active' : ''}`} to="/dashboard" end aria-label={menu.dashboard}>
             <AppstoreOutlined className="vb-side-menu__link--icon" />
             <span className="vb-side-menu__link--text">{menu.dashboard}</span>
-          </Link>
+          </NavLink>
         </section>
 
 
-        {/** THERAPEUTIC PROCESS */}
-        <section className="vb-side-menu__group" aria-label={menu.therapeuticProcess}>
-          <div className="vb-side-menu__separator">{menu.therapeuticProcess}</div>
-          <Link className="vb-side-menu__link" to="/">
+        {/** FOLLOW-UP */}
+        <section className="vb-side-menu__group" aria-label={menu.followUp}>
+          <div className="vb-side-menu__separator">{menu.followUp}</div>
+          {/** THERAPEUTIC PROCESS */}
+          <Link className="vb-side-menu__link" to="" aria-label={menu.therapeuticProcess}>
             <SolutionOutlined className="vb-side-menu__link--icon" />
             <span className="vb-side-menu__link--text">{menu.therapeuticProcess}</span>
           </Link>
           {/** PATIENTS */}
-          <Link className="vb-side-menu__link" to="">
+          <Link className="vb-side-menu__link" to="" aria-label={menu.patients}>
             <TeamOutlined className="vb-side-menu__link--icon" />
             <span className="vb-side-menu__link--text">{menu.patients}</span>
           </Link>
@@ -50,12 +58,12 @@ export const SideMenu = ({ isOpen }: SideMenuI) => {
           <div className="vb-side-menu__separator">{menu.settings}</div>
 
           {/** MY PROFILE */}
-          <Link className="vb-side-menu__link" to="">
+          <Link className="vb-side-menu__link" to="" aria-label={menu.profile}>
             <UserOutlined className="vb-side-menu__link--icon" />
             <span className="vb-side-menu__link--text">{menu.profile}</span>
           </Link>
           {/** HELP */}
-          <Link className="vb-side-menu__link" to="">
+          <Link className="vb-side-menu__link" to="" aria-label={menu.help}>
             <QuestionCircleOutlined className="vb-side-menu__link--icon" />
             <span className="vb-side-menu__link--text">{menu.help}</span>
           </Link>
@@ -64,9 +72,10 @@ export const SideMenu = ({ isOpen }: SideMenuI) => {
 
       {/** LOGOUT */}
       <div className="vb-side-menu__footer">
-        <Button block type="primary" icon={<LogoutOutlined />}>
-          {menu.logout}
-        </Button>
+        <button type="button" className="vb-side-menu__link" onClick={logout} aria-label={menu.logout}>
+          <LogoutOutlined className="vb-side-menu__link--icon" />
+          <span className="vb-side-menu__link--text">{menu.logout}</span>
+        </button>
       </div>
     </aside>
   )

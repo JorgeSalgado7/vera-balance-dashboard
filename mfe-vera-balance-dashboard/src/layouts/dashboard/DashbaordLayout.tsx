@@ -21,7 +21,10 @@ export const DashbaordLayout = ({children}: DashboardLayoutI) => {
         <Header isOpen={isOpen} setOpen={setOpen} />
 
         {/** CONTENT */}
-				{children}
+				<div className="vb-container">
+					{children}
+				</div>
+
 			</main>
 			
 		</div>

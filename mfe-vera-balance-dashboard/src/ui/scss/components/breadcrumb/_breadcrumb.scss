@@ -1,0 +1,45 @@
+@use '../../theme/theme';
+
+.vb-breadcrumb {
+  display: flex;
+  flex-direction: column;
+  gap: theme.$breadcrumb-gap;
+  margin: 0;
+  padding: theme.$breadcrumb-padding-block 0;
+
+  @media (min-width: theme.$breakpoint-md) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__welcome {
+    min-width: 0;
+    margin: 0;
+    font-size: theme.$breadcrumb-heading-font-size;
+    font-weight: theme.$breadcrumb-heading-font-weight;
+    overflow-wrap: anywhere;
+
+    > span {
+      font-size: inherit;
+      font-weight: inherit;
+    }
+  }
+
+  &__greeting {
+    color: theme.$breadcrumb-greeting-color;
+  }
+
+  &__name {
+    color: theme.$breadcrumb-muted-color;
+  }
+
+  &__navigation {
+    flex-shrink: 0;
+  }
+
+  &__route {
+    color: theme.$breadcrumb-route-color;
+    font-size: theme.$breadcrumb-route-font-size;
+  }
+}

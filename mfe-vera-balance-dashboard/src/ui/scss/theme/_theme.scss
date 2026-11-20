@@ -50,6 +50,16 @@ $font-weight: 400;
 $heading-font-weight: 700;
 $label-weight: 500;
 
+/* Breadcrumb **/
+$breadcrumb-heading-font-size: $main-title-size;
+$breadcrumb-heading-font-weight: $heading-font-weight;
+$breadcrumb-route-font-size: $h3-font-size;
+$breadcrumb-greeting-color: $font-color;
+$breadcrumb-muted-color: $input-border-color;
+$breadcrumb-route-color: $primary-color;
+$breadcrumb-gap: 18px;
+$breadcrumb-padding-block: 60px;
+
 /* Dashboard header **/
 $header-height: 60px;
 $header-background-color: $background-color;

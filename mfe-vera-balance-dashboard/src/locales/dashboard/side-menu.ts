@@ -5,6 +5,7 @@ export const sideMenu = {
   therapeuticProcess: 'Proceso terapéutico',
   patients: 'Pacientes',
   settings: 'Configuración',
+  clinic: 'Mi clínica',
   profile: 'Mi perfil',
   help: 'Ayuda',
   logout: 'Cerrar sesión',

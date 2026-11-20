@@ -2,7 +2,6 @@ export class ClinicEntity {
   pk!: string
   sk: 'CLINIC' = 'CLINIC'
   name!: string
-  logo!: string | null
   address!: string
   phone_number!: string
   therapy_types!: string[]

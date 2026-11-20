@@ -9,21 +9,34 @@ describe('CreateTherapyTypeUseCase', () => {
     jest.spyOn(Date, 'now').mockReturnValue(1794445200000)
   })
   afterEach(() => jest.restoreAllMocks())
-  it('creates the documented keys, timestamps and defaults absent icon to null', async () => {
+  it('creates the documented keys, timestamps and assigns the default Ant Design icon', async () => {
     repository.create.mockImplementation(async value => value)
     const uc = new CreateTherapyTypeUseCase(new CreateTherapyTypeDomainService(), repository)
     const result = await uc.execute({ name: `  ${entity.name}  ` })
     expect(result.id).toMatch(/^[0-9a-f-]{36}$/)
-    expect(result.icon).toBeNull()
+    expect(result.icon).toBe('UserOutlined')
     expect(result.created_at).toBe('2026-11-12T01:00:00.000Z')
     expect(Date.now).toHaveBeenCalledTimes(1)
     expect(result.updated_at).toBe(result.created_at)
-    expect(repository.create).toHaveBeenCalledWith({ ...entity, pk: result.id, gsi1sk: `THERAPY_TYPE#${result.id}`, created_at: result.created_at, updated_at: result.updated_at })
+    expect(repository.create).toHaveBeenCalledWith({ ...entity, icon: 'UserOutlined', pk: result.id, gsi1sk: `THERAPY_TYPE#${result.id}`, created_at: result.created_at, updated_at: result.updated_at })
     expect(result).not.toHaveProperty('pk')
   })
   it('preserves a supplied icon', async () => {
     repository.create.mockImplementation(async value => value)
     const uc = new CreateTherapyTypeUseCase(new CreateTherapyTypeDomainService(), repository)
     expect((await uc.execute({ name: 'Pareja', icon: 'couple' })).icon).toBe('couple')
+  })
+  it.each([
+    ['Individual', 'UserOutlined'], ['Pareja', 'HeartOutlined'],
+    ['Familiar', 'TeamOutlined'], ['Infantil', 'SmileOutlined'],
+  ])('assigns %s its stable icon when icon is null', async (name, icon) => {
+    repository.create.mockImplementation(async value => value)
+    const uc = new CreateTherapyTypeUseCase(new CreateTherapyTypeDomainService(), repository)
+    expect((await uc.execute({ name, icon: null })).icon).toBe(icon)
+  })
+  it('keeps null for other types without an icon', async () => {
+    repository.create.mockImplementation(async value => value)
+    const uc = new CreateTherapyTypeUseCase(new CreateTherapyTypeDomainService(), repository)
+    expect((await uc.execute({ name: 'Otra terapia' })).icon).toBeNull()
   })
 })

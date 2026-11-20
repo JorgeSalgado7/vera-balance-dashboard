@@ -5,8 +5,8 @@ import { ValidateCreateClinicDomainService } from './validate-create-clinic.doma
 export class UpdateClinicDomainService {
   constructor(private readonly validator: ValidateCreateClinicDomainService) {}
 
-  execute(entity: ClinicEntity, input: Partial<Pick<ClinicEntity, 'name' | 'logo' | 'address' | 'phone_number' | 'therapy_types' | 'status'>>) {
-    const allowed = ['name', 'logo', 'address', 'phone_number', 'therapy_types', 'status'] as const
+  execute(entity: ClinicEntity, input: Partial<Pick<ClinicEntity, 'name' | 'address' | 'phone_number' | 'therapy_types' | 'status'>>) {
+    const allowed = ['name', 'address', 'phone_number', 'therapy_types', 'status'] as const
     if (!input || typeof input !== 'object' || Array.isArray(input)) throw new EmptyClinicUpdateError()
     const invalid = Object.keys(input).filter(field => !allowed.includes(field as typeof allowed[number]))
     if (invalid.length) throw new InvalidClinicUpdateFieldsError(invalid)

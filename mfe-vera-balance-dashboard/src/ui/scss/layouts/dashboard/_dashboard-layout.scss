@@ -5,7 +5,7 @@
 	min-height: 100vh;
 	position: absolute;
 
-	@media(min-width: theme.$breakpoint-md) {
+	@media(min-width: theme.$breakpoint-lg) {
 		position: relative;
 	}
 
@@ -14,7 +14,7 @@
 		min-height: 100vh;
 		background-color: theme.$background-color;
 
-		@media(min-width: theme.$breakpoint-md) {
+		@media(min-width: theme.$breakpoint-lg) {
 			margin-left: theme.$sidebar-width;
 			width: calc(100% - #{theme.$sidebar-width});
 		}

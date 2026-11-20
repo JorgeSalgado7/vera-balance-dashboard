@@ -1,16 +1,18 @@
-import { Alert, Button } from 'antd'
+import { Button } from 'antd'
 import { Link, useNavigate } from 'react-router-dom'
 import { AuthLayout } from '../../../layouts/auth/AuthLayout'
 import { locales } from '../../../locales'
 import { VBInputEmail } from '../../../ui/components/inputs/VBInputEmail'
-import type { RequestPasswordRecoveryUseCase } from '../application/use-cases/request-password-recovery.use-case'
+import type { PasswordRecoveryI } from './interfaces/password-recovery.interface'
+import { usePublishAlert } from '../../../shared/hooks/use-publish-alert'
 import { useRequestPasswordRecovery } from '../hooks/use-request-password-recovery'
 
-export const PasswordRecovery = ({ requestRecovery }: { requestRecovery: RequestPasswordRecoveryUseCase }) => {
+export const PasswordRecovery = ({ requestRecovery }: PasswordRecoveryI) => {
   
 	const recovery = useRequestPasswordRecovery(requestRecovery)
   const navigate = useNavigate()
   const texts = locales.auth.passwordRecovery
+  usePublishAlert('auth-recovery', recovery.error, 'error')
 
   return (
 
@@ -21,15 +23,7 @@ export const PasswordRecovery = ({ requestRecovery }: { requestRecovery: Request
         <h3>{texts.title}</h3>
         <p>{texts.description}</p>
 
-        {
-					recovery.error && 
-					<Alert 
-						type="error" 
-						title={recovery.error} 
-						showIcon 
-						role="alert" 
-					/>
-				}
+
         
 				{/** EMAIL */}
 				<VBInputEmail

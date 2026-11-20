@@ -1,23 +1,9 @@
-//* REDUX
-import { useAppSelector } from '../../../store/hooks'
-
 //* LAYOUT
-import { DashbaordLayout } from "../../../layouts/dashboard/DashbaordLayout"
-
-//* COMPONENTS
-import { Breadcrumb } from '../../../ui/components/breadcrumb/Breadcrumb'
+import { DashbaordLayout } from '../../../layouts/dashboard/DashbaordLayout'
 
 //* LOCALES
 import { locales } from '../../../locales'
 
-export const Dashboard = () => {
-  const userName = useAppSelector(state => state.session.user?.name)
-  return (
-    <DashbaordLayout>
-
-      {/** BREADCRUMB */}
-      <Breadcrumb userName={userName} pageTitle={locales.dashboard.sideMenu.dashboard} />
-    
-		</DashbaordLayout>
-  )
-}
+export const Dashboard = () => (
+  <DashbaordLayout pageTitle={locales.dashboard.sideMenu.dashboard} />
+)

@@ -1,3 +1,4 @@
 export interface DashboardLayoutI {
-	children: React.ReactNode
+  children?: React.ReactNode
+  pageTitle: string
 }

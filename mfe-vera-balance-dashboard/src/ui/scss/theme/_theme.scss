@@ -35,6 +35,13 @@ $input-border-width: 1px;
 $input-padding-block: ($input-height - $input-line-height - 2 * $input-border-width) * 0.5;
 $input-padding-inline: 12px;
 $input-border-radius: 6px;
+$input-disabled-background-color: color.scale($input-border-color, $lightness: 96%);
+$input-disabled-border-color: color.scale($input-border-color, $lightness: 80%);
+$input-disabled-text-color: $input-border-color;
+
+/* Alert **/
+$alert-padding-block: 30px;
+$alert-padding-inline: 12px;
 
 /* Card **/
 $card-padding: 18px;
@@ -66,9 +73,11 @@ $breadcrumb-padding-block: 60px;
 
 /* Dashboard header **/
 $header-height: 90px;
+$header-mobile-height: 60px;
 $header-background-color: $background-color;
 $header-mobile-background-color: $white;
 $header-z-index: 20;
+$alerts-z-index: $header-z-index - 1;
 $header-avatar-size: 42px;
 $header-avatar-background-color: $primary-color;
 $header-avatar-color: $white;
@@ -103,7 +112,7 @@ $sidebar-active-background-color: color.scale($primary-color, $lightness: 88%);
 $sidebar-brand-height: $header-height;
 $sidebar-brand-size: $header-logo-size;
 $sidebar-navigation-offset: 24px;
-$sidebar-mobile-offset: $header-height;
+$sidebar-mobile-offset: $header-mobile-height;
 $sidebar-z-index: 10;
 $sidebar-background-color: $white;
 $sidebar-padding-block: 30px;
@@ -147,6 +156,26 @@ $user-menu-profile-gap: 12px;
 $user-menu-profile-avatar-size: 60px;
 $user-menu-divider-color: color.change($font-color, $alpha: 0.12);
 $user-menu-shadow: 0 6px 18px color.change($font-color, $alpha: 0.12);
+
+/* Clinic detail **/
+$clinic-detail-gap: 24px;
+$clinic-detail-field-gap: 18px;
+$clinic-detail-border-color: color.change($font-color, $alpha: 0.08);
+$clinic-therapy-icon-size: 72px;
+$clinic-therapy-tile-colors: (
+  (background: color.scale($primary-color, $lightness: 85%), foreground: $primary-button-hover-color),
+  (background: color.scale($secondary-color, $lightness: 45%), foreground: $tertiary-alt-color),
+  (background: color.scale($tertiary-color, $lightness: 85%), foreground: color.scale($tertiary-color, $lightness: -30%)),
+  (background: color.scale($tertiary-alt-color, $lightness: 85%), foreground: $tertiary-alt-color)
+);
+$clinic-therapy-background-color: $background-color;
+$clinic-therapist-avatar-size: 72px;
+$clinic-therapist-avatar-background-color: $primary-color;
+$clinic-therapist-avatar-color: $white;
+$clinic-status-active-color: color.scale($tertiary-color, $lightness: -35%);
+$clinic-status-active-background-color: color.scale($tertiary-color, $lightness: 88%);
+$clinic-status-inactive-color: $error-color;
+$clinic-status-inactive-background-color: color.scale($error-color, $lightness: 88%);
 
 /* Breakpoints **/
 $breakpoint-md: 768px;

@@ -1,3 +1,4 @@
+import { alertsReducer } from './alerts/alerts.slice'
 import { configureStore, createListenerMiddleware } from '@reduxjs/toolkit'
 import { sessionReducer, setSession, clearSession } from '../features/auth/application/store/session/session.slice'
 import { loginReducer } from '../features/auth/application/store/login/login.slice'
@@ -26,6 +27,7 @@ sessionListener.startListening({
 
 export const store = configureStore({
   reducer: {
+    alerts: alertsReducer,
     login: loginReducer,
     session: sessionReducer,
   },

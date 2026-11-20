@@ -1,6 +1,6 @@
 import { ClinicEntity } from '../../../domain/entities/clinic.entity'
 const clinic = () => Object.assign(new ClinicEntity(), {
-  pk: 'clinic-id', gsi1sk: 'CLINIC#clinic-id', name: 'Clínica', logo: null, address: 'Centro',
+  pk: 'clinic-id', gsi1sk: 'CLINIC#clinic-id', name: 'Clínica', address: 'Centro',
   phone_number: '555', therapy_types: ['therapy-id'], status: 'Activo',
   created_at: '2026-01-01T00:00:00.000Z', updated_at: '2026-01-01T00:00:00.000Z',
 })

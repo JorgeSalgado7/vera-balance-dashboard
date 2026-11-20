@@ -5,10 +5,11 @@
   top: 0;
   z-index: theme.$header-z-index;
   width: 100%;
-  height: theme.$header-height;
+  height: theme.$header-mobile-height;
   background-color: theme.$header-mobile-background-color;
 
-  @media (min-width: theme.$breakpoint-md) {
+  @media (min-width: theme.$breakpoint-lg) {
+    height: theme.$header-height;
     background-color: theme.$header-background-color;
   }
 
@@ -31,7 +32,7 @@
     justify-self: start;
     margin-right: auto;
 
-    @media (min-width: theme.$breakpoint-md) {
+    @media (min-width: theme.$breakpoint-lg) {
       display: flex;
     }
 
@@ -56,7 +57,7 @@
     background: transparent;
     cursor: pointer;
 
-    @media (min-width: theme.$breakpoint-md) {
+    @media (min-width: theme.$breakpoint-lg) {
       display: none;
     }
 

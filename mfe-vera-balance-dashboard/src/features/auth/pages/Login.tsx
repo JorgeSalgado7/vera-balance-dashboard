@@ -1,10 +1,13 @@
 //* INTERFACES
 import type { LoginI } from './interfaces/login.interface'
 
+//* ALERTS
+import { usePublishAlert } from '../../../shared/hooks/use-publish-alert'
+
 //* LOGIN
 import { useLogin } from '../hooks/use-login'
 
-import { Alert, Button } from 'antd'
+import { Button } from 'antd'
 import { AuthLayout } from '../../../layouts/auth/AuthLayout'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../../../store/hooks'
@@ -20,6 +23,7 @@ export const Login = ({ loginUseCase }: LoginI) => {
   const dispatch = useAppDispatch()
   const { email, password, emailError, passwordError, emailErrorMessage, passwordErrorMessage } = useAppSelector(state => state.login)
   const login = locales.auth.login
+  usePublishAlert('auth-login', error, 'error')
 
   const validateEmail = (value: string) => {
     const errorMessage = !value.trim() ? login.email.required : !isEmail(value) ? login.email.invalid : ''
@@ -38,9 +42,6 @@ export const Login = ({ loginUseCase }: LoginI) => {
     <div className="vb-auth__login">
       {/** TITLE */}
       <h3>{login.title}</h3>
-
-      {/** LOGIN ERROR */}
-      {error && <Alert type="error" title={error} showIcon role="alert" />}
 
 				{/** EMAIL */}
 				<VBInputEmail

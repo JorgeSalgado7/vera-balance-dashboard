@@ -1,0 +1,5 @@
+@use '../theme/theme';
+
+:export {
+  padding: theme.$alert-padding-block theme.$alert-padding-inline;
+}

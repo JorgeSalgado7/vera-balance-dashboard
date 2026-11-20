@@ -414,7 +414,13 @@ paths:
       - Clinics
       operationId: createClinic
       summary: Crear clínica
-      description: Acceso exclusivo de admin.
+      description: >-
+        Acceso exclusivo de admin. Crea la clínica y asigna automáticamente los tipos
+        Individual, Pareja, Familiar e Infantil. Reutiliza los tipos globales existentes
+        por nombre exacto y crea los faltantes con su nombre de icono de Ant Design. Corrige los iconos de
+        los predeterminados existentes cuando difieren de los definidos. No requiere enviar
+        therapy_types; los IDs adicionales enviados se agregan a los predeterminados
+        sin repetir IDs. Si falla la preparación de los tipos, no se guarda la clínica.
       requestBody:
         required: true
         content:
@@ -1689,6 +1695,9 @@ components:
         name:
           type: string
         icon:
+          description: >-
+            Nombre del icono de Ant Design. Predeterminados: Individual=UserOutlined,
+            Pareja=HeartOutlined, Familiar=TeamOutlined, Infantil=SmileOutlined.
           type:
           - string
           - 'null'
@@ -1708,6 +1717,9 @@ components:
         name:
           type: string
         icon:
+          description: >-
+            Nombre del icono de Ant Design. Predeterminados: Individual=UserOutlined,
+            Pareja=HeartOutlined, Familiar=TeamOutlined, Infantil=SmileOutlined.
           type:
           - string
           - 'null'
@@ -1719,6 +1731,10 @@ components:
         name:
           type: string
         icon:
+          description: >-
+            Nombre del icono de Ant Design. Si se omite o es null para un tipo
+            predeterminado, se usa UserOutlined (Individual), HeartOutlined (Pareja),
+            TeamOutlined (Familiar) o SmileOutlined (Infantil). Otros tipos conservan null.
           type:
           - string
           - 'null'
@@ -1737,7 +1753,6 @@ components:
       required:
       - id
       - name
-      - logo
       - address
       - phone_number
       - therapy_types
@@ -1749,10 +1764,6 @@ components:
           $ref: '#/components/schemas/UUID'
         name:
           type: string
-        logo:
-          type:
-          - string
-          - 'null'
         address:
           type: string
         phone_number:
@@ -1773,20 +1784,19 @@ components:
       - name
       - address
       - phone_number
-      - therapy_types
       - status
       properties:
         name:
           type: string
-        logo:
-          type:
-          - string
-          - 'null'
         address:
           type: string
         phone_number:
           type: string
         therapy_types:
+          description: >-
+            IDs adicionales de tipos de terapia existentes. Es opcional; si se omite
+            o se envía una lista vacía, se asignan Individual, Pareja, Familiar e Infantil.
+            Los predeterminados también se incluyen cuando se envían IDs adicionales.
           type: array
           uniqueItems: true
           items:
@@ -1799,10 +1809,6 @@ components:
       properties:
         name:
           type: string
-        logo:
-          type:
-          - string
-          - 'null'
         address:
           type: string
         phone_number:

@@ -6,6 +6,7 @@
 //** COMPONETS */
 @use './components/inputs/input';
 @use './components/breadcrumb/breadcrumb';
+@use './components/alerts/alerts';
 
 //** AUTH LAYOUTS */
 @use './layouts/auth/auth-layout';
@@ -19,3 +20,5 @@
 
 //** EAUTURES */
 @use '../../features/auth/scss/auth';
+
+@use '../../features/clinics/scss/clinics';

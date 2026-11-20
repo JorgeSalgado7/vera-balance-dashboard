@@ -4,6 +4,7 @@ import { FindTherapyTypesByIdsDynamooseAdapter } from './infrastructure/persista
 import { UpdateTherapyTypeDomainService } from './domain/services/update-therapy-type.domain-service'
 import type { ITherapyTypeRepository } from './domain/repositories/therapy-type.repository'
 import { Module } from '@nestjs/common'
+import { EnsureDefaultTherapyTypesUseCase } from './application/use-cases/ensure-default-therapy-types.use-case'
 import { CreateTherapyTypeDomainService } from './domain/services/create-therapy-type.domain-service'
 import { CreateTherapyTypeUseCase } from './application/use-cases/create-therapy-type.use-case'
 import { CreateTherapyTypeController } from './presentation/http/controllers/create-therapy-type.controller'
@@ -54,10 +55,11 @@ import { DeleteTherapyTypeDynamooseAdapter } from './infrastructure/persistance/
     },
     CreateTherapyTypeUseCase,
     GetTherapyTypesUseCase,
+    EnsureDefaultTherapyTypesUseCase,
     GetTherapyTypeByIdUseCase,
     UpdateTherapyTypeUseCase,
     DeleteTherapyTypeUseCase,
   ],
-  exports: [FindTherapyTypesByIdsUseCase, GetTherapyTypeByIdUseCase],
+  exports: [FindTherapyTypesByIdsUseCase, GetTherapyTypeByIdUseCase, EnsureDefaultTherapyTypesUseCase],
 })
 export class TherapyTypesModule {}

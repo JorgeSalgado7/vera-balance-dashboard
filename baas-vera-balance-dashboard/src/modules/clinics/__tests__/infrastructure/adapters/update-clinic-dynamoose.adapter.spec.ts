@@ -1,5 +1,5 @@
 import { ClinicEntity } from '../../../domain/entities/clinic.entity'
-const clinic = () => Object.assign(new ClinicEntity(), { pk: 'clinic-id', sk: 'CLINIC', name: 'Clínica', logo: null,
+const clinic = () => Object.assign(new ClinicEntity(), { pk: 'clinic-id', sk: 'CLINIC', name: 'Clínica',
   address: 'Centro', phone_number: '555', therapy_types: [], status: 'Activo', gsi1pk: 'CLINIC', gsi1sk: 'CLINIC#clinic-id',
   created_at: '2026-01-01T00:00:00.000Z', updated_at: '2026-01-01T00:00:00.000Z' })
 import { UpdateClinicDynamooseAdapter } from '../../../infrastructure/persistance/adapters/update-clinic-dynamoose.adapter'
@@ -11,9 +11,9 @@ describe('UpdateClinicDynamooseAdapter', () => {
   const adapter = new UpdateClinicDynamooseAdapter()
   beforeEach(() => jest.resetAllMocks())
   it('writes only the supplied mutable fields and the new timestamp', async () => {
-    model.update.mockResolvedValue({ ...clinic(), logo: null, updated_at: 'new' })
-    expect((await adapter.update(clinic(), { logo: null }, 'new')).logo).toBeNull()
-    expect(model.update).toHaveBeenCalledWith({ pk: 'clinic-id', sk: 'CLINIC' }, { $SET: { logo: null, updated_at: 'new' } }, expect.objectContaining({ returnValues: 'ALL_NEW' }))
+    model.update.mockResolvedValue({ ...clinic(), address: 'Nueva dirección', updated_at: 'new' })
+    expect((await adapter.update(clinic(), { address: 'Nueva dirección' }, 'new')).address).toBe('Nueva dirección')
+    expect(model.update).toHaveBeenCalledWith({ pk: 'clinic-id', sk: 'CLINIC' }, { $SET: { address: 'Nueva dirección', updated_at: 'new' } }, expect.objectContaining({ returnValues: 'ALL_NEW' }))
   })
   it.each([true, false])('distinguishes a concurrent update from a removed clinic (exists=%s)', async exists => {
     model.update.mockRejectedValue(Object.assign(new Error(), { name: 'ConditionalCheckFailedException' }))

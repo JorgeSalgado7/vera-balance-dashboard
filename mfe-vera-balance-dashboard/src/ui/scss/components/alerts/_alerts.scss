@@ -1,0 +1,19 @@
+@use 'sass:map';
+@use '../../theme/theme';
+
+.vb-alerts {
+  position: sticky;
+  top: theme.$header-mobile-height;
+  z-index: theme.$alerts-z-index;
+  display: grid;
+  gap: map.get(theme.$spacing, 12);
+  margin-bottom: map.get(theme.$spacing, 18);
+
+  @media (min-width: theme.$breakpoint-lg) {
+    top: theme.$header-height;
+  }
+}
+
+.vb-auth .vb-alerts {
+  top: 0;
+}

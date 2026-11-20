@@ -100,6 +100,14 @@ Proceso terapéutico
 
 ## 4. Tipos de terapia
 
+Al crear una clínica, el backend asigna automáticamente `Individual`, `Pareja`, `Familiar` e `Infantil`. El frontend no necesita crearlos ni enviar sus IDs para dar de alta la clínica.
+
+Los tipos son globales: se reutilizan los que ya existan con esos nombres exactos y se crean los faltantes con sus iconos de Ant Design. Los nombres de icono se almacenan como strings: `Individual` → `UserOutlined`, `Pareja` → `HeartOutlined`, `Familiar` → `TeamOutlined` e `Infantil` → `SmileOutlined`. Al preparar estos tipos, se corrige el icono de los existentes si no coincide, conservando sus IDs. Si el request incluye IDs adicionales en `therapy_types`, deben existir y se agregan a los cuatro predeterminados sin repetir IDs. Omitir `therapy_types` o enviar `[]` también asigna los cuatro predeterminados.
+
+Al crear directamente un tipo predeterminado sin icono o con `icon: null`, el backend también asigna su icono de Ant Design.
+
+La respuesta de creación incluye todos los tipos asignados con su `id`, `name` e `icon`. Si falla la preparación de los tipos, no se guarda la clínica; los tipos globales creados previamente se conservan para reutilizarlos. Este comportamiento se aplica a nuevas clínicas y no modifica las ya existentes ni impide editar posteriormente sus tipos mediante PATCH.
+
 ### 4.1 Terapia individual
 
 La terapia individual contempla **un solo paciente por proceso terapéutico**.

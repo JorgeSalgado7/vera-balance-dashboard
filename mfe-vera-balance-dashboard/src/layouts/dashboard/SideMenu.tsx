@@ -5,7 +5,10 @@ import type { SideMenuI } from './interfaces/side-menu.interface'
 import { Link, NavLink } from "react-router-dom"
 
 //* ICONS
-import { AppstoreOutlined, SolutionOutlined, TeamOutlined, UserOutlined, QuestionCircleOutlined, LogoutOutlined } from '@ant-design/icons'
+import { BankOutlined, AppstoreOutlined, SolutionOutlined, TeamOutlined, UserOutlined, QuestionCircleOutlined, LogoutOutlined } from '@ant-design/icons'
+
+//* REDUX
+import { useAppSelector } from '../../store/hooks'
 
 //* SESSION
 import { useLogout } from '../../features/auth/hooks/use-logout'
@@ -16,6 +19,7 @@ import { locales } from '../../locales'
 export const SideMenu = ({ isOpen }: SideMenuI) => {
   const menu = locales.dashboard.sideMenu
   const logout = useLogout()
+  const user = useAppSelector(state => state.session.user)
 
   return (
     <aside id="dashboard-side-menu" className={`vb-side-menu ${isOpen ? ' vb-side-menu--open' : ''}`}>
@@ -56,6 +60,14 @@ export const SideMenu = ({ isOpen }: SideMenuI) => {
         {/** SETTINGS */}
         <section className="vb-side-menu__group" aria-label={menu.settings}>
           <div className="vb-side-menu__separator">{menu.settings}</div>
+
+          {/** MY CLINIC */}
+          {(user?.role === 'clinic' || user?.role === 'therapist') && (
+            <NavLink className={({ isActive }) => `vb-side-menu__link${isActive ? ' vb-side-menu__link--active' : ''}`} to={user.clinic ? `/clinic-detail/${encodeURIComponent(user.clinic)}` : '/clinic-detail'} aria-label={menu.clinic}>
+              <BankOutlined className="vb-side-menu__link--icon" />
+              <span className="vb-side-menu__link--text">{menu.clinic}</span>
+            </NavLink>
+          )}
 
           {/** MY PROFILE */}
           <Link className="vb-side-menu__link" to="" aria-label={menu.profile}>

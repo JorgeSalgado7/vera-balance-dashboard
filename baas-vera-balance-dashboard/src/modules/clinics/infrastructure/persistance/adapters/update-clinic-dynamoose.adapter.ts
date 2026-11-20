@@ -14,7 +14,7 @@ export class UpdateClinicDynamooseAdapter implements Pick<IClinicRepository, 'up
   async update(entity: ClinicEntity, changes: UpdateClinicDto, updatedAt: string): Promise<ClinicEntity> {
     const key = { pk: entity.pk, sk: 'CLINIC' }
     const set: Record<string, unknown> = { updated_at: updatedAt }
-    for (const field of ['name', 'logo', 'address', 'phone_number', 'therapy_types', 'status'] as const) {
+    for (const field of ['name', 'address', 'phone_number', 'therapy_types', 'status'] as const) {
       if (changes[field] !== undefined) set[field] = changes[field]
     }
     const condition = new Condition().where('pk').exists().and().where('updated_at').eq(entity.updated_at)

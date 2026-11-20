@@ -1,0 +1,243 @@
+@use 'sass:map';
+@use 'sass:list';
+@use '../../../ui/scss/theme/theme';
+
+.vb-clinics {
+  display: grid;
+  gap: theme.$clinic-detail-gap;
+  padding-bottom: map.get(theme.$spacing, 30);
+
+  &__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: theme.$clinic-detail-gap;
+
+    @media (min-width: theme.$breakpoint-xl) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  &__information,
+  &__therapies,
+  &__therapists,
+  &__therapist-card {
+    min-width: 0;
+
+    > .ant-card-body {
+      display: grid;
+      gap: theme.$clinic-detail-field-gap;
+    }
+
+    h2,
+    h3 {
+      margin: 0;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  &__information-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: map.get(theme.$spacing, 12);
+
+    h2 {
+      min-width: 0;
+    }
+  }
+
+  &__edit-toggle.ant-btn {
+    flex-shrink: 0;
+    color: theme.$primary-color;
+
+    &:hover:not(:disabled) {
+      color: theme.$primary-button-hover-color;
+    }
+  }
+
+  &__fields {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: theme.$clinic-detail-field-gap;
+  }
+
+  &__therapy-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: theme.$clinic-detail-field-gap;
+  }
+
+  &__therapy-tile {
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    min-width: 0;
+    gap: map.get(theme.$spacing, 12);
+    padding: map.get(theme.$spacing, 18) map.get(theme.$spacing, 12);
+    border: 1px solid theme.$clinic-detail-border-color;
+    border-radius: theme.$card-border-radius;
+    background-color: theme.$clinic-therapy-background-color;
+    text-align: center;
+
+    @each $colors in theme.$clinic-therapy-tile-colors {
+      $index: list.index(theme.$clinic-therapy-tile-colors, $colors);
+
+      &:nth-child(4n + #{$index}) {
+        background-color: map.get($colors, background);
+
+        .vb-clinics__therapy-icon {
+          color: map.get($colors, foreground);
+        }
+      }
+    }
+
+    h3 {
+      font-size: theme.$font-size;
+    }
+  }
+
+  &__therapy-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: theme.$clinic-therapy-icon-size;
+    color: theme.$primary-color;
+
+    .anticon,
+    svg {
+      font-size: inherit;
+    }
+
+    * {
+      color: inherit;
+    }
+
+    img {
+      width: 1em;
+      height: 1em;
+      object-fit: contain;
+    }
+  }
+
+  &__therapists {
+    display: grid;
+    grid-column: 1 / -1;
+    gap: theme.$clinic-detail-gap;
+  }
+
+  &__therapist-list {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: (theme.$clinic-therapist-avatar-size * 0.5 + theme.$clinic-detail-gap) theme.$clinic-detail-gap;
+    padding-top: theme.$clinic-therapist-avatar-size * 0.5;
+
+    @media (min-width: theme.$breakpoint-xl) {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  &__therapist-card {
+    position: relative;
+    overflow: visible;
+  }
+
+  &__therapist-edit.ant-btn {
+    position: absolute;
+    top: map.get(theme.$spacing, 12);
+    right: map.get(theme.$spacing, 12);
+  }
+
+  &__therapist-avatar {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: theme.$clinic-therapist-avatar-size;
+    height: theme.$clinic-therapist-avatar-size;
+    border-radius: 50%;
+    background-color: theme.$clinic-therapist-avatar-background-color;
+    color: theme.$clinic-therapist-avatar-color;
+    font-size: theme.$h3-font-size;
+    font-weight: theme.$heading-font-weight;
+  }
+
+  &__therapist-heading {
+    display: grid;
+    justify-items: center;
+    gap: map.get(theme.$spacing, 12);
+    padding-top: theme.$clinic-therapist-avatar-size * 0.5;
+    text-align: center;
+
+    h3 {
+      width: 100%;
+      padding-bottom: map.get(theme.$spacing, 12);
+      border-bottom: 1px solid theme.$primary-color;
+    }
+  }
+
+  &__therapist-chips {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: map.get(theme.$spacing, 12);
+    width: 100%;
+  }
+
+  &__chip-select.ant-select {
+    flex: 1 1 0;
+    min-width: 0;
+    height: theme.$input-height;
+    text-align: left;
+  }
+
+  &__role.ant-tag {
+    background-color: theme.$clinic-therapy-background-color;
+    color: theme.$primary-color;
+  }
+
+  &__role.ant-tag,
+  &__status.ant-tag {
+    margin: 0;
+    padding: map.get(theme.$spacing, 6) map.get(theme.$spacing, 12);
+    border: 0;
+    border-radius: theme.$input-border-radius;
+    font-weight: theme.$heading-font-weight;
+
+    &.vb-clinics__status--active {
+      background-color: theme.$clinic-status-active-background-color;
+      color: theme.$clinic-status-active-color;
+    }
+
+    &.vb-clinics__status--inactive {
+      background-color: theme.$clinic-status-inactive-background-color;
+      color: theme.$clinic-status-inactive-color;
+    }
+  }
+
+  &__therapist-information {
+    display: grid;
+    min-width: 0;
+    gap: map.get(theme.$spacing, 18);
+    margin: 0;
+
+    dt {
+      color: theme.$input-border-color;
+      font-size: theme.$small-font-size;
+      font-weight: theme.$label-weight;
+    }
+
+    dd {
+      margin: 0;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  &__loading {
+    display: grid;
+    place-items: center;
+    padding: map.get(theme.$spacing, 24);
+  }
+}

@@ -5,11 +5,11 @@ export class CreateClinicDomainService {
   constructor(private readonly validator: ValidateCreateClinicDomainService) {}
 
   create(data: {
-    id: string, name: string, logo: string | null, address: string, phone_number: string,
+    id: string, name: string, address: string, phone_number: string,
     therapy_types: string[], status: ClinicEntity['status'], created_at: string, updated_at: string,
   }): ClinicEntity {
     const entity = Object.assign(new ClinicEntity(), {
-      pk: data.id, name: data.name, logo: data.logo, address: data.address, phone_number: data.phone_number,
+      pk: data.id, name: data.name, address: data.address, phone_number: data.phone_number,
       therapy_types: data.therapy_types, status: data.status, gsi1sk: `CLINIC#${data.id}`,
       created_at: data.created_at, updated_at: data.updated_at,
     })

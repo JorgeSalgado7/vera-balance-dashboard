@@ -1,11 +1,10 @@
 import { Item } from 'dynamoose/dist/Item'
-import { Schema, model, type as dynamooseType } from 'dynamoose'
+import { Schema, model } from 'dynamoose'
 
 export class ClinicItem extends Item {
   pk!: string
   sk!: 'CLINIC'
   name!: string
-  logo!: string | null
   address!: string
   phone_number!: string
   therapy_types!: string[]
@@ -22,7 +21,6 @@ const ClinicSchema = new Schema({
   gsi1pk: { type: String, index: { name: 'GSI1', rangeKey: 'gsi1sk', project: true } },
   gsi1sk: { type: String },
   name: { type: String, required: true },
-  logo: { type: [String, dynamooseType.NULL] },
   address: { type: String, required: true },
   phone_number: { type: String, required: true },
   therapy_types: { type: Array, schema: [String], required: true },

@@ -3,6 +3,7 @@ import tokens from '../scss/theme/tokens.module.scss'
 import inputTokens from '../scss/antd/input.module.scss'
 import cardTokens from '../scss/antd/card.module.scss'
 import buttonTokens from '../scss/antd/button.module.scss'
+import alertTokens from '../scss/antd/alert.module.scss'
 
 const screenMD = Number.parseFloat(tokens.breakpointMD)
 const screenLG = Number.parseFloat(tokens.breakpointLG)
@@ -34,6 +35,10 @@ export const antTheme: ThemeConfig = {
     screenXLMin: screenXL,
   },
   components: {
+    Alert: {
+      defaultPadding: alertTokens.padding,
+      withDescriptionPadding: alertTokens.padding,
+    },
     Button: {
       controlHeight: Number.parseFloat(buttonTokens.height),
       paddingBlock: Number.parseFloat(buttonTokens.paddingBlock),
@@ -43,6 +48,9 @@ export const antTheme: ThemeConfig = {
       colorPrimaryHover: buttonTokens.primaryHoverColor,
     },
     Input: {
+      colorBgContainerDisabled: inputTokens.disabledBackground,
+      colorBorderDisabled: inputTokens.disabledBorder,
+      colorTextDisabled: inputTokens.disabledText,
       lineHeight: Number.parseFloat(inputTokens.inputLineHeight) / Number.parseFloat(inputTokens.fontSize),
       lineHeightLG: Number.parseFloat(inputTokens.inputLineHeight) / Number.parseFloat(inputTokens.fontSize),
       lineWidth: Number.parseFloat(inputTokens.inputBorderWidth),

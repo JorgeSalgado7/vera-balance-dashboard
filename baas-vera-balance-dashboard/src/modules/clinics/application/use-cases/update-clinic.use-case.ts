@@ -21,7 +21,6 @@ export class UpdateClinicUseCase {
     return {
       id: saved.pk,
       name: saved.name,
-      logo: saved.logo,
       address: saved.address,
       phone_number: saved.phone_number,
       therapy_types: therapyTypes,

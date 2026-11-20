@@ -7,9 +7,6 @@ export class UpdateClinicResponseDto {
   @ApiProperty()
   name!: string
 
-  @ApiProperty({ type: String, nullable: true })
-  logo!: string | null
-
   @ApiProperty()
   address!: string
 

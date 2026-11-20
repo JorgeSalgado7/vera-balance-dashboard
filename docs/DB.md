@@ -74,13 +74,25 @@ created_at: datetime
 updated_at: datetime
 ```
 
+Los tipos de terapia son globales y pueden compartirse entre clínicas. Al crear una clínica, el backend consulta los tipos mediante `Query GSI1` y reutiliza los que tengan los nombres exactos `Individual`, `Pareja`, `Familiar` e `Infantil`. Crea los faltantes como items `THERAPY_TYPE` con UUID generado, el nombre de icono de Ant Design correspondiente y fechas ISO UTC, utilizando la estructura existente. No se añaden tablas, índices ni items auxiliares.
+
+Los iconos predeterminados se guardan como strings en `icon`; no se almacenan componentes React ni URLs de imágenes:
+
+| Tipo | Icono de Ant Design |
+|---|---|
+| Individual | `UserOutlined` |
+| Pareja | `HeartOutlined` |
+| Familiar | `TeamOutlined` |
+| Infantil | `SmileOutlined` |
+
+Al crear directamente uno de estos tipos, omitir `icon` o enviar `null` también aplica su icono predeterminado. Para otros tipos el icono puede seguir siendo `null`.
+
 ## 3. Clinics
 
 ```text
 pk: string -> uuid
 sk: string -> 'CLINIC'
 name: string
-logo: string | null
 address: string
 phone_number: string
 therapy_types: TherapyTypes[String] -> solo uuid
@@ -90,6 +102,10 @@ gsi1sk: string -> 'CLINIC#' + clinic UUID
 created_at: datetime
 updated_at: datetime
 ```
+
+La creación de una clínica asigna automáticamente los UUID de los cuatro tipos predeterminados. `therapy_types` es opcional en el request de creación: los UUID adicionales enviados se validan y agregan a los predeterminados, sin duplicar UUID. En DynamoDB se almacenan únicamente los UUID; las respuestas HTTP desglosan `id`, `name` e `icon`.
+
+La clínica se guarda después de preparar todos sus tipos de terapia. Si la preparación falla, no se guarda la clínica. Los tipos globales que ya se hayan creado se conservan y pueden reutilizarse en una solicitud posterior. Esta preparación conserva los UUID de los tipos existentes y corrige su icono cuando no coincide con el predeterminado. No actualiza automáticamente las clínicas ya registradas. Las actualizaciones de clínicas conservan la selección explícita enviada mediante PATCH.
 
 ## 4. Patients
 

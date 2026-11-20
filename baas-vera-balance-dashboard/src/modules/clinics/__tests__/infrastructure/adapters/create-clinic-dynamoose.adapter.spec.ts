@@ -1,5 +1,5 @@
 import { ClinicEntity } from '../../../domain/entities/clinic.entity'
-const clinic = () => Object.assign(new ClinicEntity(), { pk: 'clinic-id', sk: 'CLINIC', name: 'Clínica', logo: null,
+const clinic = () => Object.assign(new ClinicEntity(), { pk: 'clinic-id', sk: 'CLINIC', name: 'Clínica',
   address: 'Centro', phone_number: '555', therapy_types: [], status: 'Activo', gsi1pk: 'CLINIC', gsi1sk: 'CLINIC#clinic-id',
   created_at: '2026-01-01T00:00:00.000Z', updated_at: '2026-01-01T00:00:00.000Z' })
 import { CreateClinicDynamooseAdapter } from '../../../infrastructure/persistance/adapters/create-clinic-dynamoose.adapter'

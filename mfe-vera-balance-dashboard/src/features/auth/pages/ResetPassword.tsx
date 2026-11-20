@@ -1,4 +1,5 @@
-import { Alert, Button } from 'antd'
+import { usePublishAlert } from '../../../shared/hooks/use-publish-alert'
+import { Button } from 'antd'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { AuthLayout } from '../../../layouts/auth/AuthLayout'
 import { locales } from '../../../locales'
@@ -18,6 +19,10 @@ export const ResetPassword = ({ requestRecovery, resetPassword }: ResetPasswordI
   const reset = useResetPassword(resetPassword, recovery.email)
   const texts = locales.auth.passwordRecovery
   const pending = recovery.pending || reset.pending
+  usePublishAlert('auth-reset-success', reset.message, 'success')
+  usePublishAlert('auth-reset-error', reset.error, 'error')
+  usePublishAlert('auth-reset-recovery-error', recovery.error, 'error')
+  usePublishAlert('auth-reset-recovery-info', reset.succeeded ? '' : recovery.message, 'info')
 
   if (recovery.emailError) return <Navigate to="/forgot-password" replace />
 
@@ -26,7 +31,7 @@ export const ResetPassword = ({ requestRecovery, resetPassword }: ResetPasswordI
       {reset.succeeded ? (
         <div className="vb-auth__recovery">
           <h3>{texts.successTitle}</h3>
-          <Alert type="success" title={reset.message} showIcon role="status" />
+
         </div>
       ) : (
         <div className="vb-auth__recovery">
@@ -41,8 +46,7 @@ export const ResetPassword = ({ requestRecovery, resetPassword }: ResetPasswordI
             hasError={recovery.emailError}
             errorMessage={recovery.emailErrorMessage}
           />
-          {recovery.message && <Alert type="info" title={recovery.message} showIcon role="status" />}
-          {(reset.error || recovery.error) && <Alert type="error" title={reset.error || recovery.error} showIcon role="alert" />}
+
           <VBInputText
             value={reset.code} setValue={reset.changeCode} disabled={pending} autoComplete="one-time-code"
             label={texts.code.label} placeholder={texts.code.placeholder}

@@ -20,11 +20,6 @@ export class UpdateClinicDto {
   @IsNotEmpty({ message: 'El campo «teléfono» es obligatorio y no puede estar vacío.' })
   phone_number?: string
 
-  @ApiPropertyOptional({ type: String, nullable: true })
-  @ValidateIf((_, value) => value !== undefined && value !== null)
-  @IsString({ message: 'El logo debe ser un texto o null.' })
-  logo?: string | null
-
   @ApiPropertyOptional({ type: [String], uniqueItems: true })
   @ValidateIf((_, value) => value !== undefined)
   @IsArray({ message: 'El campo «tipos de terapia» es obligatorio y debe ser una lista.' })

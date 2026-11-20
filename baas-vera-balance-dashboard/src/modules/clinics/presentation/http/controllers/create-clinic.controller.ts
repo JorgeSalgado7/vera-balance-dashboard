@@ -12,7 +12,8 @@ export class CreateClinicController {
 
   @Post()
   @HttpCode(201)
-  @ApiOperation({ operationId: 'createClinic', summary: 'Crear clínica' })
+  @ApiOperation({ operationId: 'createClinic', summary: 'Crear clínica',
+    description: 'Crea la clínica y asigna Individual, Pareja, Familiar e Infantil. Reutiliza los tipos existentes y crea los faltantes y establece sus iconos predeterminados de Ant Design. No es necesario enviar therapy_types.' })
   @ApiBody({ type: CreateClinicDto })
   @ApiResponse({ status: 201, type: CreateClinicResponseDto })
   @ApiResponse({ status: 400 })

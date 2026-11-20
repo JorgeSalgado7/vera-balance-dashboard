@@ -29,4 +29,7 @@ input:not(.ant-input) {
   inputBorderWidth: theme.$input-border-width;
   inputPaddingInline: theme.$input-padding-inline;
   inputBorderRadius: theme.$input-border-radius;
+  disabledBackground: theme.$input-disabled-background-color;
+  disabledBorder: theme.$input-disabled-border-color;
+  disabledText: theme.$input-disabled-text-color;
 }

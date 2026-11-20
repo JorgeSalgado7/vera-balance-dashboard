@@ -1,4 +1,5 @@
 import { Card } from 'antd'
+import { GlobalAlerts } from '../../ui/components/alerts/GlobalAlerts'
 import type { AuthLayoutI } from './interfaces/auth-layout.interface'
 import { locales } from '../../locales'
 
@@ -14,7 +15,13 @@ export const AuthLayout = ({ children }: AuthLayoutI) => (
       </div>
 
 			{/** FORM */}
-      <Card>{children}</Card>
+      <Card>
+        {/** ALERTS */}
+        <GlobalAlerts />
+
+        {/** PAGE CONTENT */}
+        {children}
+      </Card>
 
     </div>
 

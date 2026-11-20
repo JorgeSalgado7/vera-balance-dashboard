@@ -6,6 +6,7 @@ import { RequestPasswordRecoveryUseCase } from '../features/auth/application/use
 import { ResetPasswordUseCase } from '../features/auth/application/use-cases/reset-password.use-case'
 import { RequestPasswordRecoveryAdapter } from '../features/auth/infrastructure/adapters/request-password-recovery.adapter'
 import { ResetPasswordAdapter } from '../features/auth/infrastructure/adapters/reset-password.adapter'
+import { Dashboard } from '../features/dashboard/pages/Dashboard'
 
 const requestRecovery = new RequestPasswordRecoveryUseCase(new RequestPasswordRecoveryAdapter())
 const resetPassword = new ResetPasswordUseCase(new ResetPasswordAdapter())
@@ -20,7 +21,8 @@ export const PageRouter = () => (
       <Route path="/reset-password" element={<ResetPassword requestRecovery={requestRecovery} resetPassword={resetPassword} />} />
     
 			{/** AUTH */}
-		
+			<Route path="/dashboard" element={<Dashboard />} />
+
 		</Routes>
   </BrowserRouter>
 )

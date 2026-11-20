@@ -2,9 +2,18 @@
 @use './theme/fonts';
 @use './theme/spacing';
 @use './theme/container';
+
+//** COMPONETS */
 @use './components/inputs/input';
-@use './layouts/auth-layout';
+
+//** AUTH LAYOUTS */
+@use './layouts/auth/auth-layout';
+
+//** DASHBOARD LAYOUTS */
+@use './layouts/dashboard/dashboard-layout';
+@use './layouts/dashboard/side-menu';
+@use './layouts/dashboard/header';
 
 
-//Features
+//** EAUTURES */
 @use '../../features/auth/scss/auth';

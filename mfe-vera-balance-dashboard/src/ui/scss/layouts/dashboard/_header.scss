@@ -1,0 +1,93 @@
+@use '../../theme/theme';
+
+.vb-header {
+  position: sticky;
+  top: 0;
+  z-index: theme.$header-z-index;
+  width: 100%;
+  height: theme.$header-height;
+  background-color: theme.$header-mobile-background-color;
+
+  @media (min-width: theme.$breakpoint-md) {
+    background-color: theme.$header-background-color;
+  }
+
+  > .vb-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__toggle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: theme.$header-toggle-line-gap;
+    width: theme.$header-toggle-size;
+    height: theme.$header-toggle-size;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+
+    @media (min-width: theme.$breakpoint-md) {
+      display: none;
+    }
+
+    &:focus-visible {
+      outline: 2px solid theme.$header-toggle-color;
+      outline-offset: 2px;
+    }
+
+    &:hover .vb-header__toggle-line {
+      background-color: theme.$header-toggle-hover-color;
+    }
+  }
+
+  &__toggle-line {
+    display: block;
+    width: theme.$header-toggle-line-width;
+    height: theme.$header-toggle-line-height;
+    border-radius: theme.$header-toggle-line-height;
+    background-color: theme.$header-toggle-color;
+    transition: transform theme.$header-toggle-transition-duration,
+      opacity theme.$header-toggle-transition-duration,
+      background-color theme.$header-toggle-transition-duration;
+  }
+
+  &__toggle--open {
+    .vb-header__toggle-line:first-child {
+      transform: translateY(theme.$header-toggle-line-height + theme.$header-toggle-line-gap) rotate(45deg);
+    }
+
+    .vb-header__toggle-line:nth-child(2) {
+      opacity: 0;
+    }
+
+    .vb-header__toggle-line:last-child {
+      transform: translateY((theme.$header-toggle-line-height + theme.$header-toggle-line-gap) * -1) rotate(-45deg);
+    }
+  }
+
+  &__avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: theme.$header-avatar-size;
+    height: theme.$header-avatar-size;
+    margin-left: auto;
+    border-radius: 50%;
+    background-color: theme.$header-avatar-background-color;
+    color: theme.$header-avatar-color;
+    font-size: theme.$header-avatar-font-size;
+    font-weight: theme.$header-avatar-font-weight;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &__toggle-line {
+      transition: none;
+    }
+  }
+}

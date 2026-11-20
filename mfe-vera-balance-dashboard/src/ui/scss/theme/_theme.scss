@@ -50,6 +50,52 @@ $font-weight: 400;
 $heading-font-weight: 700;
 $label-weight: 500;
 
+/* Dashboard header **/
+$header-height: 60px;
+$header-background-color: $background-color;
+$header-mobile-background-color: $white;
+$header-z-index: 20;
+$header-avatar-size: 42px;
+$header-avatar-background-color: $primary-color;
+$header-avatar-color: $white;
+$header-avatar-font-size: $font-size;
+$header-avatar-font-weight: $heading-font-weight;
+$header-toggle-size: 42px;
+$header-toggle-line-width: 24px;
+$header-toggle-line-height: 2px;
+$header-toggle-line-gap: 6px;
+$header-toggle-color: $primary-color;
+$header-toggle-hover-color: $primary-button-hover-color;
+$header-toggle-transition-duration: 0.3s;
+
+/* Sidebar **/
+$sidebar-width: 300px;
+$sidebar-mobile-offset: $header-height;
+$sidebar-z-index: 10;
+$sidebar-background-color: $white;
+$sidebar-padding-block: 30px;
+$sidebar-padding-block-desktop: 60px;
+$sidebar-padding-inline: 18px;
+$sidebar-separator-color: $primary-color;
+$sidebar-separator-border-width: 1px;
+$sidebar-separator-font-size: $small-font-size;
+$sidebar-separator-margin-bottom: 18px;
+$sidebar-link-color: $font-color;
+$sidebar-link-hover-color: $font-color;
+$sidebar-link-icon-color: $primary-color;
+$sidebar-link-hover-background-color: #f6d3d1;
+$sidebar-link-height: 42px;
+$sidebar-link-padding-inline: 6px;
+$sidebar-link-border-radius: 6px;
+$sidebar-link-font-size: $font-size;
+$sidebar-link-margin-botton: 18px;
+$sidebar-link-transition-duration: 0.3s;
+$side-bar-link-font-weigth: 600;
+$sidebar-group-gap: 30px;
+$sidebar-link-row-gap: 6px;
+$sidebar-separator-font-weight: 600;
+$sidebar-footer-padding-top: 30px;
+
 /* Breakpoints **/
 $breakpoint-md: 768px;
 $breakpoint-lg: 992px;

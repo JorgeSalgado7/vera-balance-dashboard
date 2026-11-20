@@ -1,0 +1,25 @@
+@use '../../theme/theme';
+
+.vb-dashboard-layout {
+	width: 100%;
+	min-height: 100vh;
+	position: absolute;
+
+	@media(min-width: theme.$breakpoint-md) {
+		position: relative;
+	}
+
+	&__main {
+		width: 100%;
+		min-height: 100vh;
+		background-color: theme.$background-color;
+		width: 100%;
+
+		@media(min-width: theme.$breakpoint-md) {
+			width: calc(100% - theme.$sidebar-width);
+			margin-left: theme.$sidebar-width;
+		}
+
+	}
+
+}

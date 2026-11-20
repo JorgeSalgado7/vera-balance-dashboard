@@ -1,0 +1,94 @@
+@use '../../theme/theme';
+
+.vb-side-menu {
+	display: flex;
+	flex-direction: column;
+	overflow-y: auto;
+	width: theme.$sidebar-width;
+	height: calc(100vh - theme.$sidebar-mobile-offset);
+	padding: theme.$sidebar-padding-block theme.$sidebar-padding-inline;
+	background-color: theme.$sidebar-background-color;
+	position: fixed;
+	z-index: theme.$sidebar-z-index;
+	top: theme.$sidebar-mobile-offset;
+	left: theme.$sidebar-width * -1;
+	visibility: hidden;
+	transition: left theme.$sidebar-link-transition-duration;
+
+	&--open {
+		left: 0;
+		visibility: visible;
+	}
+
+	@media(min-width: theme.$breakpoint-md){
+		visibility: visible;
+		top: 0;
+		left: 0;
+		padding: theme.$sidebar-padding-block-desktop theme.$sidebar-padding-inline;
+		height: 100vh;
+	}
+
+	&__navigation {
+		display: flex;
+		flex-direction: column;
+		gap: theme.$sidebar-group-gap;
+	}
+
+	&__group {
+		display: flex;
+		flex-direction: column;
+		gap: theme.$sidebar-link-row-gap;
+	}
+
+	&__footer {
+		margin-top: auto;
+		padding-top: theme.$sidebar-footer-padding-top;
+	}
+
+	&__separator {
+		width: 100%;
+		border-bottom: theme.$sidebar-separator-border-width solid theme.$sidebar-separator-color;
+		color: theme.$sidebar-separator-color;
+		font-size: theme.$sidebar-separator-font-size;
+		margin-bottom: theme.$sidebar-separator-margin-bottom;
+		font-weight: theme.$sidebar-separator-font-weight;
+	}
+
+	&__link {
+		width: 100%;
+		height: theme.$sidebar-link-height;
+		display: flex;
+		align-items: center;
+		color: theme.$sidebar-link-color;
+		transition: color theme.$sidebar-link-transition-duration, background-color theme.$sidebar-link-transition-duration;
+		padding: 0 theme.$sidebar-link-padding-inline;
+		border-radius: theme.$sidebar-link-border-radius;
+
+		&--icon,
+		&--icon *,
+		&--text {
+			color: inherit;
+		}
+
+		&--icon {
+			color: theme.$sidebar-link-icon-color;
+			flex-shrink: 0;
+			font-size: theme.$sidebar-link-font-size;
+		}
+
+		&--text {
+			min-width: 0;
+			font-size: theme.$sidebar-link-font-size;
+			margin-left: theme.$sidebar-link-margin-botton;
+			font-weight: theme.$side-bar-link-font-weigth;
+		}
+
+		&:hover,
+		&:focus-visible {
+			background-color: theme.$sidebar-link-hover-background-color;
+			color: theme.$sidebar-link-hover-color;
+		}
+
+	}
+
+}
